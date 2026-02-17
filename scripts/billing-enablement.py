@@ -240,8 +240,17 @@ def main():
                 return 0
             return 1
         
-        # Multiple accounts - let user choose
-        print(f"\n   Found {len(open_accounts)} billing accounts:")
+        # Multiple accounts - auto-select the first one (matches levels 2-5 behavior)
+        # Only fall back to manual selection if the auto-selected account fails
+        account = open_accounts[0]
+        print(f"   Found {len(open_accounts)} billing accounts")
+        print(f"   Auto-selecting: {account.display_name}")
+        if link_billing_account(billing_client, project_id, account):
+            print("✓ Billing configured successfully")
+            return 0
+        
+        # Auto-select failed - fall back to manual selection
+        print(f"\n   ⚠️  Failed to link '{account.display_name}'. Please select manually:")
         for i, acc in enumerate(open_accounts, 1):
             print(f"   {i}. {acc.display_name}")
         print()

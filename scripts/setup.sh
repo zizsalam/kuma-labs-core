@@ -59,94 +59,19 @@ fi
 echo -e "${GREEN}✓ Authenticated${NC}"
 
 # =============================================================================
-# Step 1: Find or Create Google Cloud Project
+# Step 1: Detect Google Cloud Project
 # =============================================================================
-PROJECT_FILE="$HOME/project_id.txt"
-PROJECT_ID=""
+echo "Detecting Google Cloud project..."
 
-# NEW START: Delete existing project file to ensure a clean state
-rm -f "$PROJECT_FILE"
+PROJECT_ID=$(gcloud config get-value project 2>/dev/null)
 
-# 1c. Interactive project creation if no project found
-if [ -z "$PROJECT_ID" ]; then
-    echo ""
-    echo -e "${YELLOW}Let's set a new project.${NC}"
-
-    CODELAB_PROJECT_PREFIX="waybackhome"
-    PREFIX_LEN=${#CODELAB_PROJECT_PREFIX}
-    MAX_SUFFIX_LEN=$(( 30 - PREFIX_LEN - 1 ))
-    RANDOM_SUFFIX=$(LC_ALL=C tr -dc 'a-z0-9' < /dev/urandom | head -c "$MAX_SUFFIX_LEN")
-    RANDOM_PROJECT_ID="${CODELAB_PROJECT_PREFIX}-${RANDOM_SUFFIX}"
-
-    echo -e "Creating project: ${CYAN}${RANDOM_PROJECT_ID}${NC}"
-
-    if gcloud projects create "$RANDOM_PROJECT_ID" --quiet; then
-        echo -e "${GREEN}✓ Successfully created project '$RANDOM_PROJECT_ID'.${NC}"
-        PROJECT_ID="$RANDOM_PROJECT_ID"
-    else
-        echo -e "${RED}Auto-creation failed. Falling back to manual selection.${NC}"
-        # Fallback: let user pick or retry
-        while true; do
-            RANDOM_SUFFIX=$(LC_ALL=C tr -dc 'a-z0-9' < /dev/urandom | head -c "$MAX_SUFFIX_LEN")
-            SUGGESTED_ID="${CODELAB_PROJECT_PREFIX}-${RANDOM_SUFFIX}"
-
-            echo ""
-            echo "Select a Project ID:"
-            echo "  1. Press Enter to CREATE a new project: $SUGGESTED_ID"
-            echo "  2. Or type an existing Project ID to use."
-            read -p "Project ID: " USER_INPUT
-
-            TARGET_ID="${USER_INPUT:-$SUGGESTED_ID}"
-
-            if [ -z "$TARGET_ID" ]; then
-                echo -e "${RED}Project ID cannot be empty.${NC}"
-                continue
-            fi
-
-            echo "Checking status of '$TARGET_ID'..."
-
-            if gcloud projects describe "$TARGET_ID" >/dev/null 2>&1; then
-                echo -e "${GREEN}✓ Project '$TARGET_ID' exists and is accessible.${NC}"
-                PROJECT_ID="$TARGET_ID"
-                break
-            else
-                echo "Project '$TARGET_ID' not found. Attempting to create..."
-                if gcloud projects create "$TARGET_ID" --quiet; then
-                    echo -e "${GREEN}✓ Successfully created project '$TARGET_ID'.${NC}"
-                    PROJECT_ID="$TARGET_ID"
-                    break
-                else
-                    echo -e "${RED}Failed to create '$TARGET_ID'. Please try a different ID.${NC}"
-                fi
-            fi
-        done
-    fi
-
-    gcloud config set project "$PROJECT_ID" --quiet || {
-        echo -e "${RED}Failed to set active project.${NC}"
-        exit 1
-    }
-fi
-
-# Save project ID for reuse across levels
-echo "$PROJECT_ID" > "$PROJECT_FILE"
-echo -e "Using project: ${CYAN}${PROJECT_ID}${NC}"
-
-# =============================================================================
-# Step 2: Check and Enable Billing (NEW!)
-# =============================================================================
-echo ""
-echo -e "${YELLOW}Checking billing configuration...${NC}"
-
-# Pre-install billing library (needed by billing-enablement.py)
-pip install --quiet --user google-cloud-billing 2>/dev/null || true
-
-# Run the billing enablement script
-if ! python3 "${SCRIPT_DIR}/billing-enablement.py"; then
-    echo ""
-    echo -e "${RED}Billing setup incomplete. Please configure billing and try again.${NC}"
+if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" == "(unset)" ]; then
+    echo -e "${RED}Error: No Google Cloud project configured.${NC}"
+    echo "Please run: gcloud config set project YOUR_PROJECT_ID"
     exit 1
 fi
+
+echo -e "Using project: ${CYAN}${PROJECT_ID}${NC}"
 
 # =============================================================================
 # Step 3: Enable Required APIs

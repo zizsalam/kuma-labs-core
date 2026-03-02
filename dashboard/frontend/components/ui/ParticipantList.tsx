@@ -269,15 +269,8 @@ export function EventStats() {
 
   if (!event) return null
 
-  // Count participants by level (derived from location_confirmed)
-  const levelCounts = participants.reduce((acc, p) => {
-    const level = getParticipantLevel(p)
-    acc[level] = (acc[level] || 0) + 1
-    return acc
-  }, {} as Record<number, number>)
-
-  // For now, "completed" means location_confirmed = true
-  const completedCount = levelCounts[1] || 0
+  // Count participants who have been located (location_confirmed = true)
+  const completedCount = participants.filter(p => p.location_confirmed).length
 
   return (
     <motion.div

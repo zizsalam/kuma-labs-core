@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuma Labs — Voice Infrastructure for Africa's Informal Economy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --black: #080808;
+  --green: #1D9E75;
+  --green-dim: rgba(29,158,117,0.12);
+  --green-glow: rgba(29,158,117,0.25);
+  --cream: #F5F0E8;
+  --white: #FAFAF8;
+  --mid: #888;
+  --border: rgba(255,255,255,0.08);
+  --border-light: rgba(0,0,0,0.08);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  font-size: 17px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ─────────────────────────────────────────────────────── */
+.cursor {
+  position: fixed;
+  width: 10px; height: 10px;
+  background: var(--green);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.15s ease, opacity 0.2s;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring {
+  position: fixed;
+  width: 36px; height: 36px;
+  border: 1px solid rgba(29,158,117,0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.35s ease, width 0.2s, height 0.2s, opacity 0.2s;
+  transform: translate(-50%, -50%);
+}
+.cursor-ring.hovered { width: 56px; height: 56px; border-color: var(--green); }
+
+/* ── NAV ───────────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.4rem 3rem;
+  transition: background 0.4s, border-color 0.4s;
+}
+nav.scrolled {
+  background: rgba(8,8,8,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 1.5rem;
+  letter-spacing: -0.02em; color: var(--white);
+  text-decoration: none;
+}
+.logo em { font-style: italic; color: var(--green); }
+nav ul { list-style: none; display: flex; gap: 2.5rem; align-items: center; }
+nav a { text-decoration: none; font-size: 0.85rem; font-weight: 400; color: rgba(255,255,255,0.55); letter-spacing: 0.04em; transition: color 0.2s; }
+nav a:hover { color: var(--white); }
+.nav-cta {
+  background: var(--green) !important;
+  color: var(--black) !important;
+  padding: 0.55rem 1.4rem;
+  border-radius: 100px;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em !important;
+  transition: opacity 0.2s !important;
+}
+.nav-cta:hover { opacity: 0.85; }
+
+/* ── HERO ──────────────────────────────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 10rem 3rem 5rem;
+  position: relative; overflow: hidden;
+}
+
+/* Background grid */
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+}
+
+/* Green radial glow */
+.hero-glow {
+  position: absolute;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(29,158,117,0.15) 0%, transparent 65%);
+  top: -100px; right: -150px;
+  pointer-events: none;
+}
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 2.2rem;
+  opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+}
+.hero-tag::before {
+  content: ''; display: block;
+  width: 32px; height: 1px; background: var(--green);
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(3.2rem, 7vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  max-width: 900px;
+  margin-bottom: 2rem;
+  opacity: 0; animation: fadeUp 0.9s 0.35s forwards;
+}
+.hero h1 .accent { color: var(--green); font-style: italic; }
+.hero h1 .outline {
+  -webkit-text-stroke: 1px rgba(255,255,255,0.25);
+  color: transparent;
+}
+
+.hero-sub {
+  font-size: 1.1rem; color: rgba(255,255,255,0.5);
+  max-width: 480px; line-height: 1.7; font-weight: 300;
+  margin-bottom: 3rem;
+  opacity: 0; animation: fadeUp 0.9s 0.5s forwards;
+}
+
+.hero-actions {
+  display: flex; gap: 1.2rem; align-items: center;
+  opacity: 0; animation: fadeUp 0.9s 0.65s forwards;
+}
+.btn-primary {
+  background: var(--green); color: var(--black);
+  padding: 1rem 2.2rem; border-radius: 100px;
+  text-decoration: none; font-weight: 500; font-size: 0.95rem;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(29,158,117,0.35); }
+.btn-ghost {
+  color: rgba(255,255,255,0.5); font-size: 0.88rem;
+  text-decoration: none; display: flex; align-items: center; gap: 0.4rem;
+  transition: color 0.2s;
+}
+.btn-ghost:hover { color: var(--white); }
+
+/* Waveform */
+.waveform {
+  position: absolute; bottom: 3rem; left: 0; right: 0;
+  opacity: 0; animation: fadeIn 1s 1.2s forwards;
+}
+.waveform svg { width: 100%; }
+.wave-bar {
+  transform-origin: center bottom;
+  animation: wave 1.8s ease-in-out infinite;
+}
+
+/* Wolof floating label */
+.wolof-float {
+  position: absolute; right: 3rem; top: 40%;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; color: rgba(255,255,255,0.2);
+  letter-spacing: 0.06em; text-align: right;
+  opacity: 0; animation: fadeIn 1.2s 1.5s forwards;
+}
+.wolof-float .wo { font-size: 1.4rem; color: rgba(29,158,117,0.4); display: block; font-family: 'Playfair Display', serif; }
+
+/* ── LIVE DEMO STRIP ───────────────────────────────────────────────────── */
+.demo-strip {
+  background: rgba(29,158,117,0.06);
+  border-top: 1px solid rgba(29,158,117,0.2);
+  border-bottom: 1px solid rgba(29,158,117,0.2);
+  padding: 2rem 3rem;
+  overflow: hidden;
+}
+.demo-inner {
+  display: flex; gap: 3rem; align-items: stretch;
+}
+.demo-transcript {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.4rem 1.6rem;
+}
+.demo-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 0.7rem;
+}
+.demo-phrase {
+  font-size: 1.05rem; color: rgba(255,255,255,0.85);
+  font-style: italic;
+}
+.demo-arrow {
+  display: flex; align-items: center; color: rgba(29,158,117,0.5);
+  font-size: 1.4rem;
+}
+.demo-result {
+  flex: 1;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(29,158,117,0.25);
+  border-radius: 12px;
+  padding: 1.4rem 1.6rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.9;
+}
+.json-key { color: rgba(159,225,203,0.8); }
+.json-val-str { color: #FAC775; }
+.json-val-num { color: #B5D4F4; }
+.json-val-bool { color: var(--green); }
+.json-brace { color: rgba(255,255,255,0.3); }
+
+/* ── SECTION BASE ──────────────────────────────────────────────────────── */
+section { padding: 7rem 3rem; }
+.section-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.8rem;
+}
+.section-tag::before { content: ''; width: 24px; height: 1px; background: var(--green); }
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.1; letter-spacing: -0.025em;
+  margin-bottom: 1.5rem;
+}
+.section-body {
+  color: rgba(255,255,255,0.5); font-size: 1.05rem;
+  line-height: 1.75; font-weight: 300; max-width: 520px;
+}
+
+/* ── INSIGHT SECTION ───────────────────────────────────────────────────── */
+.insight { background: var(--cream); color: var(--black); }
+.insight .section-tag { color: var(--green); }
+.insight .section-tag::before { background: var(--green); }
+.insight .section-title { color: var(--black); }
+.insight .section-body { color: rgba(0,0,0,0.55); }
+.insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+.stats-col { display: flex; flex-direction: column; gap: 0; }
+.stat-row {
+  padding: 2rem 0;
+  border-top: 1px solid rgba(0,0,0,0.1);
+}
+.stat-row:last-child { border-bottom: 1px solid rgba(0,0,0,0.1); }
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem; font-weight: 900;
+  color: var(--green); line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.stat-label { font-size: 0.9rem; color: rgba(0,0,0,0.45); font-weight: 300; }
+
+/* ── HOW IT WORKS ──────────────────────────────────────────────────────── */
+.how { position: relative; }
+.how-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  margin-top: 4rem;
+}
+.how-step {
+  background: var(--black); padding: 2.8rem;
+  position: relative; overflow: hidden;
+  transition: background 0.3s;
+}
+.how-step:hover { background: rgba(29,158,117,0.05); }
+.step-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 5rem; font-weight: 900;
+  color: rgba(29,158,117,0.08);
+  line-height: 1; margin-bottom: 1.4rem;
+  transition: color 0.3s;
+}
+.how-step:hover .step-num { color: rgba(29,158,117,0.2); }
+.step-title {
+  font-size: 1.05rem; font-weight: 500;
+  color: var(--white); margin-bottom: 0.7rem;
+}
+.step-body { font-size: 0.88rem; color: rgba(255,255,255,0.4); line-height: 1.7; font-weight: 300; }
+.step-code {
+  margin-top: 1.4rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; color: var(--green);
+  padding: 0.6rem 1rem;
+  background: rgba(29,158,117,0.08);
+  border-radius: 6px; border: 1px solid rgba(29,158,117,0.15);
+}
+
+/* ── STACK SECTION ─────────────────────────────────────────────────────── */
+.stack { background: #0D0D0D; }
+.stack-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 4rem; align-items: start; margin-top: 4rem;
+}
+.stack-col { display: flex; flex-direction: column; gap: 1px; }
+.stack-item {
+  display: flex; align-items: center; gap: 1.2rem;
+  padding: 1.2rem 1.4rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 6px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.stack-item:hover { border-color: rgba(29,158,117,0.3); background: var(--green-dim); }
+.stack-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--green-dim); border: 1px solid rgba(29,158,117,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
+.stack-name { font-size: 0.9rem; font-weight: 500; color: var(--white); }
+.stack-desc { font-size: 0.78rem; color: rgba(255,255,255,0.35); margin-top: 0.1rem; }
+.stack-phase {
+  margin-left: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  border: 1px solid rgba(29,158,117,0.3);
+  color: var(--green); flex-shrink: 0;
+}
+
+/* ── WOLOF NUMBERS SHOWCASE ────────────────────────────────────────────── */
+.wolof-section { background: var(--cream); color: var(--black); overflow: hidden; }
+.wolof-section .section-tag { color: var(--green); }
+.wolof-section .section-tag::before { background: var(--green); }
+.wolof-section .section-title { color: var(--black); }
+.wolof-section .section-body { color: rgba(0,0,0,0.55); }
+.numbers-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem; margin-top: 3.5rem;
+}
+.number-card {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px; padding: 1.8rem 1.4rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.number-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+.number-wo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem; font-style: italic;
+  color: var(--black); margin-bottom: 0.3rem;
+}
+.number-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 2.2rem; font-weight: 500;
+  color: var(--green); line-height: 1; margin-bottom: 0.5rem;
+}
+.number-note { font-size: 0.78rem; color: rgba(0,0,0,0.4); }
+.number-xof { font-size: 0.72rem; color: rgba(0,0,0,0.3); margin-top: 0.3rem; }
+.wolof-note {
+  margin-top: 2.5rem; padding: 1.4rem 2rem;
+  background: rgba(29,158,117,0.06);
+  border-left: 3px solid var(--green);
+  border-radius: 0 10px 10px 0;
+  font-size: 0.88rem; color: rgba(0,0,0,0.5);
+  font-style: italic;
+}
+.wolof-note strong { color: var(--black); font-style: normal; }
+
+/* ── PARTNERS / USE CASES ─────────────────────────────────────────────── */
+.partners { }
+.use-cases-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem; margin-top: 3.5rem;
+}
+.use-card {
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 2rem;
+  transition: border-color 0.25s, background 0.25s;
+  position: relative; overflow: hidden;
+}
+.use-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: var(--green);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s;
+}
+.use-card:hover { border-color: rgba(29,158,117,0.3); background: rgba(29,158,117,0.03); }
+.use-card:hover::before { transform: scaleX(1); }
+.use-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: var(--green-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; margin-bottom: 1.2rem;
+}
+.use-title { font-size: 1rem; font-weight: 500; color: var(--white); margin-bottom: 0.6rem; }
+.use-body { font-size: 0.85rem; color: rgba(255,255,255,0.4); line-height: 1.65; font-weight: 300; }
+.use-tag {
+  margin-top: 1.2rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; padding: 0.25rem 0.7rem;
+  background: var(--green-dim); color: var(--green);
+  border-radius: 100px; display: inline-block;
+  letter-spacing: 0.06em;
+}
+
+/* ── ROADMAP ──────────────────────────────────────────────────────────── */
+.roadmap { background: #0D0D0D; }
+.roadmap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border); margin-top: 4rem; }
+.roadmap-phase { background: #0D0D0D; padding: 2.8rem; }
+.phase-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.14em; color: var(--green);
+  margin-bottom: 1.2rem;
+}
+.phase-title { font-size: 1.1rem; font-weight: 500; color: var(--white); margin-bottom: 0.8rem; }
+.phase-body { font-size: 0.85rem; color: rgba(255,255,255,0.4); line-height: 1.7; font-weight: 300; }
+.phase-tag {
+  margin-top: 1.5rem;
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  padding: 0.3rem 0.8rem; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.3); display: inline-block;
+}
+.phase-tag.active { border-color: rgba(29,158,117,0.4); color: var(--green); background: var(--green-dim); }
+
+/* ── CTA ──────────────────────────────────────────────────────────────── */
+.cta {
+  text-align: center;
+  background: linear-gradient(135deg, #0A0A0A 0%, #0E1A15 50%, #0A0A0A 100%);
+  border-top: 1px solid rgba(29,158,117,0.2);
+  position: relative; overflow: hidden;
+}
+.cta-glow {
+  position: absolute; width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(29,158,117,0.12) 0%, transparent 60%);
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.cta .section-tag { justify-content: center; }
+.cta .section-tag::before { display: none; }
+.cta .section-title { max-width: 600px; margin: 0 auto 1.5rem; }
+.cta .section-body { margin: 0 auto 3rem; text-align: center; }
+.cta-buttons { display: flex; justify-content: center; gap: 1rem; }
+
+/* ── FOOTER ───────────────────────────────────────────────────────────── */
+footer {
+  background: #050505;
+  border-top: 1px solid var(--border);
+  padding: 3rem;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-logo { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.3rem; color: rgba(255,255,255,0.6); }
+.footer-logo em { color: var(--green); font-style: italic; }
+.footer-links { display: flex; gap: 2rem; }
+.footer-links a { font-size: 0.82rem; color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: rgba(255,255,255,0.7); }
+.footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.2); }
+
+/* ── ANIMATIONS ───────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.3); }
+  50%       { transform: scaleY(1); }
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(29,158,117,0.4); }
+  50%       { box-shadow: 0 0 0 16px rgba(29,158,117,0); }
+}
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Reveal on scroll */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── TICKER ───────────────────────────────────────────────────────────── */
+.ticker {
+  background: var(--green); overflow: hidden;
+  padding: 0.7rem 0; white-space: nowrap;
+}
+.ticker-inner { display: inline-block; animation: ticker 22s linear infinite; }
+.ticker-inner span {
+  display: inline-block; padding: 0 2rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--black);
+}
+.ticker-inner span.dot { padding: 0; color: rgba(0,0,0,0.4); }
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  nav { padding: 1.2rem 1.5rem; }
+  nav ul { display: none; }
+  .hero, section { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .insight-grid, .stack-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .how-grid, .roadmap-grid, .use-cases-grid { grid-template-columns: 1fr; }
+  .numbers-grid { grid-template-columns: 1fr 1fr; }
+  .demo-inner { flex-direction: column; }
+  footer { flex-direction: column; gap: 1.5rem; align-items: flex-start; }
+  .cursor, .cursor-ring { display: none; }
+  body { cursor: auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Nav -->
+<nav id="nav">
+  <a href="/" class="logo">Kuma<em>Labs</em></a>
+  <ul>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#partners">Partners</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="mailto:hello@kumalabs.ai" class="nav-cta">Contact us</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-glow"></div>
+
+  <div class="hero-tag">Voice Infrastructure Platform</div>
+
+  <h1>
+    The voice API<br>
+    <span class="accent">Africa</span> needed<br>
+    <span class="outline">all along.</span>
+  </h1>
+
+  <p class="hero-sub">
+    We translate voice to structured data — in French, English, and Wolof — 
+    for any app serving West Africa's 60 million informal merchants.
+  </p>
+
+  <div class="hero-actions">
+    <a href="mailto:hello@kumalabs.ai" class="btn-primary">
+      <span>Get API access</span>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <a href="#how" class="btn-ghost">See how it works →</a>
+  </div>
+
+  <div class="wolof-float">
+    <span class="wo">wax</span>
+    to speak · in Wolof
+  </div>
+
+  <div class="waveform">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" height="80">
+      <g fill="rgba(29,158,117,0.35)">
+        <!-- Generate waveform bars -->
+        <rect class="wave-bar" x="0" width="3" height="60" y="10" rx="2" style="animation-delay:0s"/>
+        <rect class="wave-bar" x="8" width="3" height="30" y="25" rx="2" style="animation-delay:0.08s"/>
+        <rect class="wave-bar" x="16" width="3" height="50" y="15" rx="2" style="animation-delay:0.16s"/>
+        <rect class="wave-bar" x="24" width="3" height="20" y="30" rx="2" style="animation-delay:0.24s"/>
+        <rect class="wave-bar" x="32" width="3" height="65" y="8" rx="2" style="animation-delay:0.32s"/>
+        <rect class="wave-bar" x="40" width="3" height="35" y="23" rx="2" style="animation-delay:0.4s"/>
+        <rect class="wave-bar" x="48" width="3" height="45" y="18" rx="2" style="animation-delay:0.48s"/>
+        <rect class="wave-bar" x="56" width="3" height="25" y="28" rx="2" style="animation-delay:0.56s"/>
+        <rect class="wave-bar" x="64" width="3" height="55" y="13" rx="2" style="animation-delay:0.64s"/>
+        <rect class="wave-bar" x="72" width="3" height="70" y="5" rx="2" style="animation-delay:0.72s"/>
+        <rect class="wave-bar" x="80" width="3" height="40" y="20" rx="2" style="animation-delay:0.8s"/>
+        <rect class="wave-bar" x="88" width="3" height="28" y="26" rx="2" style="animation-delay:0.88s"/>
+        <rect class="wave-bar" x="96" width="3" height="58" y="11" rx="2" style="animation-delay:0.96s"/>
+        <rect class="wave-bar" x="104" width="3" height="22" y="29" rx="2" style="animation-delay:1.04s"/>
+        <rect class="wave-bar" x="112" width="3" height="48" y="16" rx="2" style="animation-delay:1.12s"/>
+        <rect class="wave-bar" x="120" width="3" height="62" y="9" rx="2" style="animation-delay:1.2s"/>
+        <rect class="wave-bar" x="128" width="3" height="32" y="24" rx="2" style="animation-delay:0.1s"/>
+        <rect class="wave-bar" x="136" width="3" height="44" y="18" rx="2" style="animation-delay:0.18s"/>
+        <rect class="wave-bar" x="144" width="3" height="18" y="31" rx="2" style="animation-delay:0.26s"/>
+        <rect class="wave-bar" x="152" width="3" height="72" y="4" rx="2" style="animation-delay:0.34s"/>
+        <rect class="wave-bar" x="160" width="3" height="38" y="21" rx="2" style="animation-delay:0.42s"/>
+        <rect class="wave-bar" x="168" width="3" height="52" y="14" rx="2" style="animation-delay:0.5s"/>
+        <rect class="wave-bar" x="176" width="3" height="26" y="27" rx="2" style="animation-delay:0.58s"/>
+        <rect class="wave-bar" x="184" width="3" height="60" y="10" rx="2" style="animation-delay:0.66s"/>
+        <rect class="wave-bar" x="192" width="3" height="36" y="22" rx="2" style="animation-delay:0.74s"/>
+        <rect class="wave-bar" x="200" width="3" height="46" y="17" rx="2" style="animation-delay:0.82s"/>
+        <rect class="wave-bar" x="208" width="3" height="20" y="30" rx="2" style="animation-delay:0.9s"/>
+        <rect class="wave-bar" x="216" width="3" height="68" y="6" rx="2" style="animation-delay:0.98s"/>
+        <rect class="wave-bar" x="224" width="3" height="30" y="25" rx="2" style="animation-delay:1.06s"/>
+        <rect class="wave-bar" x="232" width="3" height="54" y="13" rx="2" style="animation-delay:1.14s"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- Demo Strip -->
+<div class="demo-strip">
+  <div class="demo-inner">
+    <div class="demo-transcript">
+      <div class="demo-label">🎙 Merchant speaks</div>
+      <div class="demo-phrase" id="demoPhrase">"Fatou me doit ñaar junni"</div>
+    </div>
+    <div class="demo-arrow">→</div>
+    <div class="demo-result" id="demoResult">
+<span class="json-brace">{</span>
+  <span class="json-key">"intent"</span>: <span class="json-val-str">"RECORD_CREDIT"</span>,
+  <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
+  <span class="json-key">"client"</span>: <span class="json-val-str">"Fatou"</span>,
+  <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>,
+  <span class="json-key">"language"</span>: <span class="json-val-str">"mixed"</span>,
+  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.94</span>,
+  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+<span class="json-brace">}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Ticker -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>Wolof ASR</span><span class="dot">·</span>
+    <span>Voice API</span><span class="dot">·</span>
+    <span>West Africa</span><span class="dot">·</span>
+    <span>Informal Economy</span><span class="dot">·</span>
+    <span>60M merchants</span><span class="dot">·</span>
+    <span>Orange Sénégal</span><span class="dot">·</span>
+    <span>FR ↔ WO code-switching</span><span class="dot">·</span>
+    <span>Human-Centered AI</span><span class="dot">·</span>
+    <span>Infrastructure layer</span><span class="dot">·</span>
+    <span>Wolof ASR</span><span class="dot">·</span>
+    <span>Voice API</span><span class="dot">·</span>
+    <span>West Africa</span><span class="dot">·</span>
+    <span>Informal Economy</span><span class="dot">·</span>
+    <span>60M merchants</span><span class="dot">·</span>
+    <span>Orange Sénégal</span><span class="dot">·</span>
+    <span>FR ↔ WO code-switching</span><span class="dot">·</span>
+    <span>Human-Centered AI</span><span class="dot">·</span>
+    <span>Infrastructure layer</span><span class="dot">·</span>
+  </div>
+</div>
+
+<!-- Insight -->
+<section class="insight reveal">
+  <div class="insight-grid">
+    <div>
+      <div class="section-tag">The insight</div>
+      <h2 class="section-title">Typing was never designed for this.</h2>
+      <p class="section-body">
+        For a merchant managing 30 transactions a day — in a loud Dakar market, 
+        sometimes with a child on their back — the keyboard isn't a friction point. 
+        It's a barrier. Kuma removes it entirely.
+      </p>
+      <p class="section-body" style="margin-top:1rem;">
+        We use AI to translate voice into structured data, in the languages your users 
+        actually speak. No keyboard required.
+      </p>
+    </div>
+    <div class="stats-col">
+      <div class="stat-row">
+        <div class="stat-num">60M+</div>
+        <div class="stat-label">micro-businesses in Africa's informal economy running on paper</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-num">$400B</div>
+        <div class="stat-label">unmet financing need for informal traders across the continent</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-num">&lt;3s</div>
+        <div class="stat-label">voice to confirmed transaction — our V1 target latency</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-num">3</div>
+        <div class="stat-label">languages supported — French, English, Wolof — with code-switching</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how" class="how reveal">
+  <div class="section-tag">How it works</div>
+  <h2 class="section-title">Voice in. Structured data out.</h2>
+  <p class="section-body">
+    Six steps, under 3 seconds. Every word spoken becomes a validated, structured 
+    transaction — no keyboard, no menu navigation, no friction.
+  </p>
+
+  <div class="how-grid">
+    <div class="how-step">
+      <div class="step-num">01</div>
+      <div class="step-title">Push to talk</div>
+      <div class="step-body">One tap. The merchant speaks naturally in Wolof, French, or a mix — exactly how they talk in the market.</div>
+      <div class="step-code">audio capture → base64</div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">02</div>
+      <div class="step-title">Speech recognition</div>
+      <div class="step-body">Google STT v2 with wo-SN support transcribes Wolof and French simultaneously — code-switching handled natively.</div>
+      <div class="step-code">wo-SN + fr-SN multilingual</div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">03</div>
+      <div class="step-title">Wolof parsing</div>
+      <div class="step-body">Our custom Wolof number parser (based on Guérin 2021) extracts amounts: "ñaar junni" → 2,000 XOF instantly.</div>
+      <div class="step-code">parse_amount("ñaar junni") → 2000</div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">04</div>
+      <div class="step-title">Intent classification</div>
+      <div class="step-body">Hybrid search (RAG + keyword) against our CommerceIntents catalog in Spanner — semantic understanding, not keyword matching.</div>
+      <div class="step-code">RECORD_CREDIT · confidence: 0.94</div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">05</div>
+      <div class="step-title">Business validation</div>
+      <div class="step-body">Rules run before any write. Amount > 0? Client identified? Permission valid? The LLM never executes directly.</div>
+      <div class="step-code">validate() → { valid: true }</div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">06</div>
+      <div class="step-title">Merchant confirms</div>
+      <div class="step-body">The confirmation screen shows what was understood. The merchant validates — then Kuma writes to your API. Always human-in-the-loop.</div>
+      <div class="step-code">→ your_app.record_transaction()</div>
+    </div>
+  </div>
+</section>
+
+<!-- Wolof Numbers -->
+<section class="wolof-section reveal">
+  <div class="section-tag">The technology</div>
+  <h2 class="section-title" style="color:var(--black);">We built the Wolof number parser.</h2>
+  <p class="section-body">
+    Based on peer-reviewed linguistics research (Guérin 2021), our parser covers 
+    all Wolof numbers from 1 to 1 billion — including the commerce-specific 
+    <em>dërëm</em> unit (1 dërëm = 5 CFA francs).
+  </p>
+
+  <div class="numbers-grid">
+    <div class="number-card">
+      <div class="number-wo">benn</div>
+      <div class="number-val">1</div>
+      <div class="number-note">One · determinative</div>
+    </div>
+    <div class="number-card">
+      <div class="number-wo">ñaar junni</div>
+      <div class="number-val">2,000</div>
+      <div class="number-note">Two thousand</div>
+      <div class="number-xof">2 000 XOF</div>
+    </div>
+    <div class="number-card">
+      <div class="number-wo">juróom fukk</div>
+      <div class="number-val">50</div>
+      <div class="number-note">Five × ten</div>
+      <div class="number-xof">50 XOF</div>
+    </div>
+    <div class="number-card">
+      <div class="number-wo">fukk ak juróom ñaar</div>
+      <div class="number-val">17</div>
+      <div class="number-note">Ten + five + two</div>
+      <div class="number-xof">17 XOF</div>
+    </div>
+    <div class="number-card">
+      <div class="number-wo">fanweer</div>
+      <div class="number-val">30</div>
+      <div class="number-note">"Jour-lune" · lunar month</div>
+      <div class="number-xof">30 XOF</div>
+    </div>
+    <div class="number-card">
+      <div class="number-wo">téeméer</div>
+      <div class="number-val">100</div>
+      <div class="number-note">One hundred</div>
+      <div class="number-xof">100 XOF</div>
+    </div>
+    <div class="number-card">
+      <div class="number-wo">ñaar téeméer dërëm</div>
+      <div class="number-val">1,000</div>
+      <div class="number-note">200 × 5 CFA dërëm</div>
+      <div class="number-xof">1 000 XOF</div>
+    </div>
+    <div class="number-card">
+      <div class="number-wo">juróom-benn-i junni</div>
+      <div class="number-val">6,000</div>
+      <div class="number-note">Genitive construction</div>
+      <div class="number-xof">6 000 XOF</div>
+    </div>
+  </div>
+
+  <div class="wolof-note">
+    <strong>Why this matters:</strong> In Dakar markets, prices are often quoted in Wolof even by French-speaking merchants. 
+    A merchant saying "ñaar junni" means 2,000 XOF. Generic ASR returns garbled text. 
+    Kuma returns <code style="color:var(--green)">{ amount: 2000, currency: "XOF" }</code>.
+  </div>
+</section>
+
+<!-- Stack -->
+<section id="stack" class="stack reveal">
+  <div class="section-tag">Technical stack</div>
+  <h2 class="section-title">Built on Google Cloud,<br>designed for Africa.</h2>
+  <p class="section-body">Infrastructure that scales from 10,000 to 10 million merchants without a refonte.</p>
+
+  <div class="stack-grid">
+    <div>
+      <div class="section-tag" style="margin-bottom:1rem; margin-top:2rem;">Voice & AI</div>
+      <div class="stack-col">
+        <div class="stack-item">
+          <div class="stack-icon">🎙</div>
+          <div>
+            <div class="stack-name">Google Cloud STT v2</div>
+            <div class="stack-desc">wo-SN + fr-SN multilingual, code-switching</div>
+          </div>
+          <div class="stack-phase">core</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-icon">🔍</div>
+          <div>
+            <div class="stack-name">Hybrid Search (RAG + keyword)</div>
+            <div class="stack-desc">Spanner embeddings + RRF scoring</div>
+          </div>
+          <div class="stack-phase">core</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-icon">🤖</div>
+          <div>
+            <div class="stack-name">Gemini 2.5 Flash</div>
+            <div class="stack-desc">Strict JSON output only via ML.PREDICT</div>
+          </div>
+          <div class="stack-phase">core</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-icon">📖</div>
+          <div>
+            <div class="stack-name">Wolof Parser</div>
+            <div class="stack-desc">Based on Guérin (2021) — 1 to 1B</div>
+          </div>
+          <div class="stack-phase">core</div>
+        </div>
+      </div>
+
+      <div class="section-tag" style="margin-bottom:1rem; margin-top:2.5rem;">Mobile</div>
+      <div class="stack-col">
+        <div class="stack-item">
+          <div class="stack-icon">📱</div>
+          <div>
+            <div class="stack-name">React Native + TypeScript</div>
+            <div class="stack-desc">iOS + Android, low-end Android optimized</div>
+          </div>
+          <div class="stack-phase">ProBoutik</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-icon">🔌</div>
+          <div>
+            <div class="stack-name">Offline queue (MMKV)</div>
+            <div class="stack-desc">Transactions en attente si faible connectivité</div>
+          </div>
+          <div class="stack-phase">ProBoutik</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="section-tag" style="margin-bottom:1rem; margin-top:2rem;">Backend & Data</div>
+      <div class="stack-col">
+        <div class="stack-item">
+          <div class="stack-icon">⚡</div>
+          <div>
+            <div class="stack-name">FastAPI + Python 3.11</div>
+            <div class="stack-desc">Async, Pydantic validation, OpenAPI docs</div>
+          </div>
+          <div class="stack-phase">core</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-icon">🗄</div>
+          <div>
+            <div class="stack-name">Google Cloud Spanner</div>
+            <div class="stack-desc">ACID distributed DB + vector embeddings</div>
+          </div>
+          <div class="stack-phase">core</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-icon">☁</div>
+          <div>
+            <div class="stack-name">Cloud Run (serverless)</div>
+            <div class="stack-desc">Auto-scale, zero infra, pay-per-use</div>
+          </div>
+          <div class="stack-phase">core</div>
+        </div>
+        <div class="stack-item">
+          <div class="stack-icon">📊</div>
+          <div>
+            <div class="stack-name">VoiceLogs → feedback loop</div>
+            <div class="stack-desc">Every API call feeds parser improvement</div>
+          </div>
+          <div class="stack-phase">moat</div>
+        </div>
+      </div>
+
+      <div class="section-tag" style="margin-bottom:1rem; margin-top:2.5rem;">Google ADK</div>
+      <div class="stack-col">
+        <div class="stack-item">
+          <div class="stack-icon">🔗</div>
+          <div>
+            <div class="stack-name">Sequential Agent Pipeline</div>
+            <div class="stack-desc">Audio → STT → Parse → Classify → Validate</div>
+          </div>
+          <div class="stack-phase">core</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Use cases / Partners -->
+<section id="partners" class="partners reveal">
+  <div class="section-tag">Who plugs in</div>
+  <h2 class="section-title">One API.<br>Any app. Any market.</h2>
+  <p class="section-body">Kuma is infrastructure — bring your app, we bring the voice layer. Your users speak, Kuma understands.</p>
+
+  <div class="use-cases-grid">
+    <div class="use-card">
+      <div class="use-icon">🏦</div>
+      <div class="use-title">Fintech apps</div>
+      <div class="use-body">Voice-enable merchant transaction recording for mobile money platforms and merchant banking apps across West Africa.</div>
+      <div class="use-tag">First deployment: ProBoutik × Orange</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">🌱</div>
+      <div class="use-title">Agri platforms</div>
+      <div class="use-body">Field workers record harvest, expenses, and inventory by speaking in their local language — no literacy requirement.</div>
+      <div class="use-tag">Phase 3 partner</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">🤝</div>
+      <div class="use-title">NGOs & field ops</div>
+      <div class="use-body">Data collection without keyboard barriers. Surveys, health records, census data — spoken in Wolof, stored as structured JSON.</div>
+      <div class="use-tag">Phase 3 partner</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">🤖</div>
+      <div class="use-title">AI platforms</div>
+      <div class="use-body">Add West African language support to existing voice agents on Retell, VAPI, or custom pipelines. Kuma as middleware.</div>
+      <div class="use-tag">API partner</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">🏛</div>
+      <div class="use-title">Governments</div>
+      <div class="use-body">Census collection, subsidy registration, and public services access for populations where typing is a barrier.</div>
+      <div class="use-tag">Phase 3</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">✨</div>
+      <div class="use-title">Your use case</div>
+      <div class="use-body">Building for West Africa or any emerging market where the keyboard was never the right interface? Let's talk.</div>
+      <div class="use-tag" style="cursor:pointer; background:rgba(29,158,117,0.15)">→ Apply for early access</div>
+    </div>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section id="roadmap" class="roadmap reveal">
+  <div class="section-tag">Roadmap</div>
+  <h2 class="section-title">Three phases.<br>One compounding moat.</h2>
+  <p class="section-body">Each phase makes the next one stronger. ProBoutik generates the data. The data makes the API better. The API opens every door.</p>
+
+  <div class="roadmap-grid">
+    <div class="roadmap-phase">
+      <div class="phase-num">PHASE 01 — NOW</div>
+      <div class="phase-title">ProBoutik × Orange Sénégal</div>
+      <div class="phase-body">Build the Kuma voice layer inside Digicaisse V2 — a new voice-centric merchant app distributed to 100,000+ merchants across Orange West Africa. Revenue sharing model. Sentreso owns the voice IP.</div>
+      <div class="phase-tag active">In progress</div>
+    </div>
+    <div class="roadmap-phase">
+      <div class="phase-num">PHASE 02 — DEPLOYMENT</div>
+      <div class="phase-title">Data flywheel</div>
+      <div class="phase-body">Every ProBoutik transaction generates a gold-standard Wolof commerce training pair. Real merchant voices, real code-switching, real market noise. This dataset is Kuma's competitive moat — nobody can replicate it without the same deployment.</div>
+      <div class="phase-tag">6 months post-launch</div>
+    </div>
+    <div class="roadmap-phase">
+      <div class="phase-num">PHASE 03 — PLATFORM</div>
+      <div class="phase-title">Open API infrastructure</div>
+      <div class="phase-body">API pricing per call + revenue share on embedded deployments. Any fintech, NGO, agri platform, or AI service wanting West African voice support plugs into Kuma. ProBoutik is the proof point that opens every door.</div>
+      <div class="phase-tag">6-12 months post-launch</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta reveal">
+  <div class="cta-glow"></div>
+  <div class="section-tag">Get started</div>
+  <h2 class="section-title">Ready to add<br>African voice to your product?</h2>
+  <p class="section-body">We're onboarding our first API partners now. Apply for early access and get free integration support for 90 days.</p>
+  <div class="cta-buttons">
+    <a href="mailto:hello@kumalabs.ai" class="btn-primary">
+      Apply for early access →
+    </a>
+    <a href="mailto:hello@kumalabs.ai" class="btn-ghost">Talk to us first</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">Kuma<em>Labs</em></div>
+  <div class="footer-links">
+    <a href="#how">How it works</a>
+    <a href="#stack">Stack</a>
+    <a href="#partners">Partners</a>
+    <a href="mailto:hello@kumalabs.ai">hello@kumalabs.ai</a>
+  </div>
+  <div class="footer-copy">San Francisco · Dakar · © 2026 Kuma Labs Inc.</div>
+</footer>
+
+<script>
+// ── CURSOR ─────────────────────────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+function animateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('a, button, .use-card, .how-step, .stack-item, .number-card').forEach(el => {
+  el.addEventListener('mouseenter', () => ring.classList.add('hovered'));
+  el.addEventListener('mouseleave', () => ring.classList.remove('hovered'));
+});
+
+// ── NAV SCROLL ──────────────────────────────────────────────────────────────
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ── REVEAL ON SCROLL ────────────────────────────────────────────────────────
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+reveals.forEach(r => observer.observe(r));
+
+// ── DEMO ROTATION ───────────────────────────────────────────────────────────
+const demos = [
+  {
+    phrase: '"Fatou me doit ñaar junni"',
+    json: `<span class="json-brace">{</span>
+  <span class="json-key">"intent"</span>: <span class="json-val-str">"RECORD_CREDIT"</span>,
+  <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
+  <span class="json-key">"client"</span>: <span class="json-val-str">"Fatou"</span>,
+  <span class="json-key">"language"</span>: <span class="json-val-str">"mixed"</span>,
+  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.94</span>,
+  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+<span class="json-brace">}</span>`
+  },
+  {
+    phrase: '"J\'ai vendu deux sacs de riz à mille francs"',
+    json: `<span class="json-brace">{</span>
+  <span class="json-key">"intent"</span>: <span class="json-val-str">"RECORD_SALE"</span>,
+  <span class="json-key">"amount"</span>: <span class="json-val-num">1000</span>,
+  <span class="json-key">"product"</span>: <span class="json-val-str">"riz"</span>,
+  <span class="json-key">"language"</span>: <span class="json-val-str">"fr"</span>,
+  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.97</span>,
+  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+<span class="json-brace">}</span>`
+  },
+  {
+    phrase: '"Mamadou a payé juróom junni"',
+    json: `<span class="json-brace">{</span>
+  <span class="json-key">"intent"</span>: <span class="json-val-str">"RECORD_PAYMENT"</span>,
+  <span class="json-key">"amount"</span>: <span class="json-val-num">5000</span>,
+  <span class="json-key">"client"</span>: <span class="json-val-str">"Mamadou"</span>,
+  <span class="json-key">"language"</span>: <span class="json-val-str">"mixed"</span>,
+  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.91</span>,
+  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+<span class="json-brace">}</span>`
+  },
+  {
+    phrase: '"C\'est quoi mes ventes aujourd\'hui"',
+    json: `<span class="json-brace">{</span>
+  <span class="json-key">"intent"</span>: <span class="json-val-str">"CHECK_BALANCE"</span>,
+  <span class="json-key">"period"</span>: <span class="json-val-str">"today"</span>,
+  <span class="json-key">"language"</span>: <span class="json-val-str">"fr"</span>,
+  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.99</span>,
+  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+<span class="json-brace">}</span>`
+  },
+];
+let di = 0;
+setInterval(() => {
+  di = (di + 1) % demos.length;
+  const ph = document.getElementById('demoPhrase');
+  const re = document.getElementById('demoResult');
+  ph.style.opacity = '0'; re.style.opacity = '0';
+  setTimeout(() => {
+    ph.textContent = demos[di].phrase;
+    re.innerHTML = demos[di].json;
+    ph.style.opacity = '1'; re.style.opacity = '1';
+  }, 300);
+}, 3500);
+document.getElementById('demoPhrase').style.transition = 'opacity 0.3s';
+document.getElementById('demoResult').style.transition = 'opacity 0.3s';
+</script>
+</body>
+</html>

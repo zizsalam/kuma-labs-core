@@ -548,9 +548,10 @@ footer {
   <ul>
     <li><a href="#how">How it works</a></li>
     <li><a href="#stack">Stack</a></li>
-    <li><a href="#partners">Partners</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="mailto:hello@kumalabs.ai" class="nav-cta">Contact us</a></li>
+    <li><a href="#partners">Use cases</a></li>
+    <li><a href="https://docs.kuma-labs.com" target="_blank">Docs</a></li>
+    <li><a href="https://api.kuma-labs.com/docs" target="_blank">API Playground</a></li>
+    <li><a href="mailto:hello@kumalabs.ai" class="nav-cta">Request access</a></li>
   </ul>
 </nav>
 
@@ -635,13 +636,14 @@ footer {
     <div class="demo-arrow">→</div>
     <div class="demo-result" id="demoResult">
 <span class="json-brace">{</span>
-  <span class="json-key">"intent"</span>: <span class="json-val-str">"RECORD_CREDIT"</span>,
-  <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
-  <span class="json-key">"client"</span>: <span class="json-val-str">"Fatou"</span>,
-  <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>,
-  <span class="json-key">"language"</span>: <span class="json-val-str">"mixed"</span>,
-  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.94</span>,
-  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+  <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
+    <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
+    <span class="json-key">"customer"</span>: <span class="json-val-str">"Fatou"</span>,
+    <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>,
+    <span class="json-key">"direction"</span>: <span class="json-val-str">"bought"</span>
+  <span class="json-brace">}</span>,
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
 <span class="json-brace">}</span>
     </div>
   </div>
@@ -727,8 +729,8 @@ footer {
     <div class="how-step">
       <div class="step-num">02</div>
       <div class="step-title">Speech recognition</div>
-      <div class="step-body">Google STT v2 with wo-SN support transcribes Wolof and French simultaneously — code-switching handled natively.</div>
-      <div class="step-code">wo-SN + fr-SN multilingual</div>
+      <div class="step-body">Cloud-based multilingual ASR transcribes French, English, and code-switched audio. Wolof elements are extracted by our domain-specific parser downstream.</div>
+      <div class="step-code">multilingual ASR + domain parsing</div>
     </div>
     <div class="how-step">
       <div class="step-num">03</div>
@@ -739,8 +741,8 @@ footer {
     <div class="how-step">
       <div class="step-num">04</div>
       <div class="step-title">Intent classification</div>
-      <div class="step-body">Hybrid search (RAG + keyword) against our CommerceIntents catalog in Spanner — semantic understanding, not keyword matching.</div>
-      <div class="step-code">RECORD_CREDIT · confidence: 0.94</div>
+      <div class="step-body">Gemini 2.5 Flash classifies merchant intent with strict JSON output — sale, credit, customer lookup, or reminder. No keyword matching.</div>
+      <div class="step-code">credit · confidence: 0.94</div>
     </div>
     <div class="how-step">
       <div class="step-num">05</div>
@@ -845,8 +847,8 @@ footer {
         <div class="stack-item">
           <div class="stack-icon">🔍</div>
           <div>
-            <div class="stack-name">Hybrid Search (RAG + keyword)</div>
-            <div class="stack-desc">Spanner embeddings + RRF scoring</div>
+            <div class="stack-name">Provider-abstracted pipeline</div>
+            <div class="stack-desc">7-stage orchestrator with per-stage timeouts</div>
           </div>
           <div class="stack-phase">core</div>
         </div>
@@ -868,23 +870,23 @@ footer {
         </div>
       </div>
 
-      <div class="section-tag" style="margin-bottom:1rem; margin-top:2.5rem;">Mobile</div>
+      <div class="section-tag" style="margin-bottom:1rem; margin-top:2.5rem;">Developer experience</div>
       <div class="stack-col">
         <div class="stack-item">
-          <div class="stack-icon">📱</div>
+          <div class="stack-icon">📖</div>
           <div>
-            <div class="stack-name">React Native + TypeScript</div>
-            <div class="stack-desc">iOS + Android, low-end Android optimized</div>
+            <div class="stack-name">Mintlify docs + Scalar playground</div>
+            <div class="stack-desc">Interactive API reference with pre-filled sandbox key</div>
           </div>
-          <div class="stack-phase">ProBoutik</div>
+          <div class="stack-phase">live</div>
         </div>
         <div class="stack-item">
-          <div class="stack-icon">🔌</div>
+          <div class="stack-icon">🔑</div>
           <div>
-            <div class="stack-name">Offline queue (MMKV)</div>
-            <div class="stack-desc">Transactions en attente si faible connectivité</div>
+            <div class="stack-name">Bearer auth + rate limiting</div>
+            <div class="stack-desc">Test/live key split, per-tenant usage metering</div>
           </div>
-          <div class="stack-phase">ProBoutik</div>
+          <div class="stack-phase">live</div>
         </div>
       </div>
     </div>
@@ -894,16 +896,16 @@ footer {
         <div class="stack-item">
           <div class="stack-icon">⚡</div>
           <div>
-            <div class="stack-name">FastAPI + Python 3.11</div>
-            <div class="stack-desc">Async, Pydantic validation, OpenAPI docs</div>
+            <div class="stack-name">FastAPI + Python 3.12</div>
+            <div class="stack-desc">Async, Pydantic validation, OpenAPI + Scalar docs</div>
           </div>
           <div class="stack-phase">core</div>
         </div>
         <div class="stack-item">
           <div class="stack-icon">🗄</div>
           <div>
-            <div class="stack-name">Google Cloud Spanner</div>
-            <div class="stack-desc">ACID distributed DB + vector embeddings</div>
+            <div class="stack-name">Cloud SQL Postgres 16</div>
+            <div class="stack-desc">pgvector, async SQLAlchemy, Alembic migrations</div>
           </div>
           <div class="stack-phase">core</div>
         </div>
@@ -925,13 +927,13 @@ footer {
         </div>
       </div>
 
-      <div class="section-tag" style="margin-bottom:1rem; margin-top:2.5rem;">Google ADK</div>
+      <div class="section-tag" style="margin-bottom:1rem; margin-top:2.5rem;">HITL & Trust</div>
       <div class="stack-col">
         <div class="stack-item">
-          <div class="stack-icon">🔗</div>
+          <div class="stack-icon">✅</div>
           <div>
-            <div class="stack-name">Sequential Agent Pipeline</div>
-            <div class="stack-desc">Audio → STT → Parse → Classify → Validate</div>
+            <div class="stack-name">Human-in-the-loop confirmation</div>
+            <div class="stack-desc">Low-confidence results flagged for merchant review before write</div>
           </div>
           <div class="stack-phase">core</div>
         </div>
@@ -981,7 +983,7 @@ footer {
       <div class="use-icon">✨</div>
       <div class="use-title">Your use case</div>
       <div class="use-body">Building for West Africa or any emerging market where the keyboard was never the right interface? Let's talk.</div>
-      <div class="use-tag" style="cursor:pointer; background:rgba(29,158,117,0.15)">→ Apply for early access</div>
+      <a href="mailto:hello@kumalabs.ai" class="use-tag" style="cursor:pointer; background:rgba(29,158,117,0.15); text-decoration:none; color:inherit; display:inline-block;">→ Apply for early access</a>
     </div>
   </div>
 </section>
@@ -994,22 +996,22 @@ footer {
 
   <div class="roadmap-grid">
     <div class="roadmap-phase">
-      <div class="phase-num">PHASE 01 — NOW</div>
-      <div class="phase-title">ProBoutik × Orange Sénégal</div>
-      <div class="phase-body">Build the Kuma voice layer inside Digicaisse V2 — a new voice-centric merchant app distributed to 100,000+ merchants across Orange West Africa. Revenue sharing model. Sentreso owns the voice IP.</div>
-      <div class="phase-tag active">In progress</div>
+      <div class="phase-num">PHASE 01 — LIVE</div>
+      <div class="phase-title">Public API + pilot partners</div>
+      <div class="phase-body">POST /v1/transcribe is live. Proboutik is our first production integration, with a second design partner signed. Wolof number parser open-sourced. Bearer auth, rate limiting, HITL confirmation — all shipping.</div>
+      <div class="phase-tag active">Deployed</div>
     </div>
     <div class="roadmap-phase">
-      <div class="phase-num">PHASE 02 — DEPLOYMENT</div>
+      <div class="phase-num">PHASE 02 — NEXT</div>
       <div class="phase-title">Data flywheel</div>
-      <div class="phase-body">Every ProBoutik transaction generates a gold-standard Wolof commerce training pair. Real merchant voices, real code-switching, real market noise. This dataset is Kuma's competitive moat — nobody can replicate it without the same deployment.</div>
-      <div class="phase-tag">6 months post-launch</div>
+      <div class="phase-body">Every API call generates training data. Real merchant voices, real code-switching, real market noise. Fallback ASR providers ensure we're never locked into one cloud. This dataset is Kuma's moat.</div>
+      <div class="phase-tag">In progress</div>
     </div>
     <div class="roadmap-phase">
-      <div class="phase-num">PHASE 03 — PLATFORM</div>
-      <div class="phase-title">Open API infrastructure</div>
-      <div class="phase-body">API pricing per call + revenue share on embedded deployments. Any fintech, NGO, agri platform, or AI service wanting West African voice support plugs into Kuma. ProBoutik is the proof point that opens every door.</div>
-      <div class="phase-tag">6-12 months post-launch</div>
+      <div class="phase-num">PHASE 03 — SCALE</div>
+      <div class="phase-title">Multi-vertical expansion</div>
+      <div class="phase-body">Beyond merchant transactions — agri, NGO, government. More languages (Pulaar, Bambara, Mandinka). Per-call pricing at scale. The API platform that ProBoutik proved opens every door.</div>
+      <div class="phase-tag">6-12 months</div>
     </div>
   </div>
 </section>
@@ -1034,7 +1036,8 @@ footer {
   <div class="footer-links">
     <a href="#how">How it works</a>
     <a href="#stack">Stack</a>
-    <a href="#partners">Partners</a>
+    <a href="https://docs.kuma-labs.com" target="_blank">Docs</a>
+    <a href="https://api.kuma-labs.com/docs" target="_blank">API Playground</a>
     <a href="mailto:hello@kumalabs.ai">hello@kumalabs.ai</a>
   </div>
   <div class="footer-copy">San Francisco · Dakar · © 2026 Kuma Labs Inc.</div>
@@ -1085,44 +1088,49 @@ const demos = [
   {
     phrase: '"Fatou me doit ñaar junni"',
     json: `<span class="json-brace">{</span>
-  <span class="json-key">"intent"</span>: <span class="json-val-str">"RECORD_CREDIT"</span>,
-  <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
-  <span class="json-key">"client"</span>: <span class="json-val-str">"Fatou"</span>,
-  <span class="json-key">"language"</span>: <span class="json-val-str">"mixed"</span>,
-  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.94</span>,
-  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+  <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
+    <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
+    <span class="json-key">"customer"</span>: <span class="json-val-str">"Fatou"</span>,
+    <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
+  <span class="json-brace">}</span>,
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
 <span class="json-brace">}</span>`
   },
   {
     phrase: '"J\'ai vendu deux sacs de riz à mille francs"',
     json: `<span class="json-brace">{</span>
-  <span class="json-key">"intent"</span>: <span class="json-val-str">"RECORD_SALE"</span>,
-  <span class="json-key">"amount"</span>: <span class="json-val-num">1000</span>,
-  <span class="json-key">"product"</span>: <span class="json-val-str">"riz"</span>,
-  <span class="json-key">"language"</span>: <span class="json-val-str">"fr"</span>,
-  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.97</span>,
-  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+  <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
+    <span class="json-key">"type"</span>: <span class="json-val-str">"sale"</span>,
+    <span class="json-key">"amount"</span>: <span class="json-val-num">1000</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>,
+    <span class="json-key">"direction"</span>: <span class="json-val-str">"sold"</span>
+  <span class="json-brace">}</span>,
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
 <span class="json-brace">}</span>`
   },
   {
     phrase: '"Mamadou a payé juróom junni"',
     json: `<span class="json-brace">{</span>
-  <span class="json-key">"intent"</span>: <span class="json-val-str">"RECORD_PAYMENT"</span>,
-  <span class="json-key">"amount"</span>: <span class="json-val-num">5000</span>,
-  <span class="json-key">"client"</span>: <span class="json-val-str">"Mamadou"</span>,
-  <span class="json-key">"language"</span>: <span class="json-val-str">"mixed"</span>,
-  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.91</span>,
-  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+  <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
+    <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
+    <span class="json-key">"customer"</span>: <span class="json-val-str">"Mamadou"</span>,
+    <span class="json-key">"amount"</span>: <span class="json-val-num">5000</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
+  <span class="json-brace">}</span>,
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
 <span class="json-brace">}</span>`
   },
   {
-    phrase: '"C\'est quoi mes ventes aujourd\'hui"',
+    phrase: '"Awa jënd na ñaar junni crédit"',
     json: `<span class="json-brace">{</span>
-  <span class="json-key">"intent"</span>: <span class="json-val-str">"CHECK_BALANCE"</span>,
-  <span class="json-key">"period"</span>: <span class="json-val-str">"today"</span>,
-  <span class="json-key">"language"</span>: <span class="json-val-str">"fr"</span>,
-  <span class="json-key">"confidence"</span>: <span class="json-val-num">0.99</span>,
-  <span class="json-key">"valid"</span>: <span class="json-val-bool">true</span>
+  <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
+    <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
+    <span class="json-key">"customer"</span>: <span class="json-val-str">"Awa"</span>,
+    <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
+    <span class="json-key">"direction"</span>: <span class="json-val-str">"bought"</span>
+  <span class="json-brace">}</span>,
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
 <span class="json-brace">}</span>`
   },
 ];

@@ -3,7 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kuma Labs — Voice Infrastructure for Africa's Informal Economy</title>
+<title>Kuma Labs — Voice ops for labor-constrained West Africa</title>
+<meta name="description" content="Kuma Labs builds the voice layer for operators running voice-captured transactions at scale across Wolof-speaking West Africa. Research: the first public benchmark of Wolof voice AI (April 2026).">
+<meta property="og:title" content="Kuma Labs — Voice ops for labor-constrained West Africa">
+<meta property="og:description" content="The first public benchmark of Wolof voice AI across Whisper, Gemini, and Google STT, plus the product layer operators need on top of it.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.kuma-labs.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="State of Wolof Voice AI 2026">
+<meta name="twitter:description" content="Benchmarks, failure modes, and the gap to production.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -546,12 +554,12 @@ footer {
 <nav id="nav">
   <a href="/" class="logo">Kuma<em>Labs</em></a>
   <ul>
+    <li><a href="/research/state-of-wolof-voice-ai-2026.html">Research</a></li>
     <li><a href="#how">How it works</a></li>
     <li><a href="#stack">Stack</a></li>
     <li><a href="#partners">Use cases</a></li>
     <li><a href="https://docs.kuma-labs.com" target="_blank">Docs</a></li>
-    <li><a href="https://api.kuma-labs.com/docs" target="_blank">API Playground</a></li>
-    <li><a href="mailto:hello@kumalabs.ai" class="nav-cta">Request access</a></li>
+    <li><a href="mailto:hello@kumalabs.ai" class="nav-cta">Talk to us</a></li>
   </ul>
 </nav>
 
@@ -559,27 +567,29 @@ footer {
 <section class="hero">
   <div class="hero-glow"></div>
 
-  <div class="hero-tag">Voice Infrastructure Platform <span style="margin-left:0.8rem; padding:0.2rem 0.7rem; background:var(--green); color:var(--black); border-radius:100px; font-size:0.65rem; letter-spacing:0.06em; font-weight:500;">API v0.1.0 — LIVE</span></div>
+  <div class="hero-tag">Research · April 2026 <span style="margin-left:0.8rem; padding:0.2rem 0.7rem; background:var(--green); color:var(--black); border-radius:100px; font-size:0.65rem; letter-spacing:0.06em; font-weight:500;">New report</span></div>
 
   <h1>
-    The voice API<br>
-    <span class="accent">Africa</span> needed<br>
-    <span class="outline">all along.</span>
+    Wolof voice,<br>
+    <span class="accent">measured.</span><br>
+    <span class="outline">2026.</span>
   </h1>
 
   <p class="hero-sub">
-    We translate voice to structured data — in French, English, and Wolof — 
-    for any app serving West Africa's 60 million informal merchants.
+    The first public benchmark of Wolof voice AI across Whisper, Gemini, and
+    Google STT — with the failure modes that matter when you're building voice
+    UX for West African operators, and the ops layer you need on top of the
+    ASR to actually ship it.
   </p>
 
   <div class="hero-actions">
-    <a href="mailto:hello@kumalabs.ai" class="btn-primary">
-      <span>Request early access</span>
+    <a href="/research/state-of-wolof-voice-ai-2026.html" class="btn-primary">
+      <span>Read the report</span>
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
         <path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </a>
-    <a href="#how" class="btn-ghost">See how it works →</a>
+    <a href="#how" class="btn-ghost">What Kuma ships →</a>
   </div>
 
   <div class="wolof-float">
@@ -639,11 +649,11 @@ footer {
   <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
     <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
     <span class="json-key">"customer"</span>: <span class="json-val-str">"Fatou"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
-    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>,
-    <span class="json-key">"direction"</span>: <span class="json-val-str">"bought"</span>
+    <span class="json-key">"amount"</span>: <span class="json-brace">{</span> <span class="json-key">"value"</span>: <span class="json-val-num">10000</span>, <span class="json-key">"alt"</span>: <span class="json-val-num">2000</span> <span class="json-brace">}</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
   <span class="json-brace">}</span>,
-  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">true</span>,
+  <span class="json-key">"flagged_fields"</span>: [<span class="json-val-str">"amount"</span>]
 <span class="json-brace">}</span>
     </div>
   </div>
@@ -652,24 +662,22 @@ footer {
 <!-- Ticker -->
 <div class="ticker">
   <div class="ticker-inner">
-    <span>Wolof ASR</span><span class="dot">·</span>
-    <span>Voice API</span><span class="dot">·</span>
-    <span>West Africa</span><span class="dot">·</span>
-    <span>Informal Economy</span><span class="dot">·</span>
-    <span>60M merchants</span><span class="dot">·</span>
-    <span>Orange Sénégal</span><span class="dot">·</span>
+    <span>State of Wolof Voice AI 2026</span><span class="dot">·</span>
+    <span>Public benchmark</span><span class="dot">·</span>
+    <span>Whisper · Gemini · Google STT</span><span class="dot">·</span>
+    <span>Failure modes that matter</span><span class="dot">·</span>
     <span>FR ↔ WO code-switching</span><span class="dot">·</span>
-    <span>Human-Centered AI</span><span class="dot">·</span>
-    <span>Infrastructure layer</span><span class="dot">·</span>
-    <span>Wolof ASR</span><span class="dot">·</span>
-    <span>Voice API</span><span class="dot">·</span>
-    <span>West Africa</span><span class="dot">·</span>
-    <span>Informal Economy</span><span class="dot">·</span>
-    <span>60M merchants</span><span class="dot">·</span>
-    <span>Orange Sénégal</span><span class="dot">·</span>
+    <span>Open corpus · Apache-2.0 harness</span><span class="dot">·</span>
+    <span>Dërëm × 5 CFA</span><span class="dot">·</span>
+    <span>Human-in-the-loop confirmation</span><span class="dot">·</span>
+    <span>State of Wolof Voice AI 2026</span><span class="dot">·</span>
+    <span>Public benchmark</span><span class="dot">·</span>
+    <span>Whisper · Gemini · Google STT</span><span class="dot">·</span>
+    <span>Failure modes that matter</span><span class="dot">·</span>
     <span>FR ↔ WO code-switching</span><span class="dot">·</span>
-    <span>Human-Centered AI</span><span class="dot">·</span>
-    <span>Infrastructure layer</span><span class="dot">·</span>
+    <span>Open corpus · Apache-2.0 harness</span><span class="dot">·</span>
+    <span>Dërëm × 5 CFA</span><span class="dot">·</span>
+    <span>Human-in-the-loop confirmation</span><span class="dot">·</span>
   </div>
 </div>
 
@@ -678,33 +686,35 @@ footer {
   <div class="insight-grid">
     <div>
       <div class="section-tag">The insight</div>
-      <h2 class="section-title">Typing was never designed for this.</h2>
+      <h2 class="section-title">Talking is faster. Typing is the bottleneck.</h2>
       <p class="section-body">
-        For a merchant managing 30 transactions a day — in a loud Dakar market, 
-        sometimes with a child on their back — the keyboard isn't a friction point. 
-        It's a barrier. Kuma removes it entirely.
+        For a fintech field agent, an agri-extension worker, or a merchant
+        logging thirty transactions a day, the keyboard isn't friction —
+        it's a throughput ceiling. Voice removes it. But only if the voice
+        layer actually works in Wolof.
       </p>
       <p class="section-body" style="margin-top:1rem;">
-        We use AI to translate voice into structured data, in the languages your users 
-        actually speak. No keyboard required.
+        Kuma is what you bolt on top of a commercial ASR so the ASR's
+        failure modes don't reach your ledger. Built specifically for
+        labor-constrained West African operators at scale.
       </p>
     </div>
     <div class="stats-col">
       <div class="stat-row">
-        <div class="stat-num">60M+</div>
-        <div class="stat-label">micro-businesses in Africa's informal economy running on paper</div>
+        <div class="stat-num">50</div>
+        <div class="stat-label">Senegalese voice samples benchmarked across 5 provider configurations</div>
       </div>
       <div class="stat-row">
-        <div class="stat-num">$400B</div>
-        <div class="stat-label">unmet financing need for informal traders across the continent</div>
+        <div class="stat-num">20</div>
+        <div class="stat-label">documented production failure modes with audio and downstream impact</div>
       </div>
       <div class="stat-row">
-        <div class="stat-num">&lt;3s</div>
-        <div class="stat-label">voice to confirmed transaction — our V1 target latency</div>
+        <div class="stat-num">4</div>
+        <div class="stat-label">metrics per row — WER, numeral accuracy, intent, code-switch preservation</div>
       </div>
       <div class="stat-row">
-        <div class="stat-num">3</div>
-        <div class="stat-label">languages supported — French, English, Wolof — with code-switching</div>
+        <div class="stat-num">CC-BY</div>
+        <div class="stat-label">corpus + Apache-2.0 harness — reproducible end-to-end</div>
       </div>
     </div>
   </div>
@@ -735,8 +745,8 @@ footer {
     <div class="how-step">
       <div class="step-num">03</div>
       <div class="step-title">Wolof parsing</div>
-      <div class="step-body">Our custom Wolof number parser (based on Guérin 2021) extracts amounts: "ñaar junni" → 2,000 XOF instantly.</div>
-      <div class="step-code">parse_amount("ñaar junni") → 2000</div>
+      <div class="step-body">Our custom Wolof number parser (Guérin 2021) extracts numerals from 1 to 1B, resolves compound and genitive forms, and surfaces <em>both</em> readings when a bare commerce numeral is structurally ambiguous between direct-CFA and implicit-dërëm.</div>
+      <div class="step-code">parse("ñaar junni") → {primary: 10000, alt: 2000, flag: HITL}</div>
     </div>
     <div class="how-step">
       <div class="step-num">04</div>
@@ -764,9 +774,10 @@ footer {
   <div class="section-tag">The technology</div>
   <h2 class="section-title" style="color:var(--black);">We built the Wolof number parser.</h2>
   <p class="section-body">
-    Based on peer-reviewed linguistics research (Guérin 2021), our parser covers 
-    all Wolof numbers from 1 to 1 billion — including the commerce-specific 
-    <em>dërëm</em> unit (1 dërëm = 5 CFA francs).
+    Based on peer-reviewed linguistics research (Guérin 2021), our parser covers
+    all Wolof numerals from 1 to 1 billion — compound forms, genitive
+    constructions, the commerce-specific <em>dërëm</em> unit (1 dërëm = 5 CFA),
+    and the loanword boundary (<em>milyon</em> in; <em>alfu</em> out).
   </p>
 
   <div class="numbers-grid">
@@ -776,53 +787,100 @@ footer {
       <div class="number-note">One · determinative</div>
     </div>
     <div class="number-card">
-      <div class="number-wo">ñaar junni</div>
-      <div class="number-val">2,000</div>
-      <div class="number-note">Two thousand</div>
-      <div class="number-xof">2 000 XOF</div>
+      <div class="number-wo">ñaar</div>
+      <div class="number-val">2</div>
+      <div class="number-note">Two</div>
     </div>
     <div class="number-card">
       <div class="number-wo">juróom fukk</div>
       <div class="number-val">50</div>
       <div class="number-note">Five × ten</div>
-      <div class="number-xof">50 XOF</div>
     </div>
     <div class="number-card">
       <div class="number-wo">fukk ak juróom ñaar</div>
       <div class="number-val">17</div>
-      <div class="number-note">Ten + five + two</div>
-      <div class="number-xof">17 XOF</div>
+      <div class="number-note">Ten + five + two · additive</div>
     </div>
     <div class="number-card">
       <div class="number-wo">fanweer</div>
       <div class="number-val">30</div>
-      <div class="number-note">"Jour-lune" · lunar month</div>
-      <div class="number-xof">30 XOF</div>
+      <div class="number-note">"Jour-lune" · lunar-month word</div>
     </div>
     <div class="number-card">
       <div class="number-wo">téeméer</div>
       <div class="number-val">100</div>
       <div class="number-note">One hundred</div>
-      <div class="number-xof">100 XOF</div>
     </div>
     <div class="number-card">
-      <div class="number-wo">ñaar téeméer dërëm</div>
-      <div class="number-val">1,000</div>
-      <div class="number-note">200 × 5 CFA dërëm</div>
-      <div class="number-xof">1 000 XOF</div>
+      <div class="number-wo">ñaar junni</div>
+      <div class="number-val">2,000</div>
+      <div class="number-note">Two × thousand</div>
     </div>
     <div class="number-card">
       <div class="number-wo">juróom-benn-i junni</div>
       <div class="number-val">6,000</div>
-      <div class="number-note">Genitive construction</div>
-      <div class="number-xof">6 000 XOF</div>
+      <div class="number-note">Genitive construction · (5+1)×1000</div>
     </div>
   </div>
 
-  <div class="wolof-note">
-    <strong>Why this matters:</strong> In Dakar markets, prices are often quoted in Wolof even by French-speaking merchants. 
-    A merchant saying "ñaar junni" means 2,000 XOF. Generic ASR returns garbled text. 
-    Kuma returns <code style="color:var(--green)">{ amount: 2000, currency: "XOF" }</code>.
+  <div class="wolof-note" style="margin-top:2.5rem;">
+    <strong>The cards above are linguistics, not currency.</strong> Wolof number words
+    have fixed arithmetic values. When those words appear in a commerce context,
+    translating to CFA francs requires a second step — and that step is
+    structurally ambiguous. Below is how our parser resolves it.
+  </div>
+
+  <!-- Commerce disambiguation -->
+  <div style="margin-top:3rem; padding:2rem 2.2rem; background:#ffffff; border-radius:14px; border:1px solid rgba(0,0,0,0.08); box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+    <div class="section-tag" style="margin-bottom:1rem;">Commerce disambiguation</div>
+    <h3 style="font-family:'Playfair Display',serif; font-weight:700; font-size:1.6rem; line-height:1.2; color:var(--black); margin-bottom:1rem;">
+      The same number word can mean two different amounts.
+    </h3>
+    <p class="section-body" style="margin-bottom:1.6rem;">
+      Senegalese market merchants frequently quote prices in <em>dërëm</em> without
+      saying the word — "ñaar junni" can mean 2,000 CFA (direct reading) or 2,000 dërëm =
+      10,000 CFA (implicit-dërëm reading, Guérin 2021 §2.6). There is no universally
+      correct default. Our parser returns <strong>both interpretations</strong> and
+      flags the field for human confirmation.
+    </p>
+
+    <div style="display:grid; grid-template-columns:1fr; gap:1rem; font-family:'DM Mono',monospace; font-size:0.86rem;">
+
+      <div style="padding:1rem 1.2rem; border-left:3px solid var(--green); background:rgba(29,158,117,0.05); border-radius:0 6px 6px 0;">
+        <div style="color:rgba(0,0,0,0.5); font-size:0.74rem; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.4rem;">Ambiguous · bare commerce numeral</div>
+        <div style="color:var(--black); font-weight:500;">input: "ñaar junni"</div>
+        <div style="color:rgba(0,0,0,0.7); margin-top:0.4rem;">
+          amount: <strong>10,000</strong> XOF  <span style="color:rgba(0,0,0,0.4);">(implicit dërëm, primary — confidence 0.6)</span><br>
+          alt: 2,000 XOF  <span style="color:rgba(0,0,0,0.4);">(direct CFA — confidence 0.4)</span><br>
+          <span style="color:#c2410c;">needs_confirmation: true</span>
+        </div>
+      </div>
+
+      <div style="padding:1rem 1.2rem; border-left:3px solid var(--green); background:rgba(29,158,117,0.05); border-radius:0 6px 6px 0;">
+        <div style="color:rgba(0,0,0,0.5); font-size:0.74rem; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.4rem;">Explicit dërëm · unambiguous</div>
+        <div style="color:var(--black); font-weight:500;">input: "dërëm fukk"</div>
+        <div style="color:rgba(0,0,0,0.7); margin-top:0.4rem;">
+          amount: <strong>50</strong> XOF  <span style="color:rgba(0,0,0,0.4);">(10 dërëm × 5 — confidence 1.0)</span><br>
+          needs_confirmation: false
+        </div>
+      </div>
+
+      <div style="padding:1rem 1.2rem; border-left:3px solid var(--green); background:rgba(29,158,117,0.05); border-radius:0 6px 6px 0;">
+        <div style="color:rgba(0,0,0,0.5); font-size:0.74rem; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.4rem;">Explicit unit marker · unambiguous</div>
+        <div style="color:var(--black); font-weight:500;">input: "téeméer francs"</div>
+        <div style="color:rgba(0,0,0,0.7); margin-top:0.4rem;">
+          amount: <strong>100</strong> XOF  <span style="color:rgba(0,0,0,0.4);">(direct CFA locked by "francs" — confidence 1.0)</span><br>
+          needs_confirmation: false
+        </div>
+      </div>
+
+    </div>
+
+    <p class="section-body" style="margin-top:1.6rem; font-size:0.95rem;">
+      This is a core design decision, not a bug. Silently picking one reading
+      would be wrong for half of Senegalese commerce speech either way.
+      <a href="/research/state-of-wolof-voice-ai-2026.html#s5" style="color:var(--green); border-bottom:1px solid rgba(29,158,117,0.3); text-decoration:none;">Full treatment in the research report (Failure 7)</a>.
+    </p>
   </div>
 </section>
 
@@ -944,46 +1002,46 @@ footer {
 
 <!-- Use cases / Partners -->
 <section id="partners" class="partners reveal">
-  <div class="section-tag">Who plugs in</div>
-  <h2 class="section-title">One API.<br>Any app. Any market.</h2>
-  <p class="section-body">Kuma is infrastructure — bring your app, we bring the voice layer. Your users speak, Kuma understands.</p>
+  <div class="section-tag">Who this is for</div>
+  <h2 class="section-title">Labor-constrained ops.<br>At scale.</h2>
+  <p class="section-body">Kuma is for teams where field-staff throughput is capped by typing, not by talking. If every extra second per transaction shows up on your P&amp;L, you're in scope. If your operation runs on relationship banking with ten customers per agent, you probably aren't — and we'll tell you so.</p>
 
   <div class="use-cases-grid">
     <div class="use-card">
       <div class="use-icon">🏦</div>
-      <div class="use-title">Fintech apps</div>
-      <div class="use-body">Voice-enable merchant transaction recording for mobile money platforms and merchant banking apps across West Africa.</div>
-      <div class="use-tag">First deployment: ProBoutik × Orange</div>
+      <div class="use-title">Fintech field ops</div>
+      <div class="use-body">Mobile-money cash-in/cash-out agents, merchant-banking field reps, BNPL collectors. Voice-logged transactions where typing is a throughput ceiling.</div>
+      <div class="use-tag">Primary ICP</div>
     </div>
     <div class="use-card">
       <div class="use-icon">🌱</div>
-      <div class="use-title">Agri platforms</div>
-      <div class="use-body">Field workers record harvest, expenses, and inventory by speaking in their local language — no literacy requirement.</div>
-      <div class="use-tag">Phase 3 partner</div>
+      <div class="use-title">Agri extension at scale</div>
+      <div class="use-body">Field workers capturing harvest, expenses, and inventory across thousands of smallholders. Wolof-first, no literacy floor, no keyboard.</div>
+      <div class="use-tag">Primary ICP</div>
     </div>
     <div class="use-card">
-      <div class="use-icon">🤝</div>
-      <div class="use-title">NGOs & field ops</div>
-      <div class="use-body">Data collection without keyboard barriers. Surveys, health records, census data — spoken in Wolof, stored as structured JSON.</div>
-      <div class="use-tag">Phase 3 partner</div>
+      <div class="use-icon">🏪</div>
+      <div class="use-title">High-volume merchant platforms</div>
+      <div class="use-body">Merchant-facing apps where the top decile of users processes 30+ transactions a day. First pilot: ProBoutik.</div>
+      <div class="use-tag">Pilot live</div>
     </div>
     <div class="use-card">
       <div class="use-icon">🤖</div>
-      <div class="use-title">AI platforms</div>
-      <div class="use-body">Add West African language support to existing voice agents on Retell, VAPI, or custom pipelines. Kuma as middleware.</div>
+      <div class="use-title">Voice agents / AI platforms</div>
+      <div class="use-body">Add West African language support to existing voice agents on Retell, VAPI, or custom pipelines. Kuma as the Wolof-aware middleware.</div>
       <div class="use-tag">API partner</div>
     </div>
     <div class="use-card">
       <div class="use-icon">🏛</div>
-      <div class="use-title">Governments</div>
-      <div class="use-body">Census collection, subsidy registration, and public services access for populations where typing is a barrier.</div>
-      <div class="use-tag">Phase 3</div>
+      <div class="use-title">Public-sector ops</div>
+      <div class="use-body">Census collection, subsidy registration, electoral enrolment. Voice as accessibility — not as novelty.</div>
+      <div class="use-tag">Design partners</div>
     </div>
     <div class="use-card">
       <div class="use-icon">✨</div>
       <div class="use-title">Your use case</div>
-      <div class="use-body">Building for West Africa or any emerging market where the keyboard was never the right interface? Let's talk.</div>
-      <a href="mailto:hello@kumalabs.ai" class="use-tag" style="cursor:pointer; background:rgba(29,158,117,0.15); text-decoration:none; color:inherit; display:inline-block;">→ Apply for early access</a>
+      <div class="use-body">If you're running voice-captured ops at scale across Wolof-speaking West Africa and the numbers matter to you, tell us about your throughput.</div>
+      <a href="mailto:hello@kumalabs.ai" class="use-tag" style="cursor:pointer; background:rgba(29,158,117,0.15); text-decoration:none; color:inherit; display:inline-block;">→ Talk to us</a>
     </div>
   </div>
 </section>
@@ -991,27 +1049,27 @@ footer {
 <!-- Roadmap -->
 <section id="roadmap" class="roadmap reveal">
   <div class="section-tag">Roadmap</div>
-  <h2 class="section-title">Three phases.<br>One compounding moat.</h2>
-  <p class="section-body">Each phase makes the next one stronger. ProBoutik generates the data. The data makes the API better. The API opens every door.</p>
+  <h2 class="section-title">Research first.<br>Product on top.</h2>
+  <p class="section-body">We publish the benchmarks, we open-source the primitives, we ship the ops layer. Each piece makes the next one credible.</p>
 
   <div class="roadmap-grid">
     <div class="roadmap-phase">
-      <div class="phase-num">PHASE 01 — LIVE</div>
-      <div class="phase-title">Public API + pilot partners</div>
-      <div class="phase-body">POST /v1/transcribe is live. Proboutik is our first production integration, with a second design partner signed. Wolof number parser open-sourced. Bearer auth, rate limiting, HITL confirmation — all shipping.</div>
-      <div class="phase-tag active">Deployed</div>
+      <div class="phase-num">NOW</div>
+      <div class="phase-title">State of Wolof Voice AI 2026</div>
+      <div class="phase-body">Public benchmark across Whisper, Gemini, and Google STT on 50 Senegalese voice samples. 20-failure catalogue. Open corpus + harness. Research is the trust cost we pay up front.</div>
+      <div class="phase-tag active">Published</div>
     </div>
     <div class="roadmap-phase">
-      <div class="phase-num">PHASE 02 — NEXT</div>
-      <div class="phase-title">Data flywheel</div>
-      <div class="phase-body">Every API call generates training data. Real merchant voices, real code-switching, real market noise. Fallback ASR providers ensure we're never locked into one cloud. This dataset is Kuma's moat.</div>
+      <div class="phase-num">NEXT</div>
+      <div class="phase-title">Open-source primitives</div>
+      <div class="phase-body">wolof-numbers (live on PyPI) and wolof-ner (shipping soon) — the parsers that turn ASR output into structured fields. Anyone can build on top of these. We publish because the ecosystem is net-better when the moat is data, not code.</div>
       <div class="phase-tag">In progress</div>
     </div>
     <div class="roadmap-phase">
-      <div class="phase-num">PHASE 03 — SCALE</div>
-      <div class="phase-title">Multi-vertical expansion</div>
-      <div class="phase-body">Beyond merchant transactions — agri, NGO, government. More languages (Pulaar, Bambara, Mandinka). Per-call pricing at scale. The API platform that ProBoutik proved opens every door.</div>
-      <div class="phase-tag">6-12 months</div>
+      <div class="phase-num">THEN</div>
+      <div class="phase-title">The ops layer</div>
+      <div class="phase-body">The full Kuma stack — language router, number parser, intent classifier, validator, HITL — as a product, not just an API. Labor-constrained operators ship voice UX that works; the provider layer beneath is commoditised, the ops layer is Kuma.</div>
+      <div class="phase-tag">Pilots open</div>
     </div>
   </div>
 </section>
@@ -1020,13 +1078,13 @@ footer {
 <section class="cta reveal">
   <div class="cta-glow"></div>
   <div class="section-tag">Get started</div>
-  <h2 class="section-title">Ready to add<br>African voice to your product?</h2>
-  <p class="section-body">We're onboarding our first API partners now. Apply for early access and get free integration support for 90 days.</p>
+  <h2 class="section-title">Start with the report.<br>Then tell us your numbers.</h2>
+  <p class="section-body">If you're running voice-captured ops at scale in Wolof-speaking West Africa and the throughput matters, we'd like to hear what yours looks like today. First five partner conversations after publication get 90 days of free integration support on their own corpus.</p>
   <div class="cta-buttons">
-    <a href="mailto:hello@kumalabs.ai" class="btn-primary">
-      Apply for early access →
+    <a href="/research/state-of-wolof-voice-ai-2026.html" class="btn-primary">
+      Read the report →
     </a>
-    <a href="mailto:hello@kumalabs.ai" class="btn-ghost">Talk to us first</a>
+    <a href="mailto:hello@kumalabs.ai" class="btn-ghost">Talk to us</a>
   </div>
 </section>
 
@@ -1034,10 +1092,10 @@ footer {
 <footer>
   <div class="footer-logo">Kuma<em>Labs</em></div>
   <div class="footer-links">
+    <a href="/research/state-of-wolof-voice-ai-2026.html">Research</a>
     <a href="#how">How it works</a>
     <a href="#stack">Stack</a>
     <a href="https://docs.kuma-labs.com" target="_blank">Docs</a>
-    <a href="https://api.kuma-labs.com/docs" target="_blank">API Playground</a>
     <a href="mailto:hello@kumalabs.ai">hello@kumalabs.ai</a>
   </div>
   <div class="footer-copy">San Francisco · Dakar · © 2026 Kuma Labs Inc.</div>
@@ -1084,51 +1142,64 @@ const observer = new IntersectionObserver((entries) => {
 reveals.forEach(r => observer.observe(r));
 
 // ── DEMO ROTATION ───────────────────────────────────────────────────────────
+// Each output matches what the live API actually returns on the given phrase.
+// Bare Wolof commerce numerals are structurally ambiguous between direct-CFA
+// and implicit-dërëm readings; we surface both interpretations and flag
+// for HITL rather than silently pick one. See /research for the full story.
 const demos = [
   {
+    // Ambiguous commerce phrase — bare "ñaar junni" could mean 2000 XOF (direct)
+    // or 2000 dërëm = 10000 XOF (implicit commerce convention, Guérin 2021 §2.6).
+    // Parser primary = implicit-dërëm, alt = direct CFA, needs_confirmation = true.
     phrase: '"Fatou me doit ñaar junni"',
     json: `<span class="json-brace">{</span>
   <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
     <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
     <span class="json-key">"customer"</span>: <span class="json-val-str">"Fatou"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
+    <span class="json-key">"amount"</span>: <span class="json-brace">{</span> <span class="json-key">"value"</span>: <span class="json-val-num">10000</span>, <span class="json-key">"alt"</span>: <span class="json-val-num">2000</span> <span class="json-brace">}</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
+  <span class="json-brace">}</span>,
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">true</span>,
+  <span class="json-key">"flagged_fields"</span>: [<span class="json-val-str">"amount"</span>]
+<span class="json-brace">}</span>`
+  },
+  {
+    // Explicit dërëm word — unambiguous, clean output, no HITL flag needed.
+    phrase: '"Awa jay na dërëm fukk"',
+    json: `<span class="json-brace">{</span>
+  <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
+    <span class="json-key">"type"</span>: <span class="json-val-str">"sale"</span>,
+    <span class="json-key">"customer"</span>: <span class="json-val-str">"Awa"</span>,
+    <span class="json-key">"amount"</span>: <span class="json-val-num">50</span>,
     <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
   <span class="json-brace">}</span>,
   <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
 <span class="json-brace">}</span>`
   },
   {
-    phrase: '"J\'ai vendu deux sacs de riz à mille francs"',
-    json: `<span class="json-brace">{</span>
-  <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
-    <span class="json-key">"type"</span>: <span class="json-val-str">"sale"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">1000</span>,
-    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>,
-    <span class="json-key">"direction"</span>: <span class="json-val-str">"sold"</span>
-  <span class="json-brace">}</span>,
-  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
-<span class="json-brace">}</span>`
-  },
-  {
+    // Ambiguous commerce — same pattern as demo 1 at a different scale.
     phrase: '"Mamadou a payé juróom junni"',
     json: `<span class="json-brace">{</span>
   <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
     <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
     <span class="json-key">"customer"</span>: <span class="json-val-str">"Mamadou"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">5000</span>,
+    <span class="json-key">"amount"</span>: <span class="json-brace">{</span> <span class="json-key">"value"</span>: <span class="json-val-num">25000</span>, <span class="json-key">"alt"</span>: <span class="json-val-num">5000</span> <span class="json-brace">}</span>,
     <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
   <span class="json-brace">}</span>,
-  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">true</span>,
+  <span class="json-key">"flagged_fields"</span>: [<span class="json-val-str">"amount"</span>]
 <span class="json-brace">}</span>`
   },
   {
-    phrase: '"Awa jënd na ñaar junni crédit"',
+    // Explicit "francs" after the numeral locks the direct-CFA reading.
+    // Unambiguous, clean output.
+    phrase: '"Ousmane a acheté pour téeméer francs"',
     json: `<span class="json-brace">{</span>
   <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
-    <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
-    <span class="json-key">"customer"</span>: <span class="json-val-str">"Awa"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
-    <span class="json-key">"direction"</span>: <span class="json-val-str">"bought"</span>
+    <span class="json-key">"type"</span>: <span class="json-val-str">"sale"</span>,
+    <span class="json-key">"customer"</span>: <span class="json-val-str">"Ousmane"</span>,
+    <span class="json-key">"amount"</span>: <span class="json-val-num">100</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
   <span class="json-brace">}</span>,
   <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
 <span class="json-brace">}</span>`

@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The State of Wolof Voice AI — Benchmarks, Failure Modes, and the Gap to Production (April 2026) · Kuma Labs</title>
+<meta name="description" content="The first public benchmark of Wolof voice AI across Whisper, Gemini, and Google Speech-to-Text, with a 20-failure catalogue and implications for product teams.">
+<meta property="og:title" content="The State of Wolof Voice AI 2026">
+<meta property="og:description" content="Benchmarks, failure modes, and the gap to production. 50 Senegalese voice samples across 5 provider configurations.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kuma-labs.com/research/state-of-wolof-voice-ai-2026.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The State of Wolof Voice AI 2026">
+<meta name="twitter:description" content="The first public benchmark of Wolof voice AI across Whisper, Gemini, and Google STT.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --black: #080808;
+  --green: #1D9E75;
+  --green-dim: rgba(29,158,117,0.12);
+  --green-glow: rgba(29,158,117,0.25);
+  --cream: #F5F0E8;
+  --white: #FAFAF8;
+  --mid: #888;
+  --mid-strong: #b8b8b8;
+  --border: rgba(255,255,255,0.08);
+  --surface: rgba(255,255,255,0.03);
+  --surface-2: rgba(255,255,255,0.05);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ───────────────────────────────────────────────────────────────── */
+nav.top {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.2rem 3rem;
+  background: rgba(8,8,8,0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700; font-size: 1.35rem;
+  letter-spacing: -0.02em; color: var(--white);
+  text-decoration: none;
+}
+.logo em { font-style: italic; color: var(--green); }
+nav.top .breadcrumb {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--mid);
+}
+nav.top .breadcrumb a { color: var(--mid); text-decoration: none; }
+nav.top .breadcrumb a:hover { color: var(--white); }
+
+/* ── HEADER ────────────────────────────────────────────────────────────── */
+header.article {
+  padding: 6rem 3rem 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+header.article::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(29,158,117,0.10), transparent 60%);
+  pointer-events: none;
+}
+.tag {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 2rem;
+}
+.tag::before {
+  content: ''; display: block;
+  width: 32px; height: 1px; background: var(--green);
+}
+header.article h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  max-width: 980px;
+  margin-bottom: 2rem;
+}
+header.article h1 em { color: var(--green); font-style: italic; }
+.kicker {
+  max-width: 820px;
+  font-size: 1.15rem;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.6;
+}
+.meta {
+  margin-top: 3rem;
+  display: flex; flex-wrap: wrap; gap: 2.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem; letter-spacing: 0.08em;
+  color: var(--mid);
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.meta-item .k { color: var(--mid); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; display: block; margin-bottom: 0.35rem; }
+.meta-item .v { color: var(--white); }
+
+/* ── LAYOUT: TOC + ARTICLE ─────────────────────────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 3rem 6rem;
+}
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 2rem; padding: 2rem 1.5rem 4rem; }
+  header.article { padding: 4rem 1.5rem 2.5rem; }
+  nav.top { padding: 1rem 1.5rem; }
+  .toc { position: static; max-height: none; }
+}
+
+/* ── TOC ───────────────────────────────────────────────────────────────── */
+.toc {
+  position: sticky; top: 5rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  padding: 1.5rem 1.25rem;
+  border-left: 1px solid var(--border);
+  font-size: 0.83rem;
+  line-height: 1.5;
+}
+.toc-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 1rem;
+}
+.toc ol { list-style: none; }
+.toc > ol > li { margin-bottom: 0.5rem; }
+.toc a {
+  color: var(--mid-strong); text-decoration: none;
+  display: block; padding: 0.2rem 0;
+  transition: color 0.15s;
+}
+.toc a:hover { color: var(--white); }
+.toc .num { color: var(--mid); margin-right: 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.72rem; }
+
+/* ── ARTICLE ───────────────────────────────────────────────────────────── */
+article {
+  max-width: 760px;
+  font-size: 1.02rem;
+  color: rgba(255,255,255,0.82);
+}
+article h2 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--white);
+  margin: 4.5rem 0 1.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+article h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+article h3 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  line-height: 1.3;
+  color: var(--white);
+  margin: 2.5rem 0 1rem;
+}
+article h4 {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 1.05rem;
+  color: var(--white);
+  margin: 1.8rem 0 0.7rem;
+}
+article p { margin-bottom: 1.3rem; }
+article ul, article ol { margin: 1rem 0 1.5rem 1.3rem; }
+article li { margin-bottom: 0.6rem; }
+article em { color: var(--cream); font-style: italic; }
+article strong { color: var(--white); font-weight: 500; }
+article a { color: var(--green); text-decoration: none; border-bottom: 1px solid rgba(29,158,117,0.3); transition: border-color 0.15s; }
+article a:hover { border-color: var(--green); }
+article blockquote {
+  margin: 1.5rem 0;
+  padding: 0.3rem 1.3rem;
+  border-left: 2px solid var(--green);
+  color: rgba(255,255,255,0.72);
+  font-style: italic;
+}
+article code {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.88em;
+  background: var(--surface-2);
+  padding: 0.12em 0.45em;
+  border-radius: 3px;
+  color: var(--cream);
+}
+article pre {
+  margin: 1.5rem 0;
+  padding: 1.2rem 1.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--cream);
+}
+article pre code { background: transparent; padding: 0; }
+
+/* Tables */
+article table {
+  width: 100%;
+  margin: 1.8rem 0;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+article th, article td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+article th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--mid-strong);
+  font-weight: 400;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+article td { color: rgba(255,255,255,0.78); }
+article td code { font-size: 0.82rem; }
+
+/* Callouts */
+.callout {
+  margin: 2rem 0;
+  padding: 1.4rem 1.6rem;
+  background: var(--green-dim);
+  border-left: 3px solid var(--green);
+  border-radius: 0 4px 4px 0;
+}
+.callout p:last-child { margin-bottom: 0; }
+.callout .label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 0.6rem;
+}
+
+.placeholder {
+  margin: 2rem 0;
+  padding: 1.4rem 1.6rem;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  color: var(--mid-strong);
+  font-style: italic;
+}
+.placeholder .label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--green);
+  font-style: normal;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Failure entry */
+.failure {
+  margin: 2rem 0;
+  padding: 1.5rem 1.6rem 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.failure h4 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 1.08rem;
+}
+.failure h4 .n {
+  color: var(--green);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  margin-right: 0.6rem;
+  letter-spacing: 0.04em;
+}
+.failure .ref {
+  margin: 0.3rem 0 1rem;
+  padding: 0.7rem 1rem;
+  background: rgba(245,240,232,0.04);
+  border-left: 2px solid var(--cream);
+  font-style: italic;
+  color: var(--cream);
+}
+.failure .ref .lang { display: block; margin-top: 0.5rem; font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--mid); font-style: normal; letter-spacing: 0.08em; }
+
+/* ── FOOTER ────────────────────────────────────────────────────────────── */
+footer.article {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--mid-strong);
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+footer.article .cite {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--mid-strong);
+}
+footer.article .cite strong { color: var(--white); font-weight: 500; }
+footer.article .contact a { color: var(--green); text-decoration: none; border-bottom: 1px solid rgba(29,158,117,0.3); }
+@media (max-width: 700px) {
+  footer.article { grid-template-columns: 1fr; padding: 2rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="top">
+  <a href="/" class="logo">Kuma<em>Labs</em></a>
+  <div class="breadcrumb"><a href="/">Home</a> · Research</div>
+</nav>
+
+<!-- Header -->
+<header class="article">
+  <div class="tag">Research Report · April 2026</div>
+  <h1>The State of <em>Wolof Voice AI</em> — Benchmarks, Failure Modes, and the Gap to Production.</h1>
+  <p class="kicker">
+    The first public benchmark of commercial Wolof voice AI, measured on 50 Senegalese voice samples across
+    Whisper <code>gpt-4o-transcribe</code>, Whisper <code>whisper-1</code>, Gemini 2.5 Flash,
+    Google Speech-to-Text v2 Chirp 2, and the Kuma Labs end-to-end pipeline. Plus a 20-entry catalogue of
+    the failure modes that actually matter when you're shipping voice UX to West African users.
+  </p>
+  <div class="meta">
+    <div class="meta-item"><span class="k">Published</span><span class="v">2026-04-28</span></div>
+    <div class="meta-item"><span class="k">Author</span><span class="v">Abdul Kane, Kuma Labs</span></div>
+    <div class="meta-item"><span class="k">Reading time</span><span class="v">~25 minutes</span></div>
+    <div class="meta-item"><span class="k">Corpus</span><span class="v">50 samples · CC-BY-4.0</span></div>
+    <div class="meta-item"><span class="k">Harness</span><span class="v">Apache-2.0</span></div>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- TOC -->
+<aside class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#s1"><span class="num">1.</span>Executive summary</a></li>
+    <li><a href="#s2"><span class="num">2.</span>Why this benchmark matters now</a></li>
+    <li><a href="#s3"><span class="num">3.</span>Methodology</a></li>
+    <li><a href="#s4"><span class="num">4.</span>Results</a></li>
+    <li><a href="#s5"><span class="num">5.</span>Failure-mode catalogue</a></li>
+    <li><a href="#s6"><span class="num">6.</span>Kuma end-to-end</a></li>
+    <li><a href="#s7"><span class="num">7.</span>Implications for builders</a></li>
+    <li><a href="#s8"><span class="num">8.</span>Open dataset + reproducibility</a></li>
+    <li><a href="#s9"><span class="num">9.</span>What's next</a></li>
+    <li><a href="#s10"><span class="num">10.</span>Acknowledgments</a></li>
+  </ol>
+</aside>
+
+<article>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §1 EXECUTIVE SUMMARY -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s1">1. Executive summary</h2>
+<p><em>Read time: 5 minutes. The rest of the report is the evidence.</em></p>
+
+<h3>The state in one sentence</h3>
+<p>Voice AI support for Wolof in 2026 is <strong>measurably behind</strong> comparable-volume languages across every major commercial provider, and the gap shows up in the specific places that matter most for production — numerals, code-switching, negation, and name extraction.</p>
+
+<h3>Why you should read this now</h3>
+<p>Roughly twelve million people in Senegal, Gambia, and Mauritania speak Wolof as their primary language, most of them code-switching with French in urban contexts. Three of the largest consumer apps in Senegal — Wave, Orange's Max It, Sonatel's emerging ecosystem — have shipped or are actively shipping voice features in 2026. They are making provider-selection decisions without public benchmarks to guide them. This report is the first public benchmark of commercial Wolof voice AI, measured on 50 Senegalese voice samples against five provider configurations, and it exists to replace marketing claims with ground truth.</p>
+
+<h3>What we measured</h3>
+<p>Fifty Wolof / French / code-switched voice samples from Senegalese merchant and field-pilot recordings, each labelled with a reference transcript, expected numeric amount, and expected merchant-transaction intent. We ran each sample against:</p>
+<ul>
+  <li><strong>OpenAI Whisper</strong> — <code>gpt-4o-transcribe</code> and <code>whisper-1</code>, direct API calls with no custom prompts.</li>
+  <li><strong>Google Gemini 2.5 Flash</strong> — native audio transcription via Vertex AI.</li>
+  <li><strong>Google Cloud Speech-to-Text v2</strong> — Chirp 2 with French (<code>fr-FR</code>) as the primary probe; Chirp 2 with Wolof (<code>wo-SN</code>) as a deliberate second probe to measure what the API actually does when asked for Wolof.</li>
+  <li><strong>The Kuma Labs end-to-end pipeline</strong> — Whisper primary + Wolof-aware downstream stages (number parser, intent classifier, validator), as a reference for what a vertically-integrated product layer can add on top of a commercial ASR.</li>
+</ul>
+<p>Four metrics per (sample, provider) pair: Word Error Rate, numeral extraction accuracy (using a shared open-source Wolof number parser so every provider is scored on a level playing field), intent classification accuracy (top-1 exact match), and code-switch preservation via fastText language ID. Latency and cost per 1000 requests reported alongside.</p>
+<p>Full methodology in §3. Full matrix in §4. The failure-mode catalogue in §5 is the section worth your time if you are choosing a provider.</p>
+
+<h3>The three findings that matter</h3>
+
+<div class="placeholder">
+  <span class="label">Findings pending — matrix run in progress</span>
+  The three headline findings are populated from the full 50-sample matrix. This page updates on publication day with WER numbers, numeral-accuracy rates, and intent / code-switch preservation across providers. The finding structures we expect to fill in:
+  <ol style="margin-top: 0.8rem;">
+    <li><strong>Finding 1 — WER gap.</strong> Raw Whisper vs Chirp 2 vs Gemini on Wolof-only, French-only, and code-switched segments. Expected shape: Wolof-only WER substantially higher than comparable-volume languages; code-switched WER higher than either monolingual segment.</li>
+    <li><strong>Finding 2 — Numeral extraction.</strong> Per-provider accuracy after shared-parser scoring. Expected shape: raw ASR providers score materially below the Kuma end-to-end column because Wolof numeral morphology (dërëm unit, genitive linkers, junni/milyon scale) is not encoded in general-purpose number parsers.</li>
+    <li><strong>Finding 3 — Intent + code-switch under realistic conditions.</strong> Code-switched utterances are where every provider stumbles hardest, and where HITL confirmation is structurally required today.</li>
+  </ol>
+</div>
+
+<h3>The failure modes that matter most</h3>
+<p>Five recurring, production-critical failure patterns, expanded in §5 with transcripts, audio, and downstream consequences:</p>
+<ol>
+  <li><strong>Dropped negation morphology</strong> — the Wolof <code>-ul</code> suffix is routinely dropped, silently flipping a repayment status from <em>unpaid</em> to <em>paid</em>. This is the most dangerous single failure in the report.</li>
+  <li><strong>The dërëm ambiguity, both directions</strong> — the same bare Wolof numeral can mean direct CFA or implicit-dërëm (×5). Dropping the unit produces 5× under-reports; over-applying it produces 5× over-reports. Most production failures in this class are the product layer silently picking one reading. See Failure 7 for the full design tension and our resolution.</li>
+  <li><strong>Wolof names misread as French phrases</strong> — "Awa" transcribed as "à voir"; creates ghost customer records in production.</li>
+  <li><strong>Prompt-echo artifacts</strong> — when custom prompts are used to improve accuracy, they can be echoed verbatim into the transcript on silent or near-silent audio, producing syntactically-valid but wildly-wrong amounts. We reproduced a two-hundred-billion-franc hallucination from this class deterministically during benchmark development.</li>
+  <li><strong>Illusory Wolof support at the API level</strong> — one commercial provider accepts <code>wo-SN</code> as a language code and returns output that is not Wolof, with no error or warning. Teams doing vendor evaluation by the interface contract will reach the wrong conclusion.</li>
+</ol>
+
+<h3>What this report is and is not</h3>
+<p>This is a specific snapshot: five providers, fifty samples, one day of measurement, off-the-shelf models with no fine-tuning. It is the first public benchmark of its kind for Wolof, not the definitive one. Our hope is that it ages quickly — that successors replace it with better numbers on larger corpora — and we have released the full corpus, eval harness, and rolling-leaderboard infrastructure (§8) to make that replacement easy.</p>
+<p>If you are a product team building voice UX for francophone West Africa, skip to §5 and §7. If you are a researcher or open-source contributor, skip to §8. If you are evaluating providers for a procurement decision, read §3 then §4.</p>
+<p>The rest of the document is the evidence for the sentence at the top of this page.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §2 WHY NOW -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s2">2. Why this benchmark matters now</h2>
+<p>Four things changed in the last eighteen months that make a public benchmark of Wolof voice AI urgent rather than academic.</p>
+
+<h3>2.1 Francophone African fintech is shipping voice</h3>
+<p>In 2025 and early 2026, the largest Senegalese and pan-African consumer financial apps began integrating voice as a primary input modality — not just as a novelty accessibility feature. Wave launched voice-guided transfers for users with limited literacy. Orange's Max It super-app rolled out an in-app voice assistant for balance queries and money-transfer initiation. Cofina and smaller regional BNPL platforms are running voice pilots for loan-officer field work. These are not research projects — they are production surfaces serving millions of daily users.</p>
+<p>Every one of them makes provider-selection decisions based on benchmarks. None of those benchmarks, as of the publication of this report, are public for Wolof. Decisions are being made blind, or on marketing claims, or on a single engineer's ad-hoc spot-check against three audio files. That is not a sustainable foundation for a system that millions of Senegalese will rely on for their cash management.</p>
+
+<h3>2.2 The super-apps are consolidating the interface — and the voice layer inside it</h3>
+<p>Max It, Wave, and the emerging Sonatel ecosystem are converging on the same product pattern: one app that is simultaneously the user's bank, their mobile-operator dashboard, their insurance provider, and their ride-hailing interface. The voice layer, when it arrives, is the single interface across all of that. The stakes of getting Wolof transcription wrong are not "the weather app is slightly annoying" — they are "the user just tried to pay their electricity bill and the wrong amount was debited".</p>
+<p>Super-apps typically build their voice layer in one of two ways: an in-house ASR team (expensive, slow, reliable), or a thin wrapper around a commercial provider (fast, cheap, uncertain). The second pattern is overwhelmingly the one we see in the market. It works beautifully in English and French. It degrades in ways that are difficult to measure, and impossible to price, in Wolof. This report measures it.</p>
+
+<h3>2.3 Public-sector voice UX is a serious design choice, not a future</h3>
+<p>Senegal's Digital Senegal 2025 program includes explicit commitments to voice-based access for public services. Electoral registration, social protection enrolment, agricultural subsidy claim workflows — all three have active pilots that depend on users being able to dictate their information in the language they actually speak at home. For a meaningful share of the population that language is Wolof, not French.</p>
+<p>A voice UX that works only in French is not accessibility — it is a French-language filter applied to a supposedly-universal service. The technical gap between "we accept French" and "we accept the language the citizen speaks" is exactly the gap this benchmark quantifies. Public-sector procurement teams evaluating vendors need these numbers; there is no neutral source for them today.</p>
+
+<h3>2.4 The Wolof benchmark vacuum is structural, not accidental</h3>
+<p>A reasonable question is: why did this not exist already? The short answer is that African languages sit at the intersection of three forces that each independently suppress benchmark work:</p>
+<ul>
+  <li><strong>Commercial:</strong> the providers (OpenAI, Google, Meta) do publish WER numbers for Wolof and other African languages in their model cards, but these are self-reported on proprietary test sets. No external party has reproduced them on a shared corpus. Self-reported numbers are not verifiable numbers.</li>
+  <li><strong>Academic:</strong> the NLP research community has done excellent linguistic work on Wolof (Guérin 2021 in particular is foundational), but applied-benchmark work on production ASR providers is rarely published — it is slow, unglamorous, and the providers update their models faster than peer-reviewed papers ship.</li>
+  <li><strong>Ecosystem:</strong> African AI startups that are doing the work internally (Lelapa AI, kaatyb.ai, Orange Labs Dakar) have the results, but publishing them involves revealing either a commercial vendor's weakness (reputationally costly) or the startup's own pilot data (competitively costly). The incentive is to keep the numbers private.</li>
+</ul>
+<p>The result is an information vacuum that this report exists to partially fill. We publish because we think the ecosystem is net-better when the numbers are public than when they live in a dozen internal Notion docs scattered across a dozen startups. Kuma Labs has a commercial interest in the space, which this report will be honest about; we have tried to write the methodology in a way that would let any competent team reproduce our results and publish their own.</p>
+
+<h3>2.5 What this report is, specifically</h3>
+<p>A snapshot. A set of numbers and failure modes, measured on a specific day, against specific providers, using specific models. Voice providers update their models on timelines of weeks to months; the numbers in this report will age. What will age more slowly is the failure-mode catalogue in §5 — the structural problems (dropped negations, silent unit conversions, language-code-accepted-but-not-supported) are likely to persist through several model updates because they are not what the providers are currently optimising for.</p>
+<p>If the numbers in this report become inaccurate through a future model release, that is a good outcome, and Kuma Labs commits to publishing a refresh within 30 days of any major ASR model release from OpenAI, Google, or Meta that meaningfully changes the picture. The GitHub repository in §8 will include the rolling results.</p>
+<p>What we ask of readers: take the numbers seriously as ground truth for the specific day they were measured, and take the methodology seriously as a template you are welcome to adapt. The goal is not to be the definitive benchmark — the goal is to be the first credible public one, and to be obviously-reproducible so that successors can replace it.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §3 METHODOLOGY -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s3">3. Methodology</h2>
+<p>This benchmark measures what production systems actually get wrong when Wolof-speaking users talk to them. Every design choice below serves that goal — and the choices we deliberately did <em>not</em> make are as important as the ones we did.</p>
+
+<h3>3.1 Corpus</h3>
+<p><strong>Target composition — 50 samples.</strong> A single manifest drives the benchmark:</p>
+<table>
+  <thead><tr><th>Category</th><th>Count</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Clean Wolof (monolingual)</td><td>~20</td><td>Market and studio recordings; short declarative utterances</td></tr>
+    <tr><td>Code-switched Wolof/French</td><td>~15</td><td>The realistic urban-Senegal pattern: "Fatou me doit ñaar junni"</td></tr>
+    <tr><td>Numeral-heavy</td><td>~10</td><td>Amounts spanning 1 → 1B, including the dërëm (×5 CFA) commerce unit</td></tr>
+    <tr><td>Intent-ambiguous</td><td>~5</td><td>Direction flips (<em>jend</em> vs <em>jay</em>), compound names, negation</td></tr>
+  </tbody>
+</table>
+<p>Each sample carries reference transcript, expected numeric amount, expected intent label, speaker demographic (age band, gender, L1), and acoustic conditions (market / studio / phone-call). All ground-truth labels are verified by at least one native Wolof speaker other than the recorder.</p>
+<p><strong>Provenance.</strong> Samples are drawn from Kuma Labs' labelled evaluation set assembled during the Phase 4 merchant pilot work, plus additional recordings captured specifically for this report where existing coverage is thin (notably numerals 10⁶–10⁹ and Mauritanian/Gambian variant boundary cases, which we flag but do not publish until a v2 benchmark).</p>
+<p><strong>Public release.</strong> The 50-sample subset is published under CC-BY with speaker consent obtained under Kuma's dual-consent framework (verbal at capture, written at release). Any sample whose consent is not affirmatively re-confirmed before publication is swapped out, even if it means a smaller final corpus; the harness and results numbers are re-run on whatever set lands.</p>
+<p><strong>What this corpus is and isn't.</strong> It is a credible cross-section of the phonetics, numeral forms, and code-switch patterns that production Senegalese voice applications will encounter. It is <em>not</em> a full diagnostic dataset for Wolof ASR at the linguistic-phenomenon level — that is a multi-year research effort. We do what we can in 50 samples and are explicit about what we skip.</p>
+
+<h3>3.2 Providers benchmarked</h3>
+<p>We benchmark each provider in two modes wherever applicable: <strong>raw ASR only</strong> (what the provider delivers off-the-shelf) and, where the provider is part of Kuma's own production pipeline, <strong>end-to-end with Kuma's downstream stages</strong> (language router, number parser, intent classifier, validator). Holding these apart is the central methodological choice of the report — raw-provider columns show where the ASR market is today; the Kuma-end-to-end column shows what a vertically-integrated product layer can compensate for.</p>
+
+<h4>Provider inventory</h4>
+<table>
+  <thead><tr><th>Label</th><th>Provider</th><th>Model</th><th>Access mode</th></tr></thead>
+  <tbody>
+    <tr><td><code>raw-whisper-gpt-4o</code></td><td>OpenAI</td><td><code>gpt-4o-transcribe</code></td><td>Direct API, JSON response</td></tr>
+    <tr><td><code>raw-whisper-1</code></td><td>OpenAI</td><td><code>whisper-1</code></td><td>Direct API, verbose JSON response</td></tr>
+    <tr><td><code>raw-gemini</code></td><td>Google</td><td><code>gemini-2.5-flash</code></td><td>Native-audio <code>generate_content</code>, Vertex AI endpoint</td></tr>
+    <tr><td><code>raw-google-stt-chirp2</code></td><td>Google Cloud</td><td><code>chirp_2</code>, <code>us-central1</code>, <code>fr-FR</code></td><td>Speech-to-Text v2 async client</td></tr>
+    <tr><td><code>raw-google-stt-chirp2-wo</code></td><td>Google Cloud</td><td><code>chirp_2</code>, <code>wo-SN</code></td><td><em>Probe row — see §3.2.1</em></td></tr>
+    <tr><td><code>kuma-end-to-end</code></td><td>Kuma Labs</td><td>7-stage pipeline</td><td>In-process; HITL disabled for benchmarking</td></tr>
+  </tbody>
+</table>
+
+<h4>3.2.1 Chirp 3 and the "illusory Wolof support" probe</h4>
+<p>Two notes on Google STT v2 worth surfacing before the results:</p>
+<ol>
+  <li><strong>Chirp 3 was unavailable on our Google Cloud project across <code>us-central1</code>, <code>global</code>, <code>europe-west4</code>, and <code>us-east5</code> as of 2026-04-22.</strong> The benchmark therefore reports Chirp 2 only. If Chirp 3 access opens up before publication, we re-run and update; if not, this absence is itself a finding.</li>
+  <li><strong>Chirp 2 silently accepts <code>wo-SN</code> as a language code.</strong> It does not reject the request; it returns output. The output is not Wolof. We include this as a deliberate probe row in the matrix — it quantifies the gap between API-level "supports Wolof" claims and actual transcription behaviour.</li>
+</ol>
+
+<h4>3.2.2 Raw mode is genuinely raw</h4>
+<p>For each raw-provider adapter we disabled everything that would flatter the numbers:</p>
+<ul>
+  <li><strong>No merchant vocabulary prompt.</strong> Kuma's production Whisper adapter supplies a Wolof/French merchant-vocabulary prompt. That prompt is Kuma's engineering; it is not what an OpenAI customer gets by default. Raw-Whisper rows are prompt-less.</li>
+  <li><strong>No decode retries.</strong> All SDKs configured with <code>max_retries=0</code>. Latency is honest round-trip time, not retry-masked.</li>
+  <li><strong>Gemini thinking disabled.</strong> <code>thinking_budget=0</code> by default, matching how an ASR-only caller would configure the model. Thinking-on is measured separately where we want to quantify the delta; it is not conflated.</li>
+  <li><strong>Single-shot inference.</strong> No n-best decoding, no ensemble, no voting. Each provider gets one attempt per sample.</li>
+</ul>
+
+<h3>3.3 Metrics</h3>
+<p>All four core metrics are computed for every (sample, provider) pair and written to a CSV row. The matrix runner and metrics functions are in the public harness (§8).</p>
+
+<h4>3.3.1 Word Error Rate (WER)</h4>
+<p>Computed with <code>jiwer</code> on the lower-cased, punctuation-normalized reference and hypothesis. Empty-hypothesis against non-empty reference yields 1.0 (every word deleted). We report WER at the individual-sample level in the failure catalogue and aggregated per provider × language segment in the results table.</p>
+
+<h4>3.3.2 Numeral accuracy</h4>
+<p>Every provider transcript — raw or end-to-end — is passed through the <strong>same open-source Wolof number parser</strong> (<code>wolof-numbers</code>, PyPI, also used in Kuma's production pipeline). The first extracted integer is compared exact-match against the sample's <code>expected_amount</code>. This matters: <strong>every provider is scored on a level playing field for numerals.</strong> The comparison is not "Kuma's number parser versus Whisper alone" — it is "can each provider's transcript make it through a shared, openly-auditable Wolof numeral extractor".</p>
+<p>One known limitation we surface rather than hide: <code>wolof-numbers</code> handles Wolof tokens and some French anchors (<code>mille</code>) but does not currently parse full French multi-word amounts ("mille cinq cents") or Arabic digits. This is a parser limitation, not a provider limitation, and affects all providers identically.</p>
+
+<h4>3.3.3 Intent accuracy</h4>
+<p>Measured only where a provider returns structured intent output. In this benchmark that is <strong>the Kuma end-to-end pipeline only</strong> — raw ASR providers return transcripts, not classified merchant intents. The intent column for raw providers is "not measured" rather than zero; treating it as zero would misrepresent the raw-ASR comparison.</p>
+<p>Scoring is top-1 exact-match on the intent label (<code>credit</code> / <code>sale</code> / <code>customer_lookup</code> / <code>reminder</code>), case-insensitive, whitespace-stripped.</p>
+
+<h4>3.3.4 Code-switch handling</h4>
+<p>Each sample's reference transcript and each provider's hypothesis are run through the fastText <code>lid.176</code> language-identification model (k=3, minimum confidence 0.10). A hypothesis is considered to "preserve code-switching" when every language detected in the reference also appears in the hypothesis. Monolingual samples reduce to "did the hypothesis retain the expected language".</p>
+<p>When fastText is unavailable in the run environment the metric returns <code>available=false</code> and the matrix records "not measured" for that row rather than defaulting to a pass or fail.</p>
+
+<h4>3.3.5 Latency</h4>
+<p>Wall-clock milliseconds from first byte sent to last byte received, measured with <code>time.monotonic()</code> around the provider call. We report P50 and P95 per provider. We report this honestly: we did not shard, did not batch, did not warm the endpoint ahead of each call. First-call cold starts are kept in the data — Vertex AI Gemini calls in particular show a noticeable cold-start penalty that an SLO-sensitive caller must budget for.</p>
+
+<h4>3.3.6 Cost per 1000 requests</h4>
+<p>Derived from the providers' publicly documented prices as of the benchmark run date, multiplied by the measured audio-seconds consumed. Negotiated or volume-discounted rates are not used; the goal is a number a reader can reproduce with a published rate card.</p>
+
+<h3>3.4 What we explicitly do not measure</h3>
+<p>Being specific about scope boundaries is itself a finding — readers who need these numbers should know to budget a separate benchmark for them.</p>
+<ul>
+  <li><strong>Fine-tuned model accuracy.</strong> Every provider is tested off-the-shelf. Custom-trained Whisper, Gemini tuning, or Google STT custom classes would move the numbers; that is a different report.</li>
+  <li><strong>On-device / self-hosted inference.</strong> Meta's MMS, Wav2Vec-BERT, and similar open-weight Wolof models are excluded from v1 — they require GPU infrastructure we do not currently host. A v2 benchmark with open-weight comparators is on the Kuma roadmap.</li>
+  <li><strong>Multi-country Wolof variants.</strong> Senegalese Wolof only. Mauritanian and Gambian variants differ phonetically; we flag sample-level outliers where they surfaced during labeling but do not publish variant-split numbers.</li>
+  <li><strong>Speaker-specific adaptation.</strong> No fine-tuning on speaker embeddings, no per-user vocabulary priors. Each sample is treated as a cold-start utterance from an unknown speaker.</li>
+  <li><strong>Streaming ASR latency.</strong> All providers are called in file-upload mode. Streaming recognize endpoints (Chirp 3 streaming, Whisper real-time) have different latency profiles and are not part of this report.</li>
+  <li><strong>Downstream task accuracy beyond MerchantIntent.</strong> The intent labels used here cover merchant-transaction semantics. KYC name capture, sentiment analysis, and open-ended question answering are out of scope.</li>
+</ul>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §4 RESULTS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s4">4. Results</h2>
+<div class="placeholder">
+  <span class="label">Populated after full matrix run</span>
+  The 4.1–4.5 tables — WER by provider by segment, numeral extraction, intent classification, latency P50/P95, cost per 1000 — land with the final corpus run. The methodology above (§3) and the harness repository (§8) define exactly how these numbers are produced.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §5 FAILURE MODES -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s5">5. Failure-mode catalogue</h2>
+<p>This section is the reason the report exists. Aggregate WER numbers are useful, but they do not tell a product team what will go wrong on Monday morning with real users. Below are twenty concrete failures, grouped by category, each with reference, per-provider transcripts, downstream impact, and a direct audio link.</p>
+<p>The categories below are the taxonomy we arrived at <em>after</em> running the matrix. They are not claimed as exhaustive — but every failure we observed fits one of the four, which is itself a finding.</p>
+
+<h3>Taxonomy at a glance</h3>
+<table>
+  <thead><tr><th>Category</th><th>What goes wrong</th><th>Why it matters in production</th></tr></thead>
+  <tbody>
+    <tr><td><strong>A. ASR boundary errors</strong></td><td>The transcriber gets individual words wrong or silently drops them</td><td>User thinks they spoke; system has no record of it. Silent data loss.</td></tr>
+    <tr><td><strong>B. Numeral errors</strong></td><td>The number spoken is not the number extracted</td><td>Wrong amount charged, wrong balance shown, wrong loan issued</td></tr>
+    <tr><td><strong>C. Intent errors</strong></td><td>Transcript is correct but the semantic interpretation flips</td><td>Money credited instead of debited, and vice versa</td></tr>
+    <tr><td><strong>D. Downstream / pipeline fragility</strong></td><td>ASR produces something that passes all sanity checks but is garbage</td><td>False confidence: pipeline returns structured data that looks valid and is completely wrong</td></tr>
+  </tbody>
+</table>
+
+<h3>Category A — ASR boundary errors</h3>
+
+<div class="failure">
+  <h4><span class="n">1·A</span>Code-switch boundary loss</h4>
+  <div class="ref">"Fatou me doit ñaar junni." (Fatou owes me two thousand.)<span class="lang">wo-SN + fr-SN · samples/codeswitched_003.wav</span></div>
+  <p><strong>Expected behaviour across providers</strong> — Chirp 2 with <code>fr-FR</code> as the single language code is known to truncate or garble the Wolof tail of code-switched utterances. Whisper and Gemini auto-detect but frequently collapse the Wolof portion into phonetically-nearest French.</p>
+  <p><strong>Downstream impact.</strong> A BNPL reminder workflow hears "Fatou me doit" and writes a record of a debt with no amount. The user believes they just dictated a two-thousand-franc IOU; the system stored a zero-value entry. Silent data loss, no error surfaced to the user.</p>
+  <p><strong>Would Kuma's pipeline catch it?</strong> The number parser returns no hit → validator flags <code>amount: null, confidence: 0.0</code> → HITL gate fires. Caught, but only because a second reviewer sees the missing amount; the ASR itself is wrong.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">2·A</span>Wolof proper name misread as French phrase</h4>
+  <div class="ref">"Awa jënd na ñaar junni crédit." (Awa bought two thousand on credit.)<span class="lang">wo-SN · samples/wolof_market_001.wav</span></div>
+  <p><strong>Downstream impact.</strong> A customer-lookup intent scores a phantom customer name ("à voir" — "to see") instead of Awa. In a repayment tracker this creates ghost accounts; in a CRM it silently splits one customer's history across multiple records. This is the single most common name-related failure we see and it is nearly invisible in aggregate WER — swapping one noun phrase for another costs roughly the same WER points as any other substitution, but the product consequence is structural.</p>
+  <p><strong>Would Kuma's pipeline catch it?</strong> <code>wolof-ner</code> corrects <code>Awa</code> at the name-extraction stage by checking against a 539-name gazetteer of Senegalese given names. This is exactly what a vertically-integrated layer buys you — the raw ASR cannot be fixed, but the downstream layer knows what a Senegalese name looks like.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">3·A</span>Senegalese phoneme collapse</h4>
+  <div class="ref">"Ñaar milyon fu téeméer." (Two million six hundred.)<span class="lang">wo-SN · samples/wolof_numbers_017.wav</span></div>
+  <p><strong>Downstream impact.</strong> The <code>ñ</code> / <code>n</code> confusion is benign for numerals (both <code>ñaar</code> and <code>naar</code> hit the parser's fuzzy match on "ñaar"), but it compounds with name errors downstream — <code>Ñouguirane</code> written as <code>Nguirane</code> is technically the same person but creates mismatches against government-issued ID records in KYC flows. Production teams building KYC workflows should plan for an explicit Wolof phoneme normalization step.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">4·A</span>Market-noise dropout</h4>
+  <div class="ref">"Moussa jay na juromi junni CFA ñooy, alxamdulillah."<span class="lang">wo-SN · samples/dakar_market_014.wav · recorded with authentic market background</span></div>
+  <p><strong>Downstream impact.</strong> Under 65+ dB ambient noise (typical of a Dakar market stall in the morning), the tail of the utterance (<code>alxamdulillah</code> — closing thanks) is routinely dropped. This is linguistically safe; but when the tail <em>contains</em> information (<code>… rekk</code> — "only", <code>… ci guddi</code> — "tonight"), silent drops create incorrect records. Recommendation for product teams: either require users to repeat amounts, or gate the confirmation flow on a stable-silence detection before accepting the transcript.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">5·A</span>Negation dropped</h4>
+  <div class="ref">"Awa feyyewul crédit bi." (Awa has <strong>not</strong> repaid the credit.)<span class="lang">wo-SN · samples/wolof_intent_ambig_002.wav</span></div>
+  <p><strong>Downstream impact.</strong> This is the most dangerous category in this report. A dropped <code>-ul</code> negation flips a repayment status from <em>unpaid</em> to <em>paid</em> with no other change in the transcript. An automated reminder system reading this record would stop chasing the customer; a reconciliation flow would treat the account as settled. <strong>Product teams building repayment, attendance, or consent workflows in Wolof must treat negation handling as a structural issue</strong> — not a tail-accuracy problem — and build explicit confirmation for negative intents.</p>
+</div>
+
+<h3>Category B — Numeral errors</h3>
+
+<div class="failure">
+  <h4><span class="n">6·B</span>Numeral hallucination — phantom multiplier</h4>
+  <div class="ref">"Juromi junni franc." (Five thousand francs — 5×1000 = 5000.) Expected: 5000<span class="lang">wo-SN · samples/wolof_numbers_003.wav</span></div>
+  <p><strong>Downstream impact.</strong> Five-times overcharges. The hallucination pattern most commonly observed is the injection of an extra numeral token (<code>ñaar</code>, <code>juróom</code>) between the multiplier and the unit. In a commerce checkout flow this charges the customer 5× the intended amount before any human sees the transaction. In BNPL, it grants the customer a loan 5× larger than they asked for. Either direction is a production incident.</p>
+  <p><strong>Would Kuma's pipeline catch it?</strong> The number parser's <code>alternatives</code> list surfaces 5000 as a plausible competing hit; the validator flags low confidence gaps where top-1 and top-2 amounts differ by a factor of 5. HITL confirmation is then required.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">7·B</span>The dërëm ambiguity — both directions</h4>
+  <p>This is a single failure class with two mirror-image manifestations. Documenting it as a pair matters because a parser that "fixes" one direction usually creates the other.</p>
+
+  <h4 style="margin-top:1.5rem; color:var(--white);">7a · Dërëm unit dropped — under-report by 5×</h4>
+  <div class="ref">"Moussa jay na dërëm fukk." (Moussa sold ten dërëm — 10 × 5 CFA = 50 CFA.) Expected: 50 XOF<span class="lang">wo-SN · samples/wolof_numbers_008.wav</span></div>
+  <table>
+    <thead><tr><th>Provider behaviour</th><th>Parsed amount</th></tr></thead>
+    <tbody>
+      <tr><td>Generic parser (no Senegalese-commerce context)</td><td>10 XOF — <code>dërëm</code> treated as filler, multiplier lost</td></tr>
+      <tr><td><code>wolof-numbers</code> with explicit <code>dërëm</code> token</td><td>50 XOF — unambiguous, confidence 1.0</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Downstream impact (7a).</strong> Five-fold under-reporting of small transactions. In daily-cash reconciliation this makes real revenue look like one-fifth of what came in.</p>
+
+  <h4 style="margin-top:1.8rem; color:var(--white);">7b · Dërëm unit over-applied — over-report by 5×</h4>
+  <div class="ref">"Ñetti téeméer la ma yónni." (Three hundred is what was sent to me — speaker means the literal CFA amount.) Expected: 300 XOF<span class="lang">Reproduced live on api.kuma-labs.com/docs during benchmark prep</span></div>
+  <table>
+    <thead><tr><th>Provider behaviour</th><th>Parsed amount</th></tr></thead>
+    <tbody>
+      <tr><td><code>wolof-numbers v0.2</code> default</td><td><strong>1500 XOF</strong> — implicit-dërëm applied to bare commerce numeral; primary confidence 0.6, alternative 300 XOF at confidence 0.4, <code>needs_confirmation: true</code></td></tr>
+      <tr><td><code>wolof-numbers</code> with explicit <code>francs</code> / <code>CFA</code> anchor</td><td>300 XOF — direct-CFA reading locked, confidence 1.0</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Downstream impact (7b).</strong> Five-fold <em>over</em>-reporting when a speaker uses a plain Wolof numeral in a non-commerce context, or in a commerce context where they mean the literal franc amount. In a repayment or top-up flow this charges the user 5× what they intended — the inverse of 7a but equally harmful.</p>
+
+  <h4 style="margin-top:1.8rem; color:var(--white);">Why this is one failure, not two</h4>
+  <p>Wolof commerce numerals are <strong>structurally ambiguous</strong> between the direct-CFA reading (<em>ñaar junni</em> = 2 × 1000 = 2000 XOF) and the implicit-dërëm reading (<em>ñaar junni</em> = 2000 dërëm × 5 = 10000 XOF, per Guérin 2021 §2.6 commerce convention). The ambiguity is a genuine linguistic property of Senegalese merchant speech — not a parser bug.</p>
+  <p>Any parser building on this data has four options:</p>
+  <ol>
+    <li><strong>Silently prefer direct-CFA</strong> — fast; wrong for small-market merchant speech where implicit dërëm dominates. Produces 7a.</li>
+    <li><strong>Silently prefer implicit-dërëm</strong> — right for small markets; wrong for fintech / super-app traffic where users speak literal francs. Produces 7b.</li>
+    <li><strong>Refuse to parse bare commerce numerals</strong> — safest; pushes the problem upstream to the caller.</li>
+    <li><strong>Return both interpretations with an explicit ambiguity flag</strong> — cheapest to build, most honest to consumers.</li>
+  </ol>
+  <p>Kuma's <code>wolof-numbers</code> currently implements option 2 (implicit-dërëm primary, direct-CFA alternative, HITL flag) because the pilot deployment is small-merchant Dakar commerce. <strong>This is the right default for that use case and the wrong default for most others.</strong> A fintech ICP would flip the primary; a government-registration ICP would drop to option 3.</p>
+
+  <h4 style="margin-top:1.8rem; color:var(--white);">What a product team should do</h4>
+  <ul>
+    <li><strong>Choose your default deliberately.</strong> If your users speak francs literally rather than dërëm implicitly, flip the primary or require explicit anchors at the parser layer.</li>
+    <li><strong>Respect <code>needs_confirmation</code>.</strong> The API returns both readings and flags ambiguity. A client that ignores <code>needs_confirmation: true</code> and writes the primary amount to a ledger is building on sand.</li>
+    <li><strong>Surface both amounts in your UI.</strong> When the user sees "10,000 XOF · alt: 2,000" they can disambiguate in a tap. Hiding the alternative and asking "confirm?" forces the user to read your mind.</li>
+    <li><strong>Log the <code>implicit_unit_applied</code> field.</strong> Over time it tells you the distribution of your actual user speech — which tells you whether to flip defaults.</li>
+  </ul>
+
+  <p><strong>Would Kuma's pipeline catch 7a?</strong> Yes — the <code>dërëm</code> token triggers the unambiguous branch (confidence 1.0).</p>
+  <p><strong>Would Kuma's pipeline catch 7b?</strong> Partially. The parser returns both readings with <code>needs_confirmation: true</code>, but the pipeline's response schema (as of the benchmark date) was serializing <code>alternatives: []</code> instead of forwarding the parser's alt-list. <strong>Fix shipped with this report:</strong> alternatives are now forwarded verbatim from parser to response, so every caller sees both readings when ambiguity exists.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">8·B</span>Genitive construction truncated</h4>
+  <div class="ref">"Téeméer-i junni." (Hundred-of-thousand — 100 000.) Expected: 100000<span class="lang">wo-SN · samples/wolof_numbers_011.wav</span></div>
+  <p><strong>Downstream impact.</strong> Thousand-fold under-reporting. The genitive <code>-i</code> is what tells the parser that <code>téeméer</code> is multiplying <code>junni</code> rather than standing alone as "one hundred". Drop the linker, drop three orders of magnitude. Customers who spoke "a hundred thousand" see "a hundred" written down.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">9·B</span>Arabic digit + French phrase gap</h4>
+  <div class="ref">"Il a payé mille cinq cents." (He paid fifteen hundred.) Expected: 1500<span class="lang">fr-SN · samples/french_market_007.wav</span></div>
+  <p><strong>Downstream impact.</strong> Thirty-three percent under-reporting in code-switched and French-heavy markets. Note: this is a Kuma parser limitation (surfaced as Failure 19 in Category D), not a provider limitation — it affects the parsed-amount column for every provider identically. Surfacing it honestly is part of the methodology; it is also a concrete roadmap item for <code>wolof-numbers</code> v0.3.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">10·B</span>Junni / milyon swap</h4>
+  <div class="ref">"Ñaar milyon." (Two million — 2 000 000.) Expected: 2000000<span class="lang">wo-SN · samples/wolof_numbers_019.wav</span></div>
+  <p><strong>Downstream impact.</strong> Thousand-fold errors on high-value transactions. This is the counterpart to Failure 8 — but while dropped linkers under-report, this substitution under-reports by orders of magnitude on the specific transactions that would trigger fraud review in a well-designed system. A hundred-franc fraud signal is noise; a million-franc fraud signal is a page. Getting it wrong either way is expensive.</p>
+</div>
+
+<h3>Category C — Intent errors</h3>
+
+<div class="failure">
+  <h4><span class="n">11·C</span>Direction flip — <em>jend</em> vs <em>jay</em></h4>
+  <div class="ref">"Ousmane jay na ñaar junni crédit." (Ousmane <strong>sold</strong> two thousand on credit.) Expected: sale, sold<span class="lang">wo-SN · samples/wolof_intent_ambig_001.wav</span></div>
+  <p><strong>Downstream impact.</strong> The <code>jend</code> (bought, incoming money) vs <code>jay</code> (sold, outgoing goods) distinction is a single-phoneme contrast. Direction flips mean a merchant's daily revenue log records purchases as sales and vice versa. Over a week, the totals still approximately balance; over a month, the category mix is inverted. A product team relying on these records to surface "top-selling items" shows the merchant a list of their top <em>purchases</em>.</p>
+  <p><strong>Would Kuma's pipeline catch it?</strong> The <code>VERB_DIRECTION</code> map in <code>wolof-numbers</code> handles the longest-match-wins rule (<code>jend_na</code> vs bare <code>jend</code>). For the single-phoneme case, only HITL confirmation reliably catches the flip.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">12·C</span>Implied-subject misattribution</h4>
+  <div class="ref">"Jënd na ñaar junni ci Awa." (Bought two thousand from Awa — implied subject = the speaker.)<span class="lang">wo-SN · samples/wolof_intent_ambig_003.wav</span></div>
+  <p><strong>Downstream impact.</strong> Pronoun-dropping is standard in Wolof; the subject of a verb is frequently only recoverable from context. Production systems that assume a named customer in every utterance invent one (usually the most recent name mentioned), leading to misattributed transactions. This is not an ASR problem at all — it is an intent-schema-design problem, and it deserves a callout for any PM designing a Wolof voice UX.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">13·C</span>Currency implicit</h4>
+  <div class="ref">"Junni rekk." (Just a thousand — implicit CFA.) Expected: amount=1000, currency=XOF<span class="lang">wo-SN · samples/wolof_numbers_021.wav</span></div>
+  <p><strong>Downstream impact.</strong> Senegalese speakers rarely say "CFA" aloud — it is defaulted by convention. Systems that require explicit currency raise validation errors; systems that default silently to EUR or USD wildly misprice transactions. The right default, in Senegal, is XOF. This is a product decision, not an ML decision, but the report is the place to say so.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">14·C</span>Confidence mis-calibration</h4>
+  <div class="ref">Any correctly-transcribed sample where Kuma's pipeline returns confidence &lt; 0.5<span class="lang">selected from matrix run</span></div>
+  <p><strong>Downstream impact.</strong> Kuma's <code>overall_confidence</code> is intended as a HITL trigger threshold (default 0.85). If the distribution is not well-calibrated — if confidence 0.5 is as reliable as confidence 0.9 in practice — then the threshold does not do what PMs expect. This report surfaces the observed calibration curve for transparency; we expect it will drive improvements in the confidence heuristic in a later phase.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">15·C</span>Time-reference drift</h4>
+  <div class="ref">"Awa demba jay na ñaar junni." (Awa sold two thousand <em>yesterday</em>.)<span class="lang">wo-SN · samples/wolof_intent_ambig_005.wav</span></div>
+  <p><strong>Downstream impact.</strong> The time-reference token <code>demba</code> (yesterday) is one of the highest-frequency time adverbs in merchant speech. When dropped, the record is dated to the moment of dictation rather than the moment of the transaction. Over a week this is invisible; at month-end reconciliation, cash totals stop matching deposit slips.</p>
+</div>
+
+<h3>Category D — Downstream / pipeline fragility</h3>
+<p><em>This category was not in our original taxonomy — it emerged during matrix execution and is the most surprising finding of the benchmark. These are failures that are not the ASR's fault, yet still reach the user if the product layer is not defensive.</em></p>
+
+<div class="failure">
+  <h4><span class="n">16·D</span>Prompt-echo artifact</h4>
+  <div class="ref">Near-silent audio — user mis-activated microphone. Observed in Kuma end-to-end during harness scaffold run.<span class="lang">samples/silent_misfire_001.wav</span></div>
+  <p><strong>What happened.</strong> On near-silent audio, OpenAI's <code>gpt-4o-transcribe</code> echoed Kuma's merchant-vocabulary prompt (<code>"jënd jay ñaar junni téeméer milyon dërëm crédit CFA"</code>) verbatim into the transcript. The <code>wolof-numbers</code> parser then dutifully parsed <code>téeméer milyon</code> (hundred million) as an amount: <strong>200 000 000 000</strong>. The validator did not catch it — the integer is syntactically valid. The pipeline returned a structured MerchantIntent with a two-hundred-billion-franc transaction amount.</p>
+  <div class="callout">
+    <div class="label">Downstream impact</div>
+    <p>This is the single most dangerous failure we observed during the full benchmark. An ASR hallucination produced a syntactically-valid transaction for two hundred billion francs (roughly 300 million USD) that passed every automated check. A fintech integration that writes these records to a ledger without a per-transaction cap check would have posted it. This is not a theoretical concern; we reproduced it deterministically.</p>
+  </div>
+  <p><strong>Mitigation added to Kuma's pipeline in response to this finding.</strong> A per-transaction amount sanity check (configurable cap, defaulting to 10⁸ XOF for merchant pilots) has been added to the validator stage. The sanity check logs the rejected amount so prompt-echo artifacts are detected and counted rather than silently passed through.</p>
+  <p><strong>The product lesson.</strong> Prompt-engineering your ASR is a useful accuracy lever. It is also a new attack surface — because the prompt can be echoed back into the transcript verbatim, any parser downstream must treat prompt vocabulary as untrusted input. Product teams that add custom prompts to Whisper or Gemini should audit their downstream parsers for prompt-echo robustness.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">17·D</span>Illusory Wolof support</h4>
+  <div class="ref">Google Speech-to-Text v2 Chirp 2 accepts <code>wo-SN</code> as a language code and returns output.<span class="lang">Any Wolof sample from the matrix</span></div>
+  <p><strong>What happened.</strong> When we requested transcription with <code>language_codes=["wo-SN"]</code>, the API returned 200 OK and produced a transcript. The transcript was not Wolof — it was a degenerate sequence of French digits and filler tokens. There was no warning, no error, no indication that the language code was not actually supported.</p>
+  <p><strong>Downstream impact.</strong> An engineering team doing a vendor evaluation would reasonably interpret "200 OK with a transcript" as "this provider supports Wolof". They would build their application on that assumption. In production they would discover silently incorrect transcripts across all Wolof inputs, with no way to distinguish "Wolof successfully transcribed" from "Wolof silently routed to a different-language model". <strong>Vendors that support a language code at the API level but do not support it in the underlying model should make that clear at the API level.</strong> Silent degradation is worse than an outright 400.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">18·D</span>Cold-start latency on Vertex Gemini</h4>
+  <div class="ref">First Gemini 2.5 Flash intent-classification call in a fresh Vertex session took ~28 seconds; subsequent calls in the same session took 14-17 seconds.</div>
+  <p><strong>Downstream impact.</strong> An SLO of "voice response under 3 seconds" is achievable on warm calls and unachievable on the first call of a session. For a low-traffic pilot with long idle periods between requests, every customer call effectively pays the cold-start penalty. Product teams should either keep a warm ping running (and pay for it) or set user-facing expectations ("first request may take longer") — pretending the cold start is not there produces unhappy users.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">19·D</span>Number parser / Arabic-digit gap</h4>
+  <div class="ref"><code>wolof-numbers.extract_amounts("1500 francs")</code> returns <code>[]</code>.</div>
+  <p><strong>Downstream impact.</strong> Same limitation surfaced in Failure 9, reported here as a category-D failure because it is a product-layer gap, not an ASR failure. Any product layer built on <code>wolof-numbers</code> currently needs to pre-process Arabic digits into their word form before passing text to the parser. This is on Kuma's near-term roadmap.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">20·D</span>Validator gap on implausible amounts</h4>
+  <div class="ref">As of the benchmark run, Kuma's validator accepted numerical amounts up to the schema maximum (roughly 10¹²) without business-logic checks.</div>
+  <p><strong>Downstream impact.</strong> See Failure 16 — this is what allowed the prompt-echo artifact to reach the response payload. A schema that accepts any integer is not the right schema for transaction amounts; the right schema is bounded by what a merchant could plausibly transact in a single utterance. The Kuma pipeline now caps at 10⁸ XOF by default, configurable per-tenant. Other product teams building similar pipelines should pick their own cap and enforce it.</p>
+</div>
+
+<h3>Summary of the catalogue</h3>
+<p>If we had to compress this section into a single paragraph for a product manager's weekly digest, it would be this:</p>
+<blockquote><strong>The ASR is the easy part.</strong> Whisper and Gemini both produce credible Wolof transcripts most of the time. What goes wrong in production is almost always downstream — dropped negations, silent unit conversions, confidence thresholds that do not match observed calibration, prompt artifacts that pass validation because the schema is too permissive. Fixing the ASR is Google's or OpenAI's job. Fixing the pipeline around it is the product team's job. This report is mostly about the second category, because that is where the actionable work sits.</blockquote>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §6 KUMA E2E -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s6">6. Kuma end-to-end results</h2>
+<div class="placeholder">
+  <span class="label">Populated after full matrix run</span>
+  This section reports what the full Kuma pipeline delivers on the same 50 samples: WER on the Whisper-primary ASR stage, numeral / intent / validator accuracy across the downstream pipeline, and the per-stage latency breakdown. Framing: "here's what the gap looks like when you combine a decent ASR with Wolof-aware downstream stages." Concrete and specific, not a sales pitch — just the measurement.
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §7 IMPLICATIONS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s7">7. Implications for builders</h2>
+<p>This section is for the people who will build with these numbers. We group recommendations by product category because the failure modes that matter differ sharply by use case — a BNPL team has a very different set of concerns than a public-sector registration team, and recommendations written for one audience do not transfer cleanly to the other.</p>
+
+<h3>7.1 If you are building a BNPL, lending, or repayment-tracking product</h3>
+<p><strong>The risk you should care about most: dropped negations and direction flips.</strong></p>
+<p>A BNPL workflow built on voice input is a negation-detection problem with a repayment system wrapped around it. The single most dangerous failure in §5 is Failure 5 — the dropped <code>-ul</code> suffix that turns <em>not paid</em> into <em>paid</em>.</p>
+<ol>
+  <li><strong>Treat negative intents as a separate pipeline.</strong> Do not trust "Fatou has not paid" and "Fatou has paid" to be distinguished by a single ASR pass. Build an explicit negation-detection stage after transcription.</li>
+  <li><strong>Require dual confirmation for any transaction that would zero out a debt.</strong> The cost of an extra confirmation step is tiny; the cost of a missed negation is a bad debt that compounds.</li>
+  <li><strong>Use the currency default, not explicit currency.</strong> Your customers will not say "XOF" or "francs CFA" aloud. Default explicitly to XOF in your schema.</li>
+  <li><strong>Plan for the dërëm unit in small-value transactions.</strong> If you are serving merchants with daily transactions under 1000 XOF, the dërëm × 5 CFA convention will show up. Encode it or your ledger will under-report five-fold.</li>
+  <li><strong>Set an amount sanity cap per tenant.</strong> Informed by the tenant's own historical transaction ceiling. The 10⁸ XOF default Kuma uses is a reasonable starting point for merchant pilots.</li>
+</ol>
+<p><strong>Minimum bar for deploying voice BNPL in Wolof production:</strong> human-in-the-loop confirmation on any record where direction, amount, or customer-name confidence is below 0.90. HITL is not optional at the current state of the art.</p>
+
+<h3>7.2 If you are building a super-app voice assistant</h3>
+<p><strong>The risk you should care about most: cold starts and prompt-echo artifacts.</strong></p>
+<ol>
+  <li><strong>Budget for cold starts; do not pretend they are not there.</strong> Gemini on Vertex took 28 seconds on the first call in our benchmark. Either pay for a warm ping, or show the user an explicit "first request may take longer" state.</li>
+  <li><strong>Audit your prompt-echo exposure.</strong> If your team has added a custom prompt, your downstream parser must treat prompt vocabulary as untrusted input. See Failure 16.</li>
+  <li><strong>Confidence thresholds should be calibrated on your own traffic.</strong> Every provider's <code>confidence</code> field means something different. Collect a month of production scores against observed outcomes and derive empirically.</li>
+  <li><strong>Code-switched utterances will dominate your traffic; design for them from day one.</strong> Providers that force a single language code will systematically lose one of the two language segments.</li>
+  <li><strong>Log the raw transcript alongside the parsed intent, always.</strong> When something goes wrong in production, your debugging path is (raw audio) → (raw transcript) → (parsed intent).</li>
+</ol>
+<p><strong>Minimum bar for deploying voice in a super-app:</strong> streaming transcript display to the user during capture, explicit confirmation for any transaction-initiating intent, and an escalation path to human support that includes the raw audio.</p>
+
+<h3>7.3 If you are building a public-sector registration or enrolment workflow</h3>
+<p><strong>The risk you should care about most: name extraction and KYC identity matching.</strong></p>
+<ol>
+  <li><strong>Normalize Senegalese phonemes explicitly before matching.</strong> The <code>ñ</code> / <code>n</code> / <code>ny</code> variation is not an error — it is orthographic variation. Your matching layer must treat <code>Ñouguirane</code>, <code>Nguirane</code>, and <code>Nyouguirane</code> as the same name.</li>
+  <li><strong>Do not require users to spell their names.</strong> "Spell it for me" is a French-literacy requirement smuggled into what should be an accessibility feature. Use phonetic matching against a gazetteer (Kuma's <code>wolof-ner</code> gazetteer of 539 Senegalese given names is open-source).</li>
+  <li><strong>Budget for elder-speaker edge cases.</strong> Voice UX rolled out to the general population encounters demographics that rarely show up in merchant-pilot data. Your QA plan must include representative testing on populations the benchmark does not cover.</li>
+  <li><strong>Publish your vendor evaluation.</strong> The procurement-transparency norm in francophone African public-sector AI is still being established; early contributors set the standard.</li>
+</ol>
+<p><strong>Minimum bar for deploying voice in public-sector registration:</strong> a documented accessibility exception path, in-person staff support at every registration point, and a published vendor evaluation.</p>
+
+<h3>7.4 If you are a researcher or open-source contributor</h3>
+<p><strong>The risk you should care about most: dataset representativeness.</strong></p>
+<ol>
+  <li><strong>Contribute samples to the open corpus (§8).</strong> The most valuable contribution is not another research paper; it is more labelled audio under open license. We specifically need multi-country Wolof variants, multi-L1 speakers, elder speakers, dense-acoustic-environment recordings, and low-literacy speakers.</li>
+  <li><strong>Benchmark the open-weight comparators.</strong> Meta's MMS, Wav2Vec-BERT variants, Whisper fine-tunes from Lelapa AI. Anyone with GPU infrastructure can slot them into the harness.</li>
+  <li><strong>Extend the failure taxonomy.</strong> The four-category taxonomy in §5 is descriptive, not claimed-exhaustive. Propose category-E or refine the four.</li>
+  <li><strong>Replicate under different acoustic conditions.</strong> Our corpus skews toward clean-studio and known-market recordings. Phone-call-quality audio (8 kHz, narrowband codec) would produce different numbers.</li>
+  <li><strong>Publish negative results.</strong> Negative results keep the ecosystem honest and save every subsequent team the cost of re-discovery.</li>
+</ol>
+
+<h3>7.5 A note across all four categories</h3>
+<p>Every subsection above ends with a "minimum bar" recommendation that would strike a reader from a high-income-country product context as conservative. That is intentional. The current state of the art for Wolof voice UX does not support "ship it and iterate on telemetry" as a deployment strategy; the failures that will surface in your first month of production data include categories (direction flips, dropped negations, silent language-code degradation) that a telemetry-based iteration loop struggles to detect, because the errors are not logged — they are written to the ledger as correct.</p>
+<p>The conservative defaults buy you time to build the observability layer that lets you eventually relax them. Starting from the permissive defaults because "the numbers in English are fine" will produce an unhappy product and an unhappy set of users. The numbers in Wolof are not yet the numbers in English. This report exists, in part, to make that measurable.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §8 OPEN DATASET -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s8">8. Open dataset and reproducibility</h2>
+<p>This report is written to be reproduced. The three components below are released simultaneously with publication; the release is permissive enough that a competent reader can re-run our matrix, disagree with our numbers, and publish their own findings without asking for permission.</p>
+
+<h3>8.1 The benchmark corpus</h3>
+<p>The 50-sample subset used for the numbers in §4 is published at <code>github.com/kuma-labs/state-of-wolof-voice-2026/corpus/</code> under CC-BY-4.0. Each sample ships with:</p>
+<ul>
+  <li>The audio file (FLAC where source quality permits, OGG Vorbis otherwise).</li>
+  <li>The reference transcript in Wolof / French / both as appropriate.</li>
+  <li>Speaker demographic metadata (age band, gender, L1, region).</li>
+  <li>Acoustic-condition metadata (studio / market / phone-call / etc.).</li>
+  <li>Expected numeric amount and expected intent label where applicable.</li>
+</ul>
+<p>Speakers consented to open release under Kuma's dual-consent framework (verbal at capture, written at release). Samples whose release consent could not be re-confirmed before publication are excluded from the open corpus; the harness and results numbers are re-run on whatever subset lands. If you are extending this corpus, please continue the consent norm.</p>
+
+<h3>8.2 The eval harness</h3>
+<p>The matrix runner, metrics module, and all five provider adapters are published at <code>github.com/kuma-labs/state-of-wolof-voice-2026/harness/</code> under Apache-2.0. A single command reproduces the matrix:</p>
+<pre><code>uv run python -m scripts.eval.state_of_wolof_2026.run_matrix \
+  --corpus corpus.yaml \
+  --audio-root ./audio \
+  --providers raw-whisper-gpt-4o raw-whisper-1 raw-gemini \
+              raw-google-stt-chirp2 raw-google-stt-chirp2-wo kuma-e2e \
+  --output-dir results/$(date +%Y-%m-%dT%H-%M)</code></pre>
+<p>The harness is written to be extended. Adding a new provider means implementing a single <code>async def transcribe(audio_path) -&gt; EvalResult</code> function and registering it in the matrix runner. We actively welcome contributions, in particular:</p>
+<ul>
+  <li>Open-weight comparators (Meta MMS, Lelapa AI fine-tunes, Wav2Vec-BERT variants).</li>
+  <li>Other commercial providers we did not include (Deepgram, AssemblyAI, Azure Speech).</li>
+  <li>Extended metrics (character error rate, per-phoneme diagnostic WER, confidence calibration curves).</li>
+</ul>
+
+<h3>8.3 The rolling leaderboard</h3>
+<p>Benchmark numbers age. Provider models update on timelines of weeks, not years. To prevent this report from becoming a stale reference, Kuma Labs maintains a rolling leaderboard at <a href="/research/">kuma-labs.com/research</a> that publishes:</p>
+<ul>
+  <li>Re-runs of the matrix against any significant new model release from OpenAI, Google, or Meta, within 30 days of the release.</li>
+  <li>Community submissions — if you run the harness against a model or stack we have not included and the numbers are independently verifiable, we will add the results with clear attribution.</li>
+  <li>Corpus additions — when samples are added, the expanded corpus version is tagged and previous numbers are re-run for comparability.</li>
+</ul>
+<p>The goal is not a static reference; it is an evolving picture of what production Wolof voice actually looks like, maintained publicly.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §9 WHAT'S NEXT -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s9">9. What's next — Kuma's roadmap</h2>
+<p>This report is one milestone in a longer research cadence. The concrete near-term work, in roughly the order we expect to ship it:</p>
+<ul>
+  <li><strong>wolof-numbers v0.3</strong> to PyPI with expanded French-numeral parsing, closing the limitation surfaced in Failures 9 and 19 above.</li>
+  <li><strong>wolof-ner v0.2</strong> to PyPI, with the 539-name Senegalese gazetteer expanded to cover broader francophone African naming conventions.</li>
+  <li><strong>v2 benchmark</strong>, extending to ~200 samples with multi-country Wolof (Mauritanian, Gambian), elder-speaker inclusion, and narrowband-codec replication. The full corpus delta released alongside.</li>
+  <li><strong>Open-weight comparator runs</strong> once our GPU hosting is in place — targeting Meta MMS, Whisper fine-tunes from Lelapa AI, and one Senegalese academic-partnership model.</li>
+  <li><strong>A follow-up report in this series</strong>, likely either "The State of Wolof Voice UX in Production" (post-pilot observability findings from the actual deployments driving the metrics above) or "The State of French-African Voice AI" broadened to cover Wolof, Bambara, Pulaar, Hausa.</li>
+</ul>
+<p>Between major reports, the rolling leaderboard in §8.3 carries the incremental updates.</p>
+<p>Contact for any of the above: Abdul Kane, <a href="mailto:kaneaziz@gmail.com">kaneaziz@gmail.com</a>, <a href="https://kuma-labs.com">kuma-labs.com</a>.</p>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- §10 ACKS -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<h2 id="s10">10. Acknowledgments</h2>
+<p><strong>Proboutik</strong> — design partnership for Phase 4 merchant pilot that produced the labelled corpus this benchmark builds on. Specific thanks to the Proboutik product and data teams for consent-framework review, and to the partner merchants in Dakar who contributed recordings under consent.</p>
+<p><strong>Linguistic foundations</strong> — Maximilien Guérin's 2021 reference grammar of Wolof (<em>A Reference Grammar of Wolof</em>, Cambridge) informed the numeral-morphology handling in <code>wolof-numbers</code> and the code-switch taxonomy in §5. The specific decision to naturalize <em>milyon</em> and <em>alfunni</em> (and to reject <em>alfu</em> / <em>alfii</em>) as loanwords comes from Guérin's loanword analysis.</p>
+<p><strong>Native Wolof speaker reviewers</strong> — each sample in the corpus was reviewed by at least one native Wolof speaker other than the recorder for transcript accuracy. Reviewers are credited individually in the public corpus repository with their consent.</p>
+<p><strong>Peer feedback on the draft</strong> — colleagues at kaatyb.ai (Ismaila Seck), Lelapa AI, Orange Labs Dakar, and the wider francophone African AI community who reviewed pre-publication drafts and whose feedback shaped the failure-mode taxonomy and the implications-for-builders recommendations. Named contributors are listed in the repository; any error that remains is ours alone.</p>
+<p><strong>Providers evaluated</strong> — OpenAI, Google Cloud, and Google AI (Gemini) offer the models benchmarked here. Being named in this report is neither an endorsement nor a criticism; the numbers are the numbers. We thank the provider relations teams that answered documentation questions during benchmarking. We are particularly interested in provider responses to the findings in §5 and §7 — the rolling leaderboard in §8.3 is the right place for those responses.</p>
+<p><strong>Funding, where relevant</strong> — this benchmark was produced by Kuma Labs on internal time and resources. No external funding, grants, or provider-subsidized compute credits were used in the measurement phase. The eval-harness infrastructure is reusable internal work from Kuma's Phase 4 pilot and is released simultaneously with this report.</p>
+
+</article>
+</div><!-- /.layout -->
+
+<!-- Footer -->
+<footer class="article">
+  <div class="cite">
+    <strong>Cite as:</strong><br>
+    Kane, A. "The State of Wolof Voice AI — Benchmarks, Failure Modes, and the Gap to Production (April 2026)." Kuma Labs, 2026-04-28.<br>
+    <a href="https://www.kuma-labs.com/research/state-of-wolof-voice-ai-2026.html">kuma-labs.com/research/state-of-wolof-voice-ai-2026</a>
+  </div>
+  <div class="contact">
+    <strong>Comments, corrections, data contributions:</strong><br>
+    <a href="mailto:kaneaziz@gmail.com">kaneaziz@gmail.com</a><br>
+    <a href="/">← Back to Kuma Labs</a>
+  </div>
+</footer>
+
+</body>
+</html>

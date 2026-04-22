@@ -649,11 +649,11 @@ footer {
   <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
     <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
     <span class="json-key">"customer"</span>: <span class="json-val-str">"Fatou"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
-    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>,
-    <span class="json-key">"direction"</span>: <span class="json-val-str">"bought"</span>
+    <span class="json-key">"amount"</span>: <span class="json-brace">{</span> <span class="json-key">"value"</span>: <span class="json-val-num">10000</span>, <span class="json-key">"alt"</span>: <span class="json-val-num">2000</span> <span class="json-brace">}</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
   <span class="json-brace">}</span>,
-  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">true</span>,
+  <span class="json-key">"flagged_fields"</span>: [<span class="json-val-str">"amount"</span>]
 <span class="json-brace">}</span>
     </div>
   </div>
@@ -745,8 +745,8 @@ footer {
     <div class="how-step">
       <div class="step-num">03</div>
       <div class="step-title">Wolof parsing</div>
-      <div class="step-body">Our custom Wolof number parser (based on Guérin 2021) extracts amounts: "ñaar junni" → 2,000 XOF instantly.</div>
-      <div class="step-code">parse_amount("ñaar junni") → 2000</div>
+      <div class="step-body">Our custom Wolof number parser (Guérin 2021) extracts numerals from 1 to 1B, resolves compound and genitive forms, and surfaces <em>both</em> readings when a bare commerce numeral is structurally ambiguous between direct-CFA and implicit-dërëm.</div>
+      <div class="step-code">parse("ñaar junni") → {primary: 10000, alt: 2000, flag: HITL}</div>
     </div>
     <div class="how-step">
       <div class="step-num">04</div>
@@ -774,9 +774,10 @@ footer {
   <div class="section-tag">The technology</div>
   <h2 class="section-title" style="color:var(--black);">We built the Wolof number parser.</h2>
   <p class="section-body">
-    Based on peer-reviewed linguistics research (Guérin 2021), our parser covers 
-    all Wolof numbers from 1 to 1 billion — including the commerce-specific 
-    <em>dërëm</em> unit (1 dërëm = 5 CFA francs).
+    Based on peer-reviewed linguistics research (Guérin 2021), our parser covers
+    all Wolof numerals from 1 to 1 billion — compound forms, genitive
+    constructions, the commerce-specific <em>dërëm</em> unit (1 dërëm = 5 CFA),
+    and the loanword boundary (<em>milyon</em> in; <em>alfu</em> out).
   </p>
 
   <div class="numbers-grid">
@@ -786,53 +787,100 @@ footer {
       <div class="number-note">One · determinative</div>
     </div>
     <div class="number-card">
-      <div class="number-wo">ñaar junni</div>
-      <div class="number-val">2,000</div>
-      <div class="number-note">Two thousand</div>
-      <div class="number-xof">2 000 XOF</div>
+      <div class="number-wo">ñaar</div>
+      <div class="number-val">2</div>
+      <div class="number-note">Two</div>
     </div>
     <div class="number-card">
       <div class="number-wo">juróom fukk</div>
       <div class="number-val">50</div>
       <div class="number-note">Five × ten</div>
-      <div class="number-xof">50 XOF</div>
     </div>
     <div class="number-card">
       <div class="number-wo">fukk ak juróom ñaar</div>
       <div class="number-val">17</div>
-      <div class="number-note">Ten + five + two</div>
-      <div class="number-xof">17 XOF</div>
+      <div class="number-note">Ten + five + two · additive</div>
     </div>
     <div class="number-card">
       <div class="number-wo">fanweer</div>
       <div class="number-val">30</div>
-      <div class="number-note">"Jour-lune" · lunar month</div>
-      <div class="number-xof">30 XOF</div>
+      <div class="number-note">"Jour-lune" · lunar-month word</div>
     </div>
     <div class="number-card">
       <div class="number-wo">téeméer</div>
       <div class="number-val">100</div>
       <div class="number-note">One hundred</div>
-      <div class="number-xof">100 XOF</div>
     </div>
     <div class="number-card">
-      <div class="number-wo">dërëm fukk</div>
-      <div class="number-val">10 dërëm</div>
-      <div class="number-note">Dërëm unit · 10 × 5 CFA</div>
-      <div class="number-xof">= 50 XOF</div>
+      <div class="number-wo">ñaar junni</div>
+      <div class="number-val">2,000</div>
+      <div class="number-note">Two × thousand</div>
     </div>
     <div class="number-card">
       <div class="number-wo">juróom-benn-i junni</div>
       <div class="number-val">6,000</div>
-      <div class="number-note">Genitive construction</div>
-      <div class="number-xof">6 000 XOF</div>
+      <div class="number-note">Genitive construction · (5+1)×1000</div>
     </div>
   </div>
 
-  <div class="wolof-note">
-    <strong>Why this matters:</strong> In Dakar markets, prices are often quoted in Wolof even by French-speaking merchants. 
-    A merchant saying "ñaar junni" means 2,000 XOF. Generic ASR returns garbled text. 
-    Kuma returns <code style="color:var(--green)">{ amount: 2000, currency: "XOF" }</code>.
+  <div class="wolof-note" style="margin-top:2.5rem;">
+    <strong>The cards above are linguistics, not currency.</strong> Wolof number words
+    have fixed arithmetic values. When those words appear in a commerce context,
+    translating to CFA francs requires a second step — and that step is
+    structurally ambiguous. Below is how our parser resolves it.
+  </div>
+
+  <!-- Commerce disambiguation -->
+  <div style="margin-top:3rem; padding:2rem 2.2rem; background:#ffffff; border-radius:14px; border:1px solid rgba(0,0,0,0.08); box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+    <div class="section-tag" style="margin-bottom:1rem;">Commerce disambiguation</div>
+    <h3 style="font-family:'Playfair Display',serif; font-weight:700; font-size:1.6rem; line-height:1.2; color:var(--black); margin-bottom:1rem;">
+      The same number word can mean two different amounts.
+    </h3>
+    <p class="section-body" style="margin-bottom:1.6rem;">
+      Senegalese market merchants frequently quote prices in <em>dërëm</em> without
+      saying the word — "ñaar junni" can mean 2,000 CFA (direct reading) or 2,000 dërëm =
+      10,000 CFA (implicit-dërëm reading, Guérin 2021 §2.6). There is no universally
+      correct default. Our parser returns <strong>both interpretations</strong> and
+      flags the field for human confirmation.
+    </p>
+
+    <div style="display:grid; grid-template-columns:1fr; gap:1rem; font-family:'DM Mono',monospace; font-size:0.86rem;">
+
+      <div style="padding:1rem 1.2rem; border-left:3px solid var(--green); background:rgba(29,158,117,0.05); border-radius:0 6px 6px 0;">
+        <div style="color:rgba(0,0,0,0.5); font-size:0.74rem; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.4rem;">Ambiguous · bare commerce numeral</div>
+        <div style="color:var(--black); font-weight:500;">input: "ñaar junni"</div>
+        <div style="color:rgba(0,0,0,0.7); margin-top:0.4rem;">
+          amount: <strong>10,000</strong> XOF  <span style="color:rgba(0,0,0,0.4);">(implicit dërëm, primary — confidence 0.6)</span><br>
+          alt: 2,000 XOF  <span style="color:rgba(0,0,0,0.4);">(direct CFA — confidence 0.4)</span><br>
+          <span style="color:#c2410c;">needs_confirmation: true</span>
+        </div>
+      </div>
+
+      <div style="padding:1rem 1.2rem; border-left:3px solid var(--green); background:rgba(29,158,117,0.05); border-radius:0 6px 6px 0;">
+        <div style="color:rgba(0,0,0,0.5); font-size:0.74rem; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.4rem;">Explicit dërëm · unambiguous</div>
+        <div style="color:var(--black); font-weight:500;">input: "dërëm fukk"</div>
+        <div style="color:rgba(0,0,0,0.7); margin-top:0.4rem;">
+          amount: <strong>50</strong> XOF  <span style="color:rgba(0,0,0,0.4);">(10 dërëm × 5 — confidence 1.0)</span><br>
+          needs_confirmation: false
+        </div>
+      </div>
+
+      <div style="padding:1rem 1.2rem; border-left:3px solid var(--green); background:rgba(29,158,117,0.05); border-radius:0 6px 6px 0;">
+        <div style="color:rgba(0,0,0,0.5); font-size:0.74rem; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.4rem;">Explicit unit marker · unambiguous</div>
+        <div style="color:var(--black); font-weight:500;">input: "téeméer francs"</div>
+        <div style="color:rgba(0,0,0,0.7); margin-top:0.4rem;">
+          amount: <strong>100</strong> XOF  <span style="color:rgba(0,0,0,0.4);">(direct CFA locked by "francs" — confidence 1.0)</span><br>
+          needs_confirmation: false
+        </div>
+      </div>
+
+    </div>
+
+    <p class="section-body" style="margin-top:1.6rem; font-size:0.95rem;">
+      This is a core design decision, not a bug. Silently picking one reading
+      would be wrong for half of Senegalese commerce speech either way.
+      <a href="/research/state-of-wolof-voice-ai-2026.html#s5" style="color:var(--green); border-bottom:1px solid rgba(29,158,117,0.3); text-decoration:none;">Full treatment in the research report (Failure 7)</a>.
+    </p>
   </div>
 </section>
 
@@ -1094,51 +1142,64 @@ const observer = new IntersectionObserver((entries) => {
 reveals.forEach(r => observer.observe(r));
 
 // ── DEMO ROTATION ───────────────────────────────────────────────────────────
+// Each output matches what the live API actually returns on the given phrase.
+// Bare Wolof commerce numerals are structurally ambiguous between direct-CFA
+// and implicit-dërëm readings; we surface both interpretations and flag
+// for HITL rather than silently pick one. See /research for the full story.
 const demos = [
   {
+    // Ambiguous commerce phrase — bare "ñaar junni" could mean 2000 XOF (direct)
+    // or 2000 dërëm = 10000 XOF (implicit commerce convention, Guérin 2021 §2.6).
+    // Parser primary = implicit-dërëm, alt = direct CFA, needs_confirmation = true.
     phrase: '"Fatou me doit ñaar junni"',
     json: `<span class="json-brace">{</span>
   <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
     <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
     <span class="json-key">"customer"</span>: <span class="json-val-str">"Fatou"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
+    <span class="json-key">"amount"</span>: <span class="json-brace">{</span> <span class="json-key">"value"</span>: <span class="json-val-num">10000</span>, <span class="json-key">"alt"</span>: <span class="json-val-num">2000</span> <span class="json-brace">}</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
+  <span class="json-brace">}</span>,
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">true</span>,
+  <span class="json-key">"flagged_fields"</span>: [<span class="json-val-str">"amount"</span>]
+<span class="json-brace">}</span>`
+  },
+  {
+    // Explicit dërëm word — unambiguous, clean output, no HITL flag needed.
+    phrase: '"Awa jay na dërëm fukk"',
+    json: `<span class="json-brace">{</span>
+  <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
+    <span class="json-key">"type"</span>: <span class="json-val-str">"sale"</span>,
+    <span class="json-key">"customer"</span>: <span class="json-val-str">"Awa"</span>,
+    <span class="json-key">"amount"</span>: <span class="json-val-num">50</span>,
     <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
   <span class="json-brace">}</span>,
   <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
 <span class="json-brace">}</span>`
   },
   {
-    phrase: '"J\'ai vendu deux sacs de riz à mille francs"',
-    json: `<span class="json-brace">{</span>
-  <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
-    <span class="json-key">"type"</span>: <span class="json-val-str">"sale"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">1000</span>,
-    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>,
-    <span class="json-key">"direction"</span>: <span class="json-val-str">"sold"</span>
-  <span class="json-brace">}</span>,
-  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
-<span class="json-brace">}</span>`
-  },
-  {
+    // Ambiguous commerce — same pattern as demo 1 at a different scale.
     phrase: '"Mamadou a payé juróom junni"',
     json: `<span class="json-brace">{</span>
   <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
     <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
     <span class="json-key">"customer"</span>: <span class="json-val-str">"Mamadou"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">5000</span>,
+    <span class="json-key">"amount"</span>: <span class="json-brace">{</span> <span class="json-key">"value"</span>: <span class="json-val-num">25000</span>, <span class="json-key">"alt"</span>: <span class="json-val-num">5000</span> <span class="json-brace">}</span>,
     <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
   <span class="json-brace">}</span>,
-  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
+  <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">true</span>,
+  <span class="json-key">"flagged_fields"</span>: [<span class="json-val-str">"amount"</span>]
 <span class="json-brace">}</span>`
   },
   {
-    phrase: '"Awa jënd na ñaar junni crédit"',
+    // Explicit "francs" after the numeral locks the direct-CFA reading.
+    // Unambiguous, clean output.
+    phrase: '"Ousmane a acheté pour téeméer francs"',
     json: `<span class="json-brace">{</span>
   <span class="json-key">"intent"</span>: <span class="json-brace">{</span>
-    <span class="json-key">"type"</span>: <span class="json-val-str">"credit"</span>,
-    <span class="json-key">"customer"</span>: <span class="json-val-str">"Awa"</span>,
-    <span class="json-key">"amount"</span>: <span class="json-val-num">2000</span>,
-    <span class="json-key">"direction"</span>: <span class="json-val-str">"bought"</span>
+    <span class="json-key">"type"</span>: <span class="json-val-str">"sale"</span>,
+    <span class="json-key">"customer"</span>: <span class="json-val-str">"Ousmane"</span>,
+    <span class="json-key">"amount"</span>: <span class="json-val-num">100</span>,
+    <span class="json-key">"currency"</span>: <span class="json-val-str">"XOF"</span>
   <span class="json-brace">}</span>,
   <span class="json-key">"needs_confirmation"</span>: <span class="json-val-bool">false</span>
 <span class="json-brace">}</span>`

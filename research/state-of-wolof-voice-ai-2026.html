@@ -428,7 +428,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <p>Five recurring, production-critical failure patterns, expanded in §5 with transcripts, audio, and downstream consequences:</p>
 <ol>
   <li><strong>Dropped negation morphology</strong> — the Wolof <code>-ul</code> suffix is routinely dropped, silently flipping a repayment status from <em>unpaid</em> to <em>paid</em>. This is the most dangerous single failure in the report.</li>
-  <li><strong>Numeral hallucination and unit loss</strong> — phantom multipliers producing 5× overcharges, dropped dërëm units producing 5× under-reports, dropped genitive linkers producing 1000× scale errors.</li>
+  <li><strong>The dërëm ambiguity, both directions</strong> — the same bare Wolof numeral can mean direct CFA or implicit-dërëm (×5). Dropping the unit produces 5× under-reports; over-applying it produces 5× over-reports. Most production failures in this class are the product layer silently picking one reading. See Failure 7 for the full design tension and our resolution.</li>
   <li><strong>Wolof names misread as French phrases</strong> — "Awa" transcribed as "à voir"; creates ghost customer records in production.</li>
   <li><strong>Prompt-echo artifacts</strong> — when custom prompts are used to improve accuracy, they can be echoed verbatim into the transcript on silent or near-silent audio, producing syntactically-valid but wildly-wrong amounts. We reproduced a two-hundred-billion-franc hallucination from this class deterministically during benchmark development.</li>
   <li><strong>Illusory Wolof support at the API level</strong> — one commercial provider accepts <code>wo-SN</code> as a language code and returns output that is not Wolof, with no error or warning. Teams doing vendor evaluation by the interface contract will reach the wrong conclusion.</li>
@@ -632,10 +632,52 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 </div>
 
 <div class="failure">
-  <h4><span class="n">7·B</span>Dërëm commerce unit dropped</h4>
-  <div class="ref">"Moussa jay na dërëm fukk." (Moussa sold dërëm-ten — i.e. 10 × 5 CFA = 50 CFA.) Expected: 50<span class="lang">wo-SN · samples/wolof_numbers_008.wav</span></div>
-  <p><strong>Downstream impact.</strong> Fivefold under-reporting of small transactions. In a daily-cash reconciliation flow, this makes real revenue look like one-fifth of what came in. Over a week across a fleet of merchants this is the difference between a business looking viable and looking dead.</p>
-  <p><strong>Would Kuma's pipeline catch it?</strong> Yes — Kuma's <code>wolof-numbers</code> parser encodes the dërëm × 5 CFA commerce convention explicitly. Raw providers without a Senegalese-commerce-aware parser will silently drop the unit.</p>
+  <h4><span class="n">7·B</span>The dërëm ambiguity — both directions</h4>
+  <p>This is a single failure class with two mirror-image manifestations. Documenting it as a pair matters because a parser that "fixes" one direction usually creates the other.</p>
+
+  <h4 style="margin-top:1.5rem; color:var(--white);">7a · Dërëm unit dropped — under-report by 5×</h4>
+  <div class="ref">"Moussa jay na dërëm fukk." (Moussa sold ten dërëm — 10 × 5 CFA = 50 CFA.) Expected: 50 XOF<span class="lang">wo-SN · samples/wolof_numbers_008.wav</span></div>
+  <table>
+    <thead><tr><th>Provider behaviour</th><th>Parsed amount</th></tr></thead>
+    <tbody>
+      <tr><td>Generic parser (no Senegalese-commerce context)</td><td>10 XOF — <code>dërëm</code> treated as filler, multiplier lost</td></tr>
+      <tr><td><code>wolof-numbers</code> with explicit <code>dërëm</code> token</td><td>50 XOF — unambiguous, confidence 1.0</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Downstream impact (7a).</strong> Five-fold under-reporting of small transactions. In daily-cash reconciliation this makes real revenue look like one-fifth of what came in.</p>
+
+  <h4 style="margin-top:1.8rem; color:var(--white);">7b · Dërëm unit over-applied — over-report by 5×</h4>
+  <div class="ref">"Ñetti téeméer la ma yónni." (Three hundred is what was sent to me — speaker means the literal CFA amount.) Expected: 300 XOF<span class="lang">Reproduced live on api.kuma-labs.com/docs during benchmark prep</span></div>
+  <table>
+    <thead><tr><th>Provider behaviour</th><th>Parsed amount</th></tr></thead>
+    <tbody>
+      <tr><td><code>wolof-numbers v0.2</code> default</td><td><strong>1500 XOF</strong> — implicit-dërëm applied to bare commerce numeral; primary confidence 0.6, alternative 300 XOF at confidence 0.4, <code>needs_confirmation: true</code></td></tr>
+      <tr><td><code>wolof-numbers</code> with explicit <code>francs</code> / <code>CFA</code> anchor</td><td>300 XOF — direct-CFA reading locked, confidence 1.0</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Downstream impact (7b).</strong> Five-fold <em>over</em>-reporting when a speaker uses a plain Wolof numeral in a non-commerce context, or in a commerce context where they mean the literal franc amount. In a repayment or top-up flow this charges the user 5× what they intended — the inverse of 7a but equally harmful.</p>
+
+  <h4 style="margin-top:1.8rem; color:var(--white);">Why this is one failure, not two</h4>
+  <p>Wolof commerce numerals are <strong>structurally ambiguous</strong> between the direct-CFA reading (<em>ñaar junni</em> = 2 × 1000 = 2000 XOF) and the implicit-dërëm reading (<em>ñaar junni</em> = 2000 dërëm × 5 = 10000 XOF, per Guérin 2021 §2.6 commerce convention). The ambiguity is a genuine linguistic property of Senegalese merchant speech — not a parser bug.</p>
+  <p>Any parser building on this data has four options:</p>
+  <ol>
+    <li><strong>Silently prefer direct-CFA</strong> — fast; wrong for small-market merchant speech where implicit dërëm dominates. Produces 7a.</li>
+    <li><strong>Silently prefer implicit-dërëm</strong> — right for small markets; wrong for fintech / super-app traffic where users speak literal francs. Produces 7b.</li>
+    <li><strong>Refuse to parse bare commerce numerals</strong> — safest; pushes the problem upstream to the caller.</li>
+    <li><strong>Return both interpretations with an explicit ambiguity flag</strong> — cheapest to build, most honest to consumers.</li>
+  </ol>
+  <p>Kuma's <code>wolof-numbers</code> currently implements option 2 (implicit-dërëm primary, direct-CFA alternative, HITL flag) because the pilot deployment is small-merchant Dakar commerce. <strong>This is the right default for that use case and the wrong default for most others.</strong> A fintech ICP would flip the primary; a government-registration ICP would drop to option 3.</p>
+
+  <h4 style="margin-top:1.8rem; color:var(--white);">What a product team should do</h4>
+  <ul>
+    <li><strong>Choose your default deliberately.</strong> If your users speak francs literally rather than dërëm implicitly, flip the primary or require explicit anchors at the parser layer.</li>
+    <li><strong>Respect <code>needs_confirmation</code>.</strong> The API returns both readings and flags ambiguity. A client that ignores <code>needs_confirmation: true</code> and writes the primary amount to a ledger is building on sand.</li>
+    <li><strong>Surface both amounts in your UI.</strong> When the user sees "10,000 XOF · alt: 2,000" they can disambiguate in a tap. Hiding the alternative and asking "confirm?" forces the user to read your mind.</li>
+    <li><strong>Log the <code>implicit_unit_applied</code> field.</strong> Over time it tells you the distribution of your actual user speech — which tells you whether to flip defaults.</li>
+  </ul>
+
+  <p><strong>Would Kuma's pipeline catch 7a?</strong> Yes — the <code>dërëm</code> token triggers the unambiguous branch (confidence 1.0).</p>
+  <p><strong>Would Kuma's pipeline catch 7b?</strong> Partially. The parser returns both readings with <code>needs_confirmation: true</code>, but the pipeline's response schema (as of the benchmark date) was serializing <code>alternatives: []</code> instead of forwarding the parser's alt-list. <strong>Fix shipped with this report:</strong> alternatives are now forwarded verbatim from parser to response, so every caller sees both readings when ambiguity exists.</p>
 </div>
 
 <div class="failure">

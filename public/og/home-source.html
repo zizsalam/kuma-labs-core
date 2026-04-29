@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OG · Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: #F2EBDF;
+    color: #1A1A1A;
+    font-family: 'Instrument Serif', Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    width: 1200px;
+    height: 630px;
+    padding: 50px 72px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bottom {
+    position: absolute;
+    left: 72px;
+    right: 72px;
+    bottom: 90px;
+  }
+  /* dotted grid background */
+  .frame::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(26,26,26,0.07) 0.8px, transparent 0.8px);
+    background-size: 18px 18px;
+    pointer-events: none;
+  }
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    position: relative;
+    z-index: 1;
+  }
+  .logo {
+    font-family: 'Instrument Serif', serif;
+    font-size: 30px;
+    letter-spacing: -0.015em;
+    color: #1A1A1A;
+  }
+  .logo em { color: #1D9E75; font-style: italic; }
+  .byline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(26,26,26,0.40);
+  }
+  .body {
+    position: relative;
+    z-index: 1;
+    margin-top: -20px;
+  }
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 124px;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: #1A1A1A;
+    max-width: 14ch;
+  }
+  h1 em { color: #1D9E75; font-style: italic; }
+  .kicker {
+    margin-top: 22px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 26px;
+    line-height: 1.4;
+    color: rgba(26,26,26,0.62);
+    max-width: 720px;
+  }
+  .bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    z-index: 1;
+    border-top: 1px solid rgba(26,26,26,0.18);
+    padding-top: 22px;
+  }
+  .url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+    color: #1A1A1A;
+  }
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: rgba(26,26,26,0.40);
+    text-transform: uppercase;
+  }
+  /* small waveform mark, decorative */
+  .wave {
+    position: absolute;
+    right: 80px;
+    top: 90px;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 60px;
+    opacity: 0.55;
+    z-index: 1;
+  }
+  .wave span {
+    display: inline-block;
+    width: 3px;
+    background: rgba(26,26,26,0.62);
+    border-radius: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="top">
+    <span class="logo">Kuma <em>Labs</em></span>
+    <span class="byline">Dakar · April 2026</span>
+  </div>
+
+  <div class="wave">
+    <span style="height:30%"></span>
+    <span style="height:60%"></span>
+    <span style="height:45%"></span>
+    <span style="height:80%"></span>
+    <span style="height:35%"></span>
+    <span style="height:70%"></span>
+    <span style="height:50%"></span>
+    <span style="height:90%"></span>
+    <span style="height:40%"></span>
+    <span style="height:65%"></span>
+    <span style="height:55%"></span>
+    <span style="height:75%"></span>
+    <span style="height:42%"></span>
+    <span style="height:85%"></span>
+    <span style="height:38%"></span>
+  </div>
+
+  <div class="body">
+    <h1>Wolof voice,<br><em>measured</em>.</h1>
+    <p class="kicker">Voice ops for labor-constrained West Africa. The first public benchmark of Wolof voice AI.</p>
+  </div>
+
+  <div class="bottom">
+    <div class="bottom-row">
+      <span class="url">kuma-labs.com</span>
+      <span class="meta">Research · April 2026</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

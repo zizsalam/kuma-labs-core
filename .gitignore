@@ -28,7 +28,7 @@ downloads/
 eggs/
 .eggs/
 # Python lib directories (but NOT frontend/lib which contains source code)
-/lib/
+# Note: /lib/ at repo root is the Next.js lib/ source dir — do NOT ignore it.
 /lib64/
 parts/
 sdist/

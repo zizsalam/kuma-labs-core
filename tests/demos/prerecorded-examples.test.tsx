@@ -10,8 +10,9 @@ vi.mock("@/lib/demos/api-client", () => ({
   }),
 }));
 
-// Mock fetch to return a fake blob
+// Mock fetch to return a successful response with a fake blob
 global.fetch = vi.fn().mockResolvedValue({
+  ok: true,
   blob: () => Promise.resolve(new Blob([], { type: "audio/mp4" })),
 }) as unknown as typeof fetch;
 

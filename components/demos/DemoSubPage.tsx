@@ -9,6 +9,7 @@ import { FileUpload } from "./FileUpload";
 import { PlaygroundLink } from "./PlaygroundLink";
 import { BookCallCta } from "./BookCallCta";
 import { OpsPainBanner } from "./OpsPainBanner";
+import { DemoModeBadge } from "./DemoModeBadge";
 import { type DemoShape } from "@/lib/demos/shapes";
 import { type DemoResponse } from "@/lib/demos/api-client";
 
@@ -40,6 +41,9 @@ export function DemoSubPage({ demo }: DemoSubPageProps) {
       <div className="flex justify-center">
         <VoiceRecorder slug={demo.slug} onResult={setResult} />
       </div>
+
+      {/* Demo mode disclosure badge */}
+      <DemoModeBadge />
 
       {/* Transcript + JSON viewer — side by side on desktop, stacked on mobile */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">

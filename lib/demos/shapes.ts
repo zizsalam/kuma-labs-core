@@ -31,20 +31,19 @@ export const DEMOS: Record<DemoSlug, DemoShape> = {
     iconName: "ArrowRightLeft",
     examples: [
       {
-        wolof: "Dëgg ci jënd bi ma def ci Ousmane",
+        wolof: "Dindil yónnee bi ma def ci Ousmane",
         gloss: "Cancel the transfer I made to Ousmane",
-        audioUrl: "",
-        caption: "From Abdul's Wave pitch — April 2026",
+        audioUrl: "/demos/audio/remittance-dispatch/example-1.m4a",
       },
       {
-        wolof: "Yónne junni franc ci Aminata",
-        gloss: "Send 1000 francs to Aminata",
-        audioUrl: "",
+        wolof: "Yónneel Aminata junni",
+        gloss: "Send Aminata 5000",
+        audioUrl: "/demos/audio/remittance-dispatch/example-2.m4a",
       },
       {
-        wolof: "Wuyu transfert bu mu génn",
+        wolof: "Bamtuwatal yónnee bi mujj",
         gloss: "Repeat the last transfer",
-        audioUrl: "",
+        audioUrl: "/demos/audio/remittance-dispatch/example-3.m4a",
       },
     ],
   },
@@ -57,20 +56,16 @@ export const DEMOS: Record<DemoSlug, DemoShape> = {
     iconName: "PhoneCall",
     examples: [
       {
-        wolof: "Cheikh fey na, ñaar junni",
-        gloss: "Cheikh paid, 2000",
-        audioUrl: "",
+        wolof: "Fatou jaay na juróom-benni téeméer bor",
+        gloss: "Fatou sold 3000 on credit",
+        audioUrl: "/demos/audio/bnpl-collections/example-1.m4a",
       },
       {
-        wolof: "Awa wax na suba bi mu fey",
-        gloss: "Awa said she'll pay tomorrow",
-        audioUrl: "",
+        wolof: "Moussa, jaay naa ñetti junni",
+        gloss: "Moussa, I sold 3000",
+        audioUrl: "/demos/audio/bnpl-collections/example-2.m4a",
       },
-      {
-        wolof: "Moussa téppul telephon bi",
-        gloss: "Moussa didn't pick up the phone",
-        audioUrl: "",
-      },
+      // TODO: confirm 3rd BNPL collection utterance with Abdul
     ],
   },
   "merchant-sales": {
@@ -82,19 +77,19 @@ export const DEMOS: Record<DemoSlug, DemoShape> = {
     iconName: "ShoppingCart",
     examples: [
       {
-        wolof: "Awa jënd na ñaar junni",
-        gloss: "Awa bought 2000",
-        audioUrl: "",
+        wolof: "Cheikh fey na ñaari junni",
+        gloss: "Cheikh paid 2000",
+        audioUrl: "/demos/audio/merchant-sales/example-1.m4a",
       },
       {
-        wolof: "Fatou jay na juróom benn téeméer crédit",
-        gloss: "Fatou sold 600 on credit",
-        audioUrl: "",
+        wolof: "Awa wax na ne dina fey suba",
+        gloss: "Awa said she'll pay tomorrow",
+        audioUrl: "/demos/audio/merchant-sales/example-2.m4a",
       },
       {
-        wolof: "Moussa j'ai vendu ñett junni",
-        gloss: "Moussa I sold 3000 (FR+Wolof)",
-        audioUrl: "",
+        wolof: "Moussa wuyuul téléphon bi",
+        gloss: "Moussa didn't answer the phone",
+        audioUrl: "/demos/audio/merchant-sales/example-3.m4a",
       },
     ],
   },
@@ -107,20 +102,16 @@ export const DEMOS: Record<DemoSlug, DemoShape> = {
     iconName: "Sprout",
     examples: [
       {
-        wolof: "Damay yónne juróom téeméer franc ci cycle bi",
-        gloss: "I'm sending 500 francs for this cycle",
-        audioUrl: "",
+        wolof: "Damay yónne juróom-téeméer ci cycle bi",
+        gloss: "I'm sending 500 for this cycle",
+        audioUrl: "/demos/audio/agri-coordination/example-1.m4a",
       },
       {
-        wolof: "Mbey nañu Talibé fan bu njëkk",
-        gloss: "Deliver to Talibé first slot",
-        audioUrl: "",
+        wolof: "Sama gerté dafa yeex, dencal ma ko",
+        gloss: "My peanuts are late, store them for me",
+        audioUrl: "/demos/audio/agri-coordination/example-2.m4a",
       },
-      {
-        wolof: "Sama gerté dafa yàgg, defal ko gàllàg",
-        gloss: "My peanuts are late, register them for storage",
-        audioUrl: "",
-      },
+      // TODO: confirm 3rd agri-coordination utterance with Abdul
     ],
   },
   "kyc-onboarding": {
@@ -132,19 +123,19 @@ export const DEMOS: Record<DemoSlug, DemoShape> = {
     iconName: "IdCard",
     examples: [
       {
-        wolof: "Sama tur Abdoulaziz Kane, juddu naa 1995, sama CNI: 1234567890123",
-        gloss: "My name is Abdoulaziz Kane, born 1995, CNI: 1234567890123",
-        audioUrl: "",
+        wolof: "Sama tur Abdoul Aziz Kane, juddu naa ci 1995, sama CNI : 1234567890123",
+        gloss: "My name is Abdoul Aziz Kane, born 1995, CNI: 1234567890123",
+        audioUrl: "/demos/audio/kyc-onboarding/example-1.m4a",
       },
       {
-        wolof: "Aminata Diop, mille neuf cent quatre-vingt-douze, CNI 9876543210987",
-        gloss: "Aminata Diop, 1992, CNI 9876543210987",
-        audioUrl: "",
+        wolof: "Aminata Diop, juddu ci 1992, CNI : 9876543210987",
+        gloss: "Aminata Diop, born 1992, CNI: 9876543210987",
+        audioUrl: "/demos/audio/kyc-onboarding/example-2.m4a",
       },
       {
-        wolof: "Cheikh Sarr, juddu naa 1988, CNI 5555111122223333",
-        gloss: "Cheikh Sarr, born 1988, CNI 5555111122223333",
-        audioUrl: "",
+        wolof: "Cheikh Sarr, juddu naa ci 1988, CNI : 5555111122223333",
+        gloss: "Cheikh Sarr, born 1988, CNI: 5555111122223333",
+        audioUrl: "/demos/audio/kyc-onboarding/example-3.m4a",
       },
     ],
   },

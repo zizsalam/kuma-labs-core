@@ -58,6 +58,8 @@ export function VoiceRecorder({ slug, onResult }: VoiceRecorderProps) {
   const stuckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const cosmeticTimer1Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cosmeticTimer2Ref = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearTimers = useCallback(() => {
     if (elapsedIntervalRef.current) {
@@ -75,6 +77,14 @@ export function VoiceRecorder({ slug, onResult }: VoiceRecorderProps) {
     if (maxDurationTimerRef.current) {
       clearTimeout(maxDurationTimerRef.current);
       maxDurationTimerRef.current = null;
+    }
+    if (cosmeticTimer1Ref.current) {
+      clearTimeout(cosmeticTimer1Ref.current);
+      cosmeticTimer1Ref.current = null;
+    }
+    if (cosmeticTimer2Ref.current) {
+      clearTimeout(cosmeticTimer2Ref.current);
+      cosmeticTimer2Ref.current = null;
     }
   }, []);
 
@@ -132,12 +142,14 @@ export function VoiceRecorder({ slug, onResult }: VoiceRecorderProps) {
       }, 25000);
 
       try {
-        // Simulate sequential states for UX feedback
-        setTimeout(() => {
+        // Simulate sequential states for UX feedback.
+        // Refs are stored so the catch block can cancel them before they fire
+        // and overwrite an error state.
+        cosmeticTimer1Ref.current = setTimeout(() => {
           if (abortControllerRef.current?.signal.aborted) return;
           setState("transcribing");
         }, 1000);
-        setTimeout(() => {
+        cosmeticTimer2Ref.current = setTimeout(() => {
           if (abortControllerRef.current?.signal.aborted) return;
           setState("extracting-intent");
         }, 2000);
@@ -149,7 +161,16 @@ export function VoiceRecorder({ slug, onResult }: VoiceRecorderProps) {
         setState("success");
         onResult(result);
       } catch (err) {
-        if (abortControllerRef.current?.signal.aborted) return;
+        // Abort the controller first so any pending cosmetic timers that fire
+        // after this point will bail on the `signal.aborted` guard, preventing
+        // them from overwriting the error state we are about to set.
+        abortControllerRef.current?.abort();
+        // clearTimers cancels the cosmetic timers that haven't fired yet.
+        clearTimers();
+        if (err instanceof Error && err.name === "AbortError") {
+          // User-initiated cancel — handleCancelUpload already set state to idle.
+          return;
+        }
         const msg =
           err instanceof Error && err.message.includes("API error")
             ? "Couldn't transcribe that one — the audio might be too short or too noisy. Try again or use a pre-recorded example."

@@ -11,6 +11,8 @@ const API =
 const KEY =
   process.env.NEXT_PUBLIC_KUMA_SANDBOX_KEY || "kuma_test_DEMO_PUBLIC";
 
+const FETCH_TIMEOUT_MS = 30_000;
+
 export async function uploadAudio({
   slug,
   blob,
@@ -24,6 +26,7 @@ export async function uploadAudio({
     method: "POST",
     headers: { Authorization: `Bearer ${KEY}` },
     body: fd,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(`API error ${res.status}`);
   return res.json() as Promise<DemoResponse>;
@@ -42,6 +45,7 @@ export async function uploadFixture({
     method: "POST",
     headers: { Authorization: `Bearer ${KEY}` },
     body: fd,
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(`API error ${res.status}`);
   return res.json() as Promise<DemoResponse>;

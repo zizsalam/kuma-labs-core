@@ -1,6 +1,6 @@
-// Cal.com URL verified in task 08-02.4 — if URL returns non-200,
-// executor swaps to mailto:hello@kumalabs.ai?subject=Demo%20call%20request
-const href = "https://cal.com/kuma-labs/founder-demo";
+// Cal.com URL https://cal.com/kuma-labs/founder-demo returned HTTP 404 during
+// task 08-02.4 verification. Using mailto fallback per plan D-20.
+const href = "mailto:hello@kumalabs.ai?subject=Demo%20call%20request";
 
 export function BookCallCta() {
   return (

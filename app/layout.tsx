@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import React from "react";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  // --font-sans is the 08-04 variable; layout adds --font-inter for 08-02 components
   variable: "--font-sans",
   display: "swap",
 });
@@ -12,6 +14,7 @@ const inter = Inter({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
+  // --font-mono is the 08-04 variable; layout adds --font-jbmono for 08-02 components
   variable: "--font-mono",
   display: "swap",
 });
@@ -53,6 +56,12 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} bg-kuma-bg font-sans text-kuma-text-primary antialiased`}
+        style={{
+          // Expose --font-inter and --font-jbmono aliases for 08-02 component compatibility
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ["--font-inter" as any]: "var(--font-sans)",
+          ["--font-jbmono" as any]: "var(--font-mono)",
+        } as React.CSSProperties}
       >
         {children}
       </body>

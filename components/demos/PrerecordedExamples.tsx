@@ -2,8 +2,36 @@
 
 import { useState } from "react";
 import { PlayCircle, Loader2 } from "lucide-react";
-import { uploadAudio, type DemoResponse } from "@/lib/demos/api-client";
+import { uploadAudio, uploadFixture, type DemoResponse } from "@/lib/demos/api-client";
 import type { DemoExample, DemoSlug } from "@/lib/demos/shapes";
+
+/**
+ * Fetch the audio blob at `audioUrl` and upload it.
+ * If the URL is absent, returns a 404, or throws a network error, fall back
+ * to fixture replay so the demo works before Phase 08-03 ships audio files.
+ */
+async function _loadAndUpload({
+  slug,
+  audioUrl,
+}: {
+  slug: DemoSlug;
+  audioUrl: string;
+}): Promise<DemoResponse> {
+  if (audioUrl) {
+    try {
+      const response = await fetch(audioUrl);
+      if (response.ok) {
+        const blob = await response.blob();
+        return uploadAudio({ slug, blob });
+      }
+      // Non-OK (e.g. 404): fall through to fixture replay
+    } catch {
+      // Network error: fall through to fixture replay
+    }
+  }
+  // No audioUrl or fetch failed — use server-side fixture replay
+  return uploadFixture({ slug, fixtureId: "default" });
+}
 
 interface PrerecordedExamplesProps {
   slug: DemoSlug;
@@ -25,28 +53,21 @@ export function PrerecordedExamples({
     setErrorIdx(null);
 
     try {
-      // Play audio feedback if URL available
+      // Play audio feedback if URL available (failure silently ignored)
       if (example.audioUrl) {
         const audio = new Audio(example.audioUrl);
         audio.play().catch(() => {
-          // Audio play may fail due to browser policy — silently ignore
+          // Audio play may fail due to browser policy or missing file — silently ignore
         });
       }
 
-      // Fetch blob from URL (or use a fixture if URL is empty)
-      let blob: Blob;
-      if (example.audioUrl) {
-        const response = await fetch(example.audioUrl);
-        blob = await response.blob();
-      } else {
-        // No audio file yet (08-03 wires these); use fixture_id="default" path
-        // We create a tiny silent blob to trigger the fixture fallback server-side
-        blob = new Blob([], { type: "audio/webm" });
-      }
-
-      const result = await uploadAudio({ slug, blob });
+      // Attempt to fetch audio blob; fall back to fixture replay if unavailable.
+      // Phase 08-03 will populate audioUrl values — until then (or when files return
+      // 404), fixture replay is the safe fallback so smoke tests work without real audio.
+      const result = await _loadAndUpload({ slug, audioUrl: example.audioUrl });
       onResult(result);
     } catch {
+      // Both audio fetch and fixture fallback failed
       setErrorIdx(idx);
     } finally {
       setLoadingIdx(null);

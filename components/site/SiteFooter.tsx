@@ -1,108 +1,59 @@
 export function SiteFooter() {
   return (
-    <footer className="border-t border-kuma-border bg-white">
-      <div className="max-w-5xl mx-auto px-md py-2xl">
-        <div className="flex flex-col gap-xl md:flex-row md:justify-between md:gap-2xl">
-          {/* Brand */}
-          <div className="md:max-w-xs">
-            <p className="text-sm font-semibold text-kuma-text-primary">
-              Kuma Labs
-            </p>
-            <p className="mt-xs text-sm text-kuma-text-muted leading-5">
-              Voice-to-JSON infrastructure for West African operators. Built in
-              Dakar.
-            </p>
-            <p className="mt-md text-xs text-kuma-text-muted">
-              © 2026 Kuma Labs · Built in Dakar
-            </p>
-          </div>
+    <footer
+      style={{
+        padding: "3rem 0 4rem",
+        borderTop: "1px solid rgba(26,26,26,0.12)",
+        marginTop: "5rem",
+        background: "#F2EBDF",
+      }}
+    >
+      <style>{`
+        .site-footer-link {
+          font-family: var(--font-jetbrains-mono, 'JetBrains Mono', monospace);
+          font-size: 0.78rem;
+          color: rgba(26,26,26,0.62);
+          text-decoration: none;
+          border: none;
+          transition: color 0.15s ease;
+        }
+        .site-footer-link:hover { color: #1A1A1A; }
+      `}</style>
 
-          {/* Link columns */}
-          <div className="flex flex-wrap gap-xl md:gap-2xl">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-kuma-text-muted mb-sm">
-                Research
-              </p>
-              <ul className="flex flex-col gap-xs text-sm text-kuma-text-secondary">
-                <li>
-                  <a
-                    href="/research/state-of-wolof-voice-ai-2026.html"
-                    className="hover:text-kuma-text-primary transition-colors"
-                  >
-                    State of Wolof Voice AI 2026
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-kuma-text-muted mb-sm">
-                Product
-              </p>
-              <ul className="flex flex-col gap-xs text-sm text-kuma-text-secondary">
-                <li>
-                  <a href="/demos" className="hover:text-kuma-text-primary transition-colors">
-                    Demos
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://docs.kuma-labs.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-kuma-text-primary transition-colors"
-                  >
-                    Docs
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-kuma-text-muted mb-sm">
-                Legal
-              </p>
-              <ul className="flex flex-col gap-xs text-sm text-kuma-text-secondary">
-                <li>
-                  <a
-                    href="https://docs.kuma-labs.com/legal/privacy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-kuma-text-primary transition-colors"
-                  >
-                    Privacy
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://docs.kuma-labs.com/legal/dpa"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-kuma-text-primary transition-colors"
-                  >
-                    DPA
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-kuma-text-muted mb-sm">
-                Contact
-              </p>
-              <ul className="flex flex-col gap-xs text-sm text-kuma-text-secondary">
-                <li>
-                  <a
-                    href="mailto:hello@kumalabs.ai"
-                    className="hover:text-kuma-text-primary transition-colors"
-                  >
-                    hello@kumalabs.ai
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+      <div className="max-w-[1100px] mx-auto px-6 flex flex-wrap justify-between items-baseline gap-6">
+        <div
+          className="font-mono text-[0.74rem] tracking-[0.04em]"
+          style={{ color: "rgba(26,26,26,0.40)" }}
+        >
+          San Francisco · Dakar · © 2026 Kuma Labs Inc.
         </div>
+        <ul className="flex gap-[1.8rem] list-none">
+          <li>
+            <a href="/research/state-of-wolof-voice-ai-2026.html" className="site-footer-link">
+              research
+            </a>
+          </li>
+          <li>
+            <a href="/demos" className="site-footer-link">
+              demos
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://docs.kuma-labs.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="site-footer-link"
+            >
+              docs
+            </a>
+          </li>
+          <li>
+            <a href="mailto:hello@kuma-labs.com" className="site-footer-link">
+              contact
+            </a>
+          </li>
+        </ul>
       </div>
     </footer>
   );

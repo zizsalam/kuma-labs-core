@@ -1,56 +1,75 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export function SiteNav() {
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-kuma-border">
-      <div className="max-w-5xl mx-auto px-md py-sm flex items-center justify-between gap-lg">
+    <header
+      className="sticky top-0 z-50"
+      style={{
+        padding: "1.4rem 0",
+        borderBottom: "1px solid rgba(26,26,26,0.12)",
+        background: "rgba(242,235,223,0.92)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+      }}
+    >
+      <style>{`
+        .site-nav-link {
+          color: rgba(26,26,26,0.62);
+          text-decoration: none;
+          border: none;
+          font-family: var(--font-jetbrains-mono, 'JetBrains Mono', monospace);
+          font-size: 0.78rem;
+          letter-spacing: 0.02em;
+          transition: color 0.15s ease;
+        }
+        .site-nav-link:hover { color: #1A1A1A; }
+      `}</style>
+
+      <div className="max-w-[1100px] mx-auto px-6 flex items-baseline justify-between">
         {/* Logo */}
         <Link
           href="/"
-          className="flex-shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kuma-accent rounded"
+          className="site-nav-logo font-serif text-paper-ink"
+          style={{
+            fontSize: "1.5rem",
+            letterSpacing: "-0.015em",
+            textDecoration: "none",
+            border: "none",
+          }}
           aria-label="Kuma Labs home"
         >
-          <Image
-            src="/logo/kuma-wordmark.svg"
-            alt="Kuma Labs"
-            width={130}
-            height={26}
-            priority
-          />
+          Kuma <em className="italic" style={{ color: "#1D9E75" }}>Labs</em>
         </Link>
 
         {/* Nav links */}
-        <nav className="hidden sm:flex items-center gap-lg text-sm font-medium text-kuma-text-secondary">
+        <nav className="flex items-baseline gap-[1.8rem]" aria-label="Main navigation">
           <Link
             href="/research/state-of-wolof-voice-ai-2026.html"
-            className="hover:text-kuma-text-primary transition-colors"
+            className="site-nav-link"
           >
-            Research
+            research
           </Link>
           <Link
             href="/demos"
-            className="hover:text-kuma-text-primary transition-colors"
+            className="site-nav-link"
           >
-            Demos
+            demos
           </Link>
           <a
             href="https://docs.kuma-labs.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-kuma-text-primary transition-colors"
+            className="site-nav-link"
           >
-            Docs
+            docs
+          </a>
+          <a
+            href="mailto:hello@kuma-labs.com"
+            className="site-nav-link"
+          >
+            contact
           </a>
         </nav>
-
-        {/* CTA */}
-        <a
-          href="/research/state-of-wolof-voice-ai-2026.html"
-          className="flex-shrink-0 bg-kuma-accent text-kuma-text-primary px-md py-xs text-sm font-semibold rounded-md hover:brightness-95 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kuma-accent"
-        >
-          Read the report
-        </a>
       </div>
     </header>
   );

@@ -9,6 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // ── papercompute editorial tokens (homepage, cream ground) ──
+        "paper-bg":            "#F2EBDF",
+        "paper-ink":           "#1A1A1A",
+        "paper-ink-mid":       "rgba(26,26,26,0.62)",
+        "paper-ink-light":     "rgba(26,26,26,0.40)",
+        "paper-rule":          "rgba(26,26,26,0.12)",
+        "paper-accent":        "#1D9E75",
+        // ── gold/Inter tokens (demos hub — do not remove) ──────────
         "kuma-bg":             "#FAFAF7",
         "kuma-surface":        "#FFFFFF",
         "kuma-white":          "#FFFFFF",
@@ -57,10 +65,13 @@ const config: Config = {
         display: ["40px", { lineHeight: "1.1",  fontWeight: "600" }],
       },
       fontFamily: {
+        // Instrument Serif — papercompute editorial homepage
+        serif: ["var(--font-instrument-serif)", "Georgia", "Times New Roman", "serif"],
         // --font-inter is the alias set in 08-02 plan; --font-sans is from 08-04 layout.tsx
         sans: ["var(--font-inter)", "var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        // JetBrains Mono — shared across paper + demos
         // --font-jbmono is the alias set in 08-02 plan; --font-mono is from 08-04 layout.tsx
-        mono: ["var(--font-jbmono)", "var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+        mono: ["var(--font-jetbrains-mono)", "var(--font-jbmono)", "var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
       borderRadius: {
         md: "8px",

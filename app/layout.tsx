@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Instrument_Serif } from "next/font/google";
 import React from "react";
 import "./globals.css";
 import { SiteNav } from "@/components/site/SiteNav";
@@ -16,19 +16,28 @@ const inter = Inter({
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
-  // --font-mono is the 08-04 variable; layout adds --font-jbmono for 08-02 components
+  // --font-mono is the 08-04 variable; --font-jbmono for 08-02 components
+  // --font-jetbrains-mono is for the papercompute editorial homepage
   variable: "--font-mono",
   display: "swap",
 });
 
+const instrumentSerif = Instrument_Serif({
+  weight: "400",
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--font-instrument-serif",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Kuma Labs — Voice ops for West Africa",
+  title: "Kuma Labs — Voice ops for labor-constrained West Africa",
   description:
-    "One API call turns spoken Wolof or French into structured merchant-transaction data. Voice infrastructure for financial apps serving informal merchants.",
+    "The first public benchmark of Wolof voice AI across Whisper, Gemini, and Google STT — 104 Senegalese voice samples, 622 successful calls, 20 documented production failure modes. Open corpus. Reproducible harness.",
   openGraph: {
-    title: "Kuma Labs — Voice ops for West Africa",
+    title: "Kuma Labs — Voice ops for labor-constrained West Africa",
     description:
-      "One API call turns spoken Wolof or French into structured merchant-transaction data.",
+      "The first public benchmark of Wolof voice AI across Whisper, Gemini, and Google STT, plus the ops layer operators need on top of it.",
     type: "website",
     url: "https://www.kuma-labs.com/",
     images: [
@@ -42,9 +51,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kuma Labs — Voice ops for West Africa",
+    title: "Kuma Labs — Voice ops for labor-constrained West Africa",
     description:
-      "One API call turns spoken Wolof or French into structured merchant-transaction data.",
+      "The first public benchmark of Wolof voice AI, plus the ops layer operators need on top of it.",
     images: ["https://www.kuma-labs.com/og/home-1200x630.png"],
   },
 };
@@ -57,12 +66,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} bg-kuma-bg font-sans text-kuma-text-primary antialiased flex flex-col min-h-screen`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} antialiased flex flex-col min-h-screen`}
         style={{
-          // Expose --font-inter and --font-jbmono aliases for 08-02 component compatibility
+          // Expose aliases for 08-02 component compatibility
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ["--font-inter" as any]: "var(--font-sans)",
           ["--font-jbmono" as any]: "var(--font-mono)",
+          // Expose --font-jetbrains-mono for papercompute components
+          ["--font-jetbrains-mono" as any]: "var(--font-mono)",
         } as React.CSSProperties}
       >
         <SiteNav />

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import React from "react";
 import "./globals.css";
+import { SiteNav } from "@/components/site/SiteNav";
+import { SiteFooter } from "@/components/site/SiteFooter";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,7 +57,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} bg-kuma-bg font-sans text-kuma-text-primary antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} bg-kuma-bg font-sans text-kuma-text-primary antialiased flex flex-col min-h-screen`}
         style={{
           // Expose --font-inter and --font-jbmono aliases for 08-02 component compatibility
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,7 +65,11 @@ export default function RootLayout({
           ["--font-jbmono" as any]: "var(--font-mono)",
         } as React.CSSProperties}
       >
-        {children}
+        <SiteNav />
+        <main className="flex-1">
+          {children}
+        </main>
+        <SiteFooter />
       </body>
     </html>
   );

@@ -12,7 +12,7 @@ export function SiteNav() {
         WebkitBackdropFilter: "blur(8px)",
       }}
     >
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .site-nav-link {
           color: rgba(26,26,26,0.62);
           text-decoration: none;
@@ -23,7 +23,7 @@ export function SiteNav() {
           transition: color 0.15s ease;
         }
         .site-nav-link:hover { color: #1A1A1A; }
-      `}</style>
+      ` }} />
 
       <div className="max-w-[1100px] mx-auto px-6 flex items-baseline justify-between">
         {/* Logo */}

@@ -8,7 +8,7 @@ export function SiteFooter() {
         background: "#F2EBDF",
       }}
     >
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .site-footer-link {
           font-family: var(--font-jetbrains-mono, 'JetBrains Mono', monospace);
           font-size: 0.78rem;
@@ -18,7 +18,7 @@ export function SiteFooter() {
           transition: color 0.15s ease;
         }
         .site-footer-link:hover { color: #1A1A1A; }
-      `}</style>
+      ` }} />
 
       <div className="max-w-[1100px] mx-auto px-6 flex flex-wrap justify-between items-baseline gap-6">
         <div

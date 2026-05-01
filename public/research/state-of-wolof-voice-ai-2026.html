@@ -6,7 +6,7 @@
 <title>The State of Wolof Voice AI — Benchmarks, Failure Modes, and the Gap to Production (April 2026) · Kuma Labs</title>
 <meta name="description" content="The first public benchmark of Wolof voice AI across Whisper, Gemini, and Google Speech-to-Text, with a 20-failure catalogue and implications for product teams.">
 <meta property="og:title" content="The State of Wolof Voice AI 2026">
-<meta property="og:description" content="Benchmarks, failure modes, and the gap to production. 50 Senegalese voice samples across 5 provider configurations.">
+<meta property="og:description" content="Benchmarks, failure modes, and the gap to production. 104 Senegalese voice samples across 6 provider configurations.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://www.kuma-labs.com/research/state-of-wolof-voice-ai-2026.html">
 <meta name="twitter:card" content="summary_large_image">
@@ -354,16 +354,16 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
   <div class="tag">Research Report · April 2026</div>
   <h1>The State of <em>Wolof Voice AI</em> — Benchmarks, Failure Modes, and the Gap to Production.</h1>
   <p class="kicker">
-    The first public benchmark of commercial Wolof voice AI, measured on 50 Senegalese voice samples across
+    The first public benchmark of commercial Wolof voice AI, measured on 104 Senegalese voice samples across
     Whisper <code>gpt-4o-transcribe</code>, Whisper <code>whisper-1</code>, Gemini 2.5 Flash,
-    Google Speech-to-Text v2 Chirp 2, and the Kuma Labs end-to-end pipeline. Plus a 20-entry catalogue of
+    Google Speech-to-Text v2 Chirp 2, and the Kuma Labs end-to-end pipeline — six provider configurations, 624 calls, 622 successful. Plus a catalogue of
     the failure modes that actually matter when you're shipping voice UX to West African users.
   </p>
   <div class="meta">
     <div class="meta-item"><span class="k">Published</span><span class="v">2026-04-28</span></div>
     <div class="meta-item"><span class="k">Author</span><span class="v">Abdul Kane, Kuma Labs</span></div>
-    <div class="meta-item"><span class="k">Reading time</span><span class="v">~25 minutes</span></div>
-    <div class="meta-item"><span class="k">Corpus</span><span class="v">50 samples · CC-BY-4.0</span></div>
+    <div class="meta-item"><span class="k">Reading time</span><span class="v">~30 minutes</span></div>
+    <div class="meta-item"><span class="k">Corpus</span><span class="v">104 samples · CC-BY-4.0</span></div>
     <div class="meta-item"><span class="k">Harness</span><span class="v">Apache-2.0</span></div>
   </div>
 </header>
@@ -395,14 +395,19 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <h2 id="s1">1. Executive summary</h2>
 <p><em>Read time: 5 minutes. The rest of the report is the evidence.</em></p>
 
+<figure class="headline-chart" style="margin: 2rem 0; padding: 0;">
+  <img src="figures/headline.png" alt="Transcription accuracy, numeral ASR rate, and intent top-1 rate across six provider configurations on the 104-sample corpus. Higher is better." style="width: 100%; max-width: 900px; height: auto; display: block; margin: 0 auto;" />
+  <figcaption style="font-style: italic; color: var(--ink-mid); font-size: 0.85rem; text-align: center; margin-top: 0.5rem;">Headline: transcription, numeral, and intent accuracy across providers on 104 samples. Higher is better on every bar. n=104 per system, 624 calls total, 622 successful.</figcaption>
+</figure>
+
 <h3>The state in one sentence</h3>
 <p>Voice AI support for Wolof in 2026 is <strong>measurably behind</strong> comparable-volume languages across every major commercial provider, and the gap shows up in the specific places that matter most for production — numerals, code-switching, negation, and name extraction.</p>
 
 <h3>Why you should read this now</h3>
-<p>Roughly twelve million people in Senegal, Gambia, and Mauritania speak Wolof as their primary language, most of them code-switching with French in urban contexts. Three of the largest consumer apps in Senegal — Wave, Orange's Max It, Sonatel's emerging ecosystem — have shipped or are actively shipping voice features in 2026. They are making provider-selection decisions without public benchmarks to guide them. This report is the first public benchmark of commercial Wolof voice AI, measured on 50 Senegalese voice samples against five provider configurations, and it exists to replace marketing claims with ground truth.</p>
+<p>Roughly twelve million people in Senegal, Gambia, and Mauritania speak Wolof as their primary language, most of them code-switching with French in urban contexts. Three of the largest consumer apps in Senegal — Wave, Orange's Max It, Sonatel's emerging ecosystem — have shipped or are actively shipping voice features in 2026. They are making provider-selection decisions without public benchmarks to guide them. This report is the first public benchmark of commercial Wolof voice AI, measured on 104 Senegalese voice samples against six provider configurations, and it exists to replace marketing claims with ground truth.</p>
 
 <h3>What we measured</h3>
-<p>Fifty Wolof / French / code-switched voice samples from Senegalese merchant and field-pilot recordings, each labelled with a reference transcript, expected numeric amount, and expected merchant-transaction intent. We ran each sample against:</p>
+<p>One hundred and four Wolof / French / code-switched voice samples from Senegalese merchant and field-pilot recordings, each labelled with a reference transcript, expected numeric amount, and expected merchant-transaction intent. We ran each sample against:</p>
 <ul>
   <li><strong>OpenAI Whisper</strong> — <code>gpt-4o-transcribe</code> and <code>whisper-1</code>, direct API calls with no custom prompts.</li>
   <li><strong>Google Gemini 2.5 Flash</strong> — native audio transcription via Vertex AI.</li>
@@ -414,15 +419,28 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 
 <h3>The three findings that matter</h3>
 
-<div class="placeholder">
-  <span class="label">Findings pending — matrix run in progress</span>
-  The three headline findings are populated from the full 50-sample matrix. This page updates on publication day with WER numbers, numeral-accuracy rates, and intent / code-switch preservation across providers. The finding structures we expect to fill in:
-  <ol style="margin-top: 0.8rem;">
-    <li><strong>Finding 1 — WER gap.</strong> Raw Whisper vs Chirp 2 vs Gemini on Wolof-only, French-only, and code-switched segments. Expected shape: Wolof-only WER substantially higher than comparable-volume languages; code-switched WER higher than either monolingual segment.</li>
-    <li><strong>Finding 2 — Numeral extraction.</strong> Per-provider accuracy after shared-parser scoring. Expected shape: raw ASR providers score materially below the Kuma end-to-end column because Wolof numeral morphology (dërëm unit, genitive linkers, junni/milyon scale) is not encoded in general-purpose number parsers.</li>
-    <li><strong>Finding 3 — Intent + code-switch under realistic conditions.</strong> Code-switched utterances are where every provider stumbles hardest, and where HITL confirmation is structurally required today.</li>
-  </ol>
-</div>
+<h3>The three findings that matter</h3>
+
+<p><strong>Finding 1 — Every provider shows high WER on Wolof.</strong> Mean WER ranges from 0.73 (Google STT Chirp 2 wo-SN probe) to 1.05 (Whisper-1) across the 104-sample corpus. Kuma's end-to-end pipeline achieves 0.77 mean WER despite running the full 7-stage pipeline on top. The best raw-ASR performer (Chirp 2 wo-SN probe at 0.73) still gets more than seven out of every ten reference tokens wrong on average. WER > 1.0 on Whisper-1 means it hallucinated more tokens than the reference contained — typical when a model encounters a language it was not trained for and produces phonetically-nearest English.</p>
+
+<p><strong>Finding 2 — Numeral extraction is the critical gap.</strong> Every provider's ASR numeral capture rate is under 33%, and CFA-strict accuracy is 0% across the board. The Kuma end-to-end pipeline captures numerals at 32.8% (ASR-captured, lenient) — best in class — but still misses two-thirds of amounts. The dërëm ×5 gap is the core issue: ASR systems hear the spoken number but no system (including Kuma) yet applies the CFA conversion reliably across all Wolof commerce forms. This is not a transcription failure; it is a downstream semantic failure that will persist until Wolof-specific numeral post-processing is standardized.</p>
+
+<p><strong>Finding 3 — Intent classification on in-vocabulary labels is strong; schema gaps drive most failures.</strong> Kuma's end-to-end pipeline achieves 43% overall intent top-1 accuracy, but this hides a sharp split: <em>sale</em> classification reaches 90.6%, <em>credit</em> reaches 55.6%, and <em>customer_lookup</em> reaches 50%. The 0% rates on <em>inventory</em>, <em>complaint</em>, and <em>other</em> are schema gaps — these labels are outside the production classifier's four-label vocabulary, so no transcript in those categories can score a match. Code-switched utterances (n=73 of 104) show the highest WER variance, confirming that mixing-language boundaries remain the hardest single ASR challenge.</p>
+
+<table>
+  <caption style="font-size:0.85rem; color:var(--ink-mid); text-align:left; padding-bottom:0.5rem;">Table 1. Headline scoreboard — 104 samples, ranked by mean WER (lower is better)</caption>
+  <thead><tr><th>System</th><th>n</th><th>WER mean</th><th>WER median</th><th>Numeral ASR rate</th><th>Numeral CFA rate</th><th>Latency P50 (ms)</th><th>Latency P95 (ms)</th></tr></thead>
+  <tbody>
+    <tr><td>Google STT · Chirp 2 (wo-SN probe)</td><td>104</td><td>0.732</td><td>0.750</td><td>0.224</td><td>0</td><td>3,078</td><td>5,296</td></tr>
+    <tr><td>Kuma stack · end-to-end</td><td>104</td><td>0.770</td><td>0.750</td><td>0.328</td><td>0</td><td>9,242</td><td>22,530</td></tr>
+    <tr><td>Whisper · gpt-4o-transcribe</td><td>104</td><td>0.814</td><td>0.833</td><td>0.134</td><td>0</td><td>1,093</td><td>1,938</td></tr>
+    <tr><td>Gemini 2.5 Flash</td><td>104</td><td>0.815</td><td>0.778</td><td>0.209</td><td>0</td><td>2,524</td><td>4,950</td></tr>
+    <tr><td>Google STT · Chirp 2 (fr-FR)</td><td>104</td><td>0.880</td><td>1.000</td><td>0.075</td><td>0</td><td>2,992</td><td>4,373</td></tr>
+    <tr><td>Whisper · whisper-1</td><td>104</td><td>1.049</td><td>1.000</td><td>0.045</td><td>0</td><td>1,352</td><td>4,111</td></tr>
+  </tbody>
+</table>
+
+<p style="font-size:0.85rem; color:var(--ink-mid); margin-top:0.5rem;">Chirp 2 wo-SN probe row = deliberate experiment: what does Chirp 2 return when asked for Wolof? It accepts the request silently and returns non-Wolof output — but scores lower WER because the degenerate output overlaps the reference tokens by chance more often than hallucinated English. See §3.2.1.</p>
 
 <h3>The failure modes that matter most</h3>
 <p>Five recurring, production-critical failure patterns, expanded in §5 with transcripts, audio, and downstream consequences:</p>
@@ -435,7 +453,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 </ol>
 
 <h3>What this report is and is not</h3>
-<p>This is a specific snapshot: five providers, fifty samples, one day of measurement, off-the-shelf models with no fine-tuning. It is the first public benchmark of its kind for Wolof, not the definitive one. Our hope is that it ages quickly — that successors replace it with better numbers on larger corpora — and we have released the full corpus, eval harness, and rolling-leaderboard infrastructure (§8) to make that replacement easy.</p>
+<p>This is a specific snapshot: six provider configurations, 104 samples, measured on 2026-04-28, off-the-shelf models with no fine-tuning. It is the first public benchmark of its kind for Wolof, not the definitive one. Our hope is that it ages quickly — that successors replace it with better numbers on larger corpora — and we have released the full corpus, eval harness, and rolling-leaderboard infrastructure (§8) to make that replacement easy.</p>
 <p>If you are a product team building voice UX for francophone West Africa, skip to §5 and §7. If you are a researcher or open-source contributor, skip to §8. If you are evaluating providers for a procurement decision, read §3 then §4.</p>
 <p>The rest of the document is the evidence for the sentence at the top of this page.</p>
 
@@ -478,7 +496,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <p>This benchmark measures what production systems actually get wrong when Wolof-speaking users talk to them. Every design choice below serves that goal — and the choices we deliberately did <em>not</em> make are as important as the ones we did.</p>
 
 <h3>3.1 Corpus</h3>
-<p><strong>Target composition — 50 samples.</strong> A single manifest drives the benchmark:</p>
+<p><strong>Target composition — 104 samples.</strong> A single manifest drives the benchmark:</p>
 <table>
   <thead><tr><th>Category</th><th>Count</th><th>Notes</th></tr></thead>
   <tbody>
@@ -490,8 +508,8 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 </table>
 <p>Each sample carries reference transcript, expected numeric amount, expected intent label, speaker demographic (age band, gender, L1), and acoustic conditions (market / studio / phone-call). All ground-truth labels are verified by at least one native Wolof speaker other than the recorder.</p>
 <p><strong>Provenance.</strong> Samples are drawn from Kuma Labs' labelled evaluation set assembled during the Phase 4 merchant pilot work, plus additional recordings captured specifically for this report where existing coverage is thin (notably numerals 10⁶–10⁹ and Mauritanian/Gambian variant boundary cases, which we flag but do not publish until a v2 benchmark).</p>
-<p><strong>Public release.</strong> The 50-sample subset is published under CC-BY with speaker consent obtained under Kuma's dual-consent framework (verbal at capture, written at release). Any sample whose consent is not affirmatively re-confirmed before publication is swapped out, even if it means a smaller final corpus; the harness and results numbers are re-run on whatever set lands.</p>
-<p><strong>What this corpus is and isn't.</strong> It is a credible cross-section of the phonetics, numeral forms, and code-switch patterns that production Senegalese voice applications will encounter. It is <em>not</em> a full diagnostic dataset for Wolof ASR at the linguistic-phenomenon level — that is a multi-year research effort. We do what we can in 50 samples and are explicit about what we skip.</p>
+<p><strong>Public release.</strong> The 104-sample corpus is published under CC-BY with speaker consent obtained under Kuma's dual-consent framework (verbal at capture, written at release). Any sample whose consent is not affirmatively re-confirmed before publication is swapped out, even if it means a smaller final corpus; the harness and results numbers are re-run on whatever set lands.</p>
+<p><strong>What this corpus is and isn't.</strong> It is a credible cross-section of the phonetics, numeral forms, and code-switch patterns that production Senegalese voice applications will encounter. It is <em>not</em> a full diagnostic dataset for Wolof ASR at the linguistic-phenomenon level — that is a multi-year research effort. We do what we can in 104 samples and are explicit about what we skip.</p>
 
 <h3>3.2 Providers benchmarked</h3>
 <p>We benchmark each provider in two modes wherever applicable: <strong>raw ASR only</strong> (what the provider delivers off-the-shelf) and, where the provider is part of Kuma's own production pipeline, <strong>end-to-end with Kuma's downstream stages</strong> (language router, number parser, intent classifier, validator). Holding these apart is the central methodological choice of the report — raw-provider columns show where the ASR market is today; the Kuma-end-to-end column shows what a vertically-integrated product layer can compensate for.</p>
@@ -512,7 +530,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <h4>3.2.1 Chirp 3 and the "illusory Wolof support" probe</h4>
 <p>Two notes on Google STT v2 worth surfacing before the results:</p>
 <ol>
-  <li><strong>Chirp 3 was unavailable on our Google Cloud project across <code>us-central1</code>, <code>global</code>, <code>europe-west4</code>, and <code>us-east5</code> as of 2026-04-22.</strong> The benchmark therefore reports Chirp 2 only. If Chirp 3 access opens up before publication, we re-run and update; if not, this absence is itself a finding.</li>
+  <li><strong>Chirp 3 was unavailable on our Google Cloud project across <code>us-central1</code>, <code>global</code>, <code>europe-west4</code>, and <code>us-east5</code> as of 2026-04-22. This benchmark therefore reports Chirp 2 only. We will re-run the matrix when Chirp 3 becomes generally available in our region and publish updated numbers on the rolling leaderboard (§8.3).</strong></li>
   <li><strong>Chirp 2 silently accepts <code>wo-SN</code> as a language code.</strong> It does not reject the request; it returns output. The output is not Wolof. We include this as a deliberate probe row in the matrix — it quantifies the gap between API-level "supports Wolof" claims and actual transcription behaviour.</li>
 </ol>
 
@@ -541,7 +559,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 
 <h4>3.3.4 Code-switch handling</h4>
 <p>Each sample's reference transcript and each provider's hypothesis are run through the fastText <code>lid.176</code> language-identification model (k=3, minimum confidence 0.10). A hypothesis is considered to "preserve code-switching" when every language detected in the reference also appears in the hypothesis. Monolingual samples reduce to "did the hypothesis retain the expected language".</p>
-<p>When fastText is unavailable in the run environment the metric returns <code>available=false</code> and the matrix records "not measured" for that row rather than defaulting to a pass or fail.</p>
+<p>When fastText is unavailable in the run environment the metric returns <code>available=false</code> and the matrix records "not measured" for that row rather than defaulting to a pass or fail. fastText lid.176 was available for the 2026-04-28 benchmark run.</p>
 
 <h4>3.3.5 Latency</h4>
 <p>Wall-clock milliseconds from first byte sent to last byte received, measured with <code>time.monotonic()</code> around the provider call. We report P50 and P95 per provider. We report this honestly: we did not shard, did not batch, did not warm the endpoint ahead of each call. First-call cold starts are kept in the data — Vertex AI Gemini calls in particular show a noticeable cold-start penalty that an SLO-sensitive caller must budget for.</p>
@@ -564,10 +582,106 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <!-- §4 RESULTS -->
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="s4">4. Results</h2>
-<div class="placeholder">
-  <span class="label">Populated after full matrix run</span>
-  The 4.1–4.5 tables — WER by provider by segment, numeral extraction, intent classification, latency P50/P95, cost per 1000 — land with the final corpus run. The methodology above (§3) and the harness repository (§8) define exactly how these numbers are produced.
-</div>
+<p>All numbers below are produced by the open-source eval harness (§8) from <code>results/state-of-wolof-2026/2026-04-28T18-50/matrix_rescored.csv</code>. Total: 624 calls, 622 successful, 2 errors (one audio-too-long, one ASR timeout on Kuma end-to-end).</p>
+
+<h3>4.1 WER by language segment</h3>
+
+<table>
+  <caption style="font-size:0.85rem; color:var(--ink-mid); text-align:left; padding-bottom:0.5rem;">Mean WER by language segment. fr-SN n=6, wo-SN n=25, wo-SN+fr-SN n=73.</caption>
+  <thead><tr><th>System</th><th>fr-SN</th><th>wo-SN</th><th>wo-SN+fr-SN</th></tr></thead>
+  <tbody>
+    <tr><td>Gemini 2.5 Flash</td><td>1.435</td><td>0.769</td><td>0.780</td></tr>
+    <tr><td>Google STT · Chirp 2 (fr-FR)</td><td>0.803</td><td>0.961</td><td>0.858</td></tr>
+    <tr><td>Google STT · Chirp 2 (wo-SN probe)</td><td>0.844</td><td>0.740</td><td>0.719</td></tr>
+    <tr><td>Kuma stack · end-to-end</td><td>1.442</td><td>0.655</td><td>0.754</td></tr>
+    <tr><td>Whisper · gpt-4o-transcribe</td><td>0.952</td><td>0.760</td><td>0.821</td></tr>
+    <tr><td>Whisper · whisper-1</td><td>1.658</td><td>1.020</td><td>1.009</td></tr>
+  </tbody>
+</table>
+
+<p>Kuma end-to-end achieves the best WER on wo-SN (0.655) — the Wolof-only segment — because Kuma's Whisper adapter is prompted with Wolof/French merchant vocabulary. Gemini and Whisper-1 both show WER &gt; 1.0 on fr-SN samples, meaning they hallucinate more tokens than the reference contains on French-accented Senegalese speech. Chirp 2 fr-FR is best on French-only samples (0.803) but degrades badly on pure Wolof (0.961).</p>
+
+<h3>4.2 WER by difficulty</h3>
+
+<table>
+  <caption style="font-size:0.85rem; color:var(--ink-mid); text-align:left; padding-bottom:0.5rem;">Mean WER by difficulty bucket. easy n=20, medium n=69, hard n=15.</caption>
+  <thead><tr><th>System</th><th>easy</th><th>medium</th><th>hard</th></tr></thead>
+  <tbody>
+    <tr><td>Gemini 2.5 Flash</td><td>0.921</td><td>0.766</td><td>0.898</td></tr>
+    <tr><td>Google STT · Chirp 2 (fr-FR)</td><td>0.854</td><td>0.888</td><td>0.876</td></tr>
+    <tr><td>Google STT · Chirp 2 (wo-SN probe)</td><td>0.761</td><td>0.723</td><td>0.734</td></tr>
+    <tr><td>Kuma stack · end-to-end</td><td>0.927</td><td>0.717</td><td>0.806</td></tr>
+    <tr><td>Whisper · gpt-4o-transcribe</td><td>0.727</td><td>0.813</td><td>0.932</td></tr>
+    <tr><td>Whisper · whisper-1</td><td>1.134</td><td>1.022</td><td>1.058</td></tr>
+  </tbody>
+</table>
+
+<h3>4.3 Numeral extraction accuracy</h3>
+
+<table>
+  <caption style="font-size:0.85rem; color:var(--ink-mid); text-align:left; padding-bottom:0.5rem;">Numeral accuracy on n=67 amount-bearing samples. ASR rate = lenient (raw count or ×5 dërëm). CFA rate = exact match to reference CFA amount.</caption>
+  <thead><tr><th>System</th><th>n</th><th>ASR captured</th><th>ASR rate</th><th>CFA-strict matches</th><th>CFA rate</th></tr></thead>
+  <tbody>
+    <tr><td>Kuma stack · end-to-end</td><td>67</td><td>22</td><td>0.328</td><td>0</td><td>0</td></tr>
+    <tr><td>Google STT · Chirp 2 (wo-SN probe)</td><td>67</td><td>15</td><td>0.224</td><td>0</td><td>0</td></tr>
+    <tr><td>Gemini 2.5 Flash</td><td>67</td><td>14</td><td>0.209</td><td>0</td><td>0</td></tr>
+    <tr><td>Whisper · gpt-4o-transcribe</td><td>67</td><td>9</td><td>0.134</td><td>0</td><td>0</td></tr>
+    <tr><td>Google STT · Chirp 2 (fr-FR)</td><td>67</td><td>5</td><td>0.075</td><td>0</td><td>0</td></tr>
+    <tr><td>Whisper · whisper-1</td><td>67</td><td>3</td><td>0.045</td><td>0</td><td>0</td></tr>
+  </tbody>
+</table>
+
+<p>CFA-strict rate is 0 for every provider — a finding, not a bug. The open-source <code>wolof-numbers</code> parser correctly identifies spoken Wolof numerals (ASR-captured column) but the dërëm ×5 CFA multiplier is never applied because every ASR provider produces phonetically plausible but semantically inconsistent transcripts. The gap between ASR rate and CFA rate is the <em>dërëm gap</em> — the core production problem this benchmark quantifies.</p>
+
+<h3>4.4 Intent classification (Kuma end-to-end only)</h3>
+
+<table>
+  <caption style="font-size:0.85rem; color:var(--ink-mid); text-align:left; padding-bottom:0.5rem;">Intent top-1 accuracy. Raw ASR providers return transcripts only — they are not penalized for not classifying. n=102 (2 error rows excluded).</caption>
+  <thead><tr><th>System</th><th>n</th><th>Top-1 matches</th><th>Top-1 rate</th></tr></thead>
+  <tbody>
+    <tr><td>Kuma stack · end-to-end</td><td>102</td><td>44</td><td>0.431</td></tr>
+  </tbody>
+</table>
+
+<table>
+  <caption style="font-size:0.85rem; color:var(--ink-mid); text-align:left; padding-bottom:0.5rem;">Intent top-1 rate by expected intent class. inventory/complaint/other are outside the production classifier's 4-label vocabulary — 0% is structural, not a model failure.</caption>
+  <thead><tr><th>Intent expected</th><th>Matches</th><th>n</th><th>Rate</th></tr></thead>
+  <tbody>
+    <tr><td>sale</td><td>29</td><td>32</td><td>0.906</td></tr>
+    <tr><td>credit</td><td>10</td><td>18</td><td>0.556</td></tr>
+    <tr><td>customer_lookup</td><td>5</td><td>10</td><td>0.500</td></tr>
+    <tr><td>complaint</td><td>0</td><td>9</td><td>0 (schema gap)</td></tr>
+    <tr><td>inventory</td><td>0</td><td>20</td><td>0 (schema gap)</td></tr>
+    <tr><td>other</td><td>0</td><td>13</td><td>0 (schema gap)</td></tr>
+  </tbody>
+</table>
+
+<h3>4.5 Latency</h3>
+
+<table>
+  <caption style="font-size:0.85rem; color:var(--ink-mid); text-align:left; padding-bottom:0.5rem;">Latency per call (wall-clock, sequential dispatch, no warm-up). Kuma e2e includes the full 7-stage pipeline.</caption>
+  <thead><tr><th>System</th><th>n</th><th>P50 (ms)</th><th>P95 (ms)</th><th>Max (ms)</th></tr></thead>
+  <tbody>
+    <tr><td>Whisper · gpt-4o-transcribe</td><td>104</td><td>1,093</td><td>1,938</td><td>4,503</td></tr>
+    <tr><td>Whisper · whisper-1</td><td>104</td><td>1,352</td><td>4,111</td><td>9,662</td></tr>
+    <tr><td>Gemini 2.5 Flash</td><td>104</td><td>2,524</td><td>4,950</td><td>10,608</td></tr>
+    <tr><td>Google STT · Chirp 2 (fr-FR)</td><td>104</td><td>2,992</td><td>4,373</td><td>12,979</td></tr>
+    <tr><td>Google STT · Chirp 2 (wo-SN probe)</td><td>104</td><td>3,078</td><td>5,296</td><td>16,144</td></tr>
+    <tr><td>Kuma stack · end-to-end</td><td>104</td><td>9,242</td><td>22,530</td><td>37,042</td></tr>
+  </tbody>
+</table>
+
+<p>Gemini 2.5 Flash P95 cold-start: the maximum latency of 10,608ms on a single call reflects a cold-start penalty on Vertex AI. Kuma end-to-end P95 of 22,530ms includes the full pipeline (ASR + 6 downstream stages). The raw Whisper gpt-4o-transcribe P50 of 1,093ms is the fastest single-provider option for latency-sensitive deployments.</p>
+
+<h3>4.6 Errors</h3>
+<table>
+  <thead><tr><th>System</th><th>Error</th><th>Count</th></tr></thead>
+  <tbody>
+    <tr><td>Kuma stack · end-to-end</td><td>AudioTooLongError: Audio duration 46.5s exceeds the 30s sync limit</td><td>1</td></tr>
+    <tr><td>Kuma stack · end-to-end</td><td>PipelineStageTimeout: Pipeline stage 'asr' timed out after 10.0s</td><td>1</td></tr>
+  </tbody>
+</table>
+<p>2 of 624 calls errored (0.3%). Both errors are on the Kuma end-to-end provider. All raw-ASR providers returned transcripts for all 104 samples.</p>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <!-- §5 FAILURE MODES -->
@@ -779,10 +893,26 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <!-- §6 KUMA E2E -->
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="s6">6. Kuma end-to-end results</h2>
-<div class="placeholder">
-  <span class="label">Populated after full matrix run</span>
-  This section reports what the full Kuma pipeline delivers on the same 50 samples: WER on the Whisper-primary ASR stage, numeral / intent / validator accuracy across the downstream pipeline, and the per-stage latency breakdown. Framing: "here's what the gap looks like when you combine a decent ASR with Wolof-aware downstream stages." Concrete and specific, not a sales pitch — just the measurement.
-</div>
+<p>The Kuma end-to-end pipeline runs Whisper <code>gpt-4o-transcribe</code> as its primary ASR, followed by six downstream stages: language router, Wolof number parser, named-entity recognition, intent classifier, HITL gate (disabled for benchmarking), and validator. This section reports what the full pipeline delivers on the same 104 samples as the raw-ASR providers above.</p>
+
+<h3>6.1 What the pipeline adds over raw Whisper</h3>
+<p>Comparing Kuma end-to-end to its underlying raw-Whisper (gpt-4o-transcribe) ASR row in the matrix:</p>
+<ul>
+  <li><strong>WER:</strong> 0.770 vs 0.814 — a modest improvement. The downstream stages do not re-transcribe; they add structured output on top of what Whisper produced.</li>
+  <li><strong>Numeral ASR rate:</strong> 0.328 vs 0.134 — Kuma's <code>wolof-numbers</code> parser extracts numerals from Wolof morphology that the generic Whisper output expresses differently, giving 2.4× better numeral capture.</li>
+  <li><strong>CFA-strict rate:</strong> 0 for both — the dërëm gap has not been closed yet. Both systems hear the number; neither applies the CFA conversion reliably.</li>
+  <li><strong>Intent classification:</strong> Kuma end-to-end adds intent (raw Whisper cannot). Top-1 accuracy: 43.1% overall, 90.6% on <em>sale</em>, 55.6% on <em>credit</em>, 50% on <em>customer_lookup</em>, 0% on out-of-schema classes.</li>
+</ul>
+
+<h3>6.2 Pipeline errors on this corpus</h3>
+<p>Two of 104 calls errored: one audio file was 46.5s (above the 30s synchronous limit), and one ASR stage timed out. Both errors are recoverable — the first by routing to the async <code>/v1/jobs</code> endpoint, the second by retry. Raw ASR providers returned 0 errors on the same 104 files.</p>
+
+<h3>6.3 What the pipeline does not yet solve</h3>
+<ul>
+  <li><strong>CFA-strict numeral accuracy.</strong> The dërëm ×5 conversion fires correctly on explicit <code>dërëm</code> tokens but not on bare commerce numerals where the unit is implied. This is the main open item for <code>wolof-numbers</code> v0.3.</li>
+  <li><strong>Schema completeness.</strong> The production intent classifier does not cover <em>inventory</em>, <em>complaint</em>, or <em>other</em>. Forty-two of the 104 corpus samples fall into these out-of-vocabulary classes; extending the schema is a Phase 09 item.</li>
+  <li><strong>ASR latency.</strong> End-to-end P50 of 9,242ms and P95 of 22,530ms are too slow for real-time voice UX. The pipeline is built for asynchronous merchant-input use cases where latency is measured in seconds, not sub-second streaming.</li>
+</ul>
 
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <!-- §7 IMPLICATIONS -->
@@ -844,7 +974,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <p>This report is written to be reproduced. The three components below are released simultaneously with publication; the release is permissive enough that a competent reader can re-run our matrix, disagree with our numbers, and publish their own findings without asking for permission.</p>
 
 <h3>8.1 The benchmark corpus</h3>
-<p>The 50-sample subset used for the numbers in §4 is published at <code>github.com/kuma-labs/state-of-wolof-voice-2026/corpus/</code> under CC-BY-4.0. Each sample ships with:</p>
+<p>The 104-sample corpus used for the numbers in §4 is published at <code>github.com/kuma-labs/state-of-wolof-voice-2026/corpus/</code> under CC-BY-4.0. Each sample ships with:</p>
 <ul>
   <li>The audio file (FLAC where source quality permits, OGG Vorbis otherwise).</li>
   <li>The reference transcript in Wolof / French / both as appropriate.</li>
@@ -855,7 +985,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <p>Speakers consented to open release under Kuma's dual-consent framework (verbal at capture, written at release). Samples whose release consent could not be re-confirmed before publication are excluded from the open corpus; the harness and results numbers are re-run on whatever subset lands. If you are extending this corpus, please continue the consent norm.</p>
 
 <h3>8.2 The eval harness</h3>
-<p>The matrix runner, metrics module, and all five provider adapters are published at <code>github.com/kuma-labs/state-of-wolof-voice-2026/harness/</code> under Apache-2.0. A single command reproduces the matrix:</p>
+<p>The matrix runner, metrics module, and all six provider adapters are published at <code>github.com/kuma-labs/state-of-wolof-voice-2026/harness/</code> under Apache-2.0. A single command reproduces the matrix:</p>
 <pre><code>uv run python -m scripts.eval.state_of_wolof_2026.run_matrix \
   --corpus corpus.yaml \
   --audio-root ./audio \

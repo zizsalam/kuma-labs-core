@@ -1,23 +1,21 @@
 import { Hero } from "@/components/landing/Hero";
-import { TalkingFasterSection } from "@/components/landing/TalkingFasterSection";
-import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
-import { WolofParserSection } from "@/components/landing/WolofParserSection";
-import { StackSection } from "@/components/landing/StackSection";
-import { PartnersSection } from "@/components/landing/PartnersSection";
-import { ResearchCalloutSection } from "@/components/landing/ResearchCalloutSection";
-import { DemosCalloutSection } from "@/components/landing/DemosCalloutSection";
+import { InsightSection } from "@/components/landing/InsightSection";
+import { ApiReturnsSection } from "@/components/landing/ApiReturnsSection";
+import { FlowmapSection } from "@/components/landing/FlowmapSection";
+import { DeremCardSection } from "@/components/landing/DeremCardSection";
+import { WhoItsForSection } from "@/components/landing/WhoItsForSection";
+import { WhatsNextSection } from "@/components/landing/WhatsNextSection";
 
 export default function Home() {
   return (
-    <>
+    <div className="bg-paper-bg font-serif text-paper-ink">
       <Hero />
-      <TalkingFasterSection />
-      <HowItWorksSection />
-      <WolofParserSection />
-      <StackSection />
-      <PartnersSection />
-      <ResearchCalloutSection />
-      <DemosCalloutSection />
-    </>
+      <InsightSection />
+      <ApiReturnsSection />
+      <FlowmapSection />
+      <DeremCardSection />
+      <WhoItsForSection />
+      <WhatsNextSection />
+    </div>
   );
 }

@@ -7,7 +7,7 @@ interface DemoLayoutProps {
 
 export function DemoLayout({ children }: DemoLayoutProps) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col font-sans text-kuma-text-primary bg-kuma-bg">
       {/* Demo-specific nav pills (vertical selector) */}
       <div className="bg-white border-b border-kuma-border">
         <div className="max-w-4xl mx-auto px-md py-sm">

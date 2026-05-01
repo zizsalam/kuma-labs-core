@@ -66,7 +66,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} antialiased flex flex-col min-h-screen`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} antialiased flex flex-col min-h-screen bg-paper-bg`}
         style={{
           // Expose aliases for 08-02 component compatibility
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

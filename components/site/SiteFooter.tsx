@@ -25,7 +25,7 @@ export function SiteFooter() {
           className="font-mono text-[0.74rem] tracking-[0.04em]"
           style={{ color: "rgba(26,26,26,0.40)" }}
         >
-          San Francisco · Dakar · © 2026 Kuma Labs Inc.
+          Dakar · © 2026 Kuma Labs Inc.
         </div>
         <ul className="flex gap-[1.8rem] list-none">
           <li>

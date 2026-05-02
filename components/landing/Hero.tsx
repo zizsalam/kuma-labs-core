@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeroWaveform } from "@/components/landing/HeroWaveform";
 
 export function Hero() {
   return (
@@ -15,21 +16,24 @@ export function Hero() {
           className="font-serif text-paper-ink leading-[1.08] tracking-[-0.02em] mb-6"
           style={{ fontSize: "clamp(2.2rem, 5vw, 3.4rem)" }}
         >
-          We publish the only public benchmark of{" "}
+          We publish a reproducible benchmark of{" "}
           <em className="italic">Wolof voice AI</em>.
         </h1>
 
         {/* Supporting line */}
         <p
-          className="font-serif leading-[1.5] mb-10"
+          className="font-serif leading-[1.5] mb-0"
           style={{
             fontSize: "clamp(1.1rem, 2.5vw, 1.35rem)",
             color: "rgba(26,26,26,0.62)",
           }}
         >
-          And we help frontier labs and voice products ship production-grade
+          We benchmark, evaluate, and supply data to frontier labs working on
           Wolof and French code-switched voice.
         </p>
+
+        {/* Waveform — between supporting line and stats strip */}
+        <HeroWaveform />
 
         {/* Stats strip */}
         <p

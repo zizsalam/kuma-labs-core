@@ -1,4 +1,12 @@
-const services = [
+import React from "react";
+
+type Service = {
+  title: string;
+  description: React.ReactNode;
+  price: string;
+};
+
+const services: Service[] = [
   {
     title: "Evaluations",
     description:
@@ -13,8 +21,17 @@ const services = [
   },
   {
     title: "Integration",
-    description:
-      "Code-switching, dërëm, named-entity extraction, latency tuning. We help your team ship Wolof voice that doesn't break in production.",
+    description: (
+      <>
+        Integration of{" "}
+        <code className="font-mono" style={{ fontSize: "0.85em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-numbers</code>
+        ,{" "}
+        <code className="font-mono" style={{ fontSize: "0.85em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-ner</code>
+        , code-switching handlers, and our domain entity dictionaries into your
+        existing voice stack. Provider-agnostic; we work alongside Whisper,
+        Gemini, Chirp, Cartesia, or your own model.
+      </>
+    ),
     price: "$10,000 / month · 3-month minimum",
   },
 ];

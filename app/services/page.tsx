@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import React from "react";
 
 export const metadata: Metadata = {
   title: "Services & Pricing — Kuma Labs",
@@ -6,7 +7,14 @@ export const metadata: Metadata = {
     "Specialist research and integration services for African voice AI. Five engagement tiers with published pricing, founder-led delivery.",
 };
 
-const tiers = [
+type Tier = {
+  name: string;
+  description: React.ReactNode;
+  investment: string;
+  timeline: string;
+};
+
+const tiers: Tier[] = [
   {
     name: "Benchmark Subscription",
     description:
@@ -30,8 +38,17 @@ const tiers = [
   },
   {
     name: "Integration Retainer",
-    description:
-      "Ongoing engineering support: fine-tuning, latency optimization, code-switching handling, dërëm parsing, named-entity extraction.",
+    description: (
+      <>
+        Integration of{" "}
+        <code style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: "0.88em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-numbers</code>
+        ,{" "}
+        <code style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: "0.88em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-ner</code>
+        , code-switching handlers, and our domain entity dictionaries into your
+        existing voice stack. Provider-agnostic; we work alongside Whisper,
+        Gemini, Chirp, Cartesia, or your own model.
+      </>
+    ),
     investment: "$10,000 / month",
     timeline: "3-month minimum",
   },

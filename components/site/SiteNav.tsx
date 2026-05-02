@@ -49,25 +49,17 @@ export function SiteNav() {
           >
             research
           </Link>
-          <Link
-            href="/demos"
-            className="site-nav-link"
-          >
-            demos
-          </Link>
           <a
-            href="https://docs.kuma-labs.com"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="mailto:hello@kumalabs.ai?subject=Kuma%20pricing%20inquiry"
             className="site-nav-link"
           >
-            docs
+            services
           </a>
           <a
-            href="mailto:hello@kuma-labs.com"
+            href="mailto:hello@kumalabs.ai?subject=Kuma%20engagement%20inquiry"
             className="site-nav-link"
           >
-            contact
+            engage
           </a>
         </nav>
       </div>

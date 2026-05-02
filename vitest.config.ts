@@ -6,7 +6,6 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: "jsdom",
-    setupFiles: ["./tests/demos/setup.ts"],
     globals: true,
   },
   resolve: { alias: { "@": path.resolve(__dirname, "./") } },

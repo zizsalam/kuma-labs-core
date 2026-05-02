@@ -34,23 +34,13 @@ export function SiteFooter() {
             </a>
           </li>
           <li>
-            <a href="/demos" className="site-footer-link">
-              demos
+            <a href="mailto:hello@kumalabs.ai?subject=Kuma%20pricing%20inquiry" className="site-footer-link">
+              services
             </a>
           </li>
           <li>
-            <a
-              href="https://docs.kuma-labs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="site-footer-link"
-            >
-              docs
-            </a>
-          </li>
-          <li>
-            <a href="mailto:hello@kuma-labs.com" className="site-footer-link">
-              contact
+            <a href="mailto:hello@kumalabs.ai?subject=Kuma%20engagement%20inquiry" className="site-footer-link">
+              engage
             </a>
           </li>
         </ul>

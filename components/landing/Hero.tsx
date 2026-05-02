@@ -48,7 +48,7 @@ export function Hero() {
           <span aria-hidden="true">·</span>{" "}
           6 system configurations{" "}
           <span aria-hidden="true">·</span>{" "}
-          Every system above 0.7 mean WER{" "}
+          Every system above 0.7 mean WER on Wolof speech{" "}
           <span aria-hidden="true">·</span>{" "}
           23 of 67 numeral tests reveal the dërëm gap
         </p>

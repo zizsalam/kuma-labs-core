@@ -10,7 +10,7 @@ const findings = [
     href: "/research/state-of-wolof-voice-ai-2026.html#cat-prompt",
   },
   {
-    title: "Chirp 2 silently accepts wo-SN and returns garbage",
+    title: "Chirp 2 silently accepts wo-SN and returns unintelligible output",
     elaboration:
       "Google STT Chirp 2 accepts the Wolof locale code without error, then returns incoherent output on native Wolof speech — no failure signal surfaced.",
     href: "/research/state-of-wolof-voice-ai-2026.html#cat-language",
@@ -101,6 +101,19 @@ export function FailureFindingsStrip() {
             </a>
           ))}
         </div>
+
+        <p
+          className="font-serif italic text-paper-ink-mid"
+          style={{
+            fontSize: "1.05rem",
+            lineHeight: "1.5",
+            marginTop: "2.5rem",
+            maxWidth: "640px",
+            color: "rgba(26,26,26,0.62)",
+          }}
+        >
+          These failures translate directly into incorrect transaction amounts and broken voice workflows in production.
+        </p>
       </div>
     </section>
   );

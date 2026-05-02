@@ -13,7 +13,7 @@ export function InsightSection() {
             maxWidth: "22ch",
           }}
         >
-          Talking is faster. Typing is the bottleneck.
+          Talking is faster. At high transaction volumes, typing becomes a throughput ceiling.
         </h2>
 
         <p
@@ -27,22 +27,6 @@ export function InsightSection() {
           stacks quietly fail.
         </p>
 
-        <blockquote
-          className="font-serif italic text-paper-ink"
-          style={{
-            fontSize: "clamp(2.2rem, 4.4vw, 3.6rem)",
-            lineHeight: "1.1",
-            margin: "3rem 0",
-            paddingLeft: "1.8rem",
-            borderLeft: "2px solid #1D9E75",
-            maxWidth: "620px",
-            letterSpacing: "-0.01em",
-          }}
-        >
-          There is no universally correct default — silently picking one would
-          be wrong half the time either way.
-        </blockquote>
-
         <p
           className="font-serif text-paper-ink"
           style={{ lineHeight: "1.6", marginBottom: "1.1em" }}
@@ -50,6 +34,13 @@ export function InsightSection() {
           Kuma is the ops layer you bolt on top of a commercial ASR so its
           failure modes don&apos;t reach your ledger. Built specifically for
           labor-constrained operators at scale across Wolof-speaking West Africa.
+        </p>
+
+        <p
+          className="font-serif text-paper-ink"
+          style={{ lineHeight: "1.6", marginBottom: "1.1em" }}
+        >
+          We constrain outputs, validate numerics, and enforce schema before results reach production systems.
         </p>
       </div>
     </section>

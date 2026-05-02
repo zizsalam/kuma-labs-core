@@ -126,6 +126,19 @@ export function OpenSourceStrip() {
             </a>
           ))}
         </div>
+
+        <p
+          className="font-serif italic text-paper-ink-mid"
+          style={{
+            fontSize: "0.95rem",
+            lineHeight: "1.5",
+            marginTop: "2.5rem",
+            textAlign: "center",
+            color: "rgba(26,26,26,0.55)",
+          }}
+        >
+          Built from real-world mobile money and field operations in Senegal.
+        </p>
       </div>
     </section>
   );

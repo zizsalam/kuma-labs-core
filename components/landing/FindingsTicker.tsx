@@ -4,7 +4,7 @@
 
 const findings = [
   "Whisper-1 mean WER 1.049 on Wolof",
-  "Chirp 2 (wo-SN probe) silently returns garbage",
+  "Chirp 2 (wo-SN probe) silently returns unintelligible output",
   "gpt-4o-transcribe echoes the prompt on near-silent audio",
   "Numeral accuracy: 0.328 (Kuma) vs 0.045 (Whisper-1)",
   "Intent recall: 43% corpus-faithful · 73% schema-restricted",

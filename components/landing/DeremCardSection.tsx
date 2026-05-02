@@ -26,7 +26,7 @@ export function DeremCardSection() {
           </code>{" "}
           can mean 2,000 CFA (direct reading) or 2,000 dërëm = 10,000 CFA
           (implicit-dërëm reading, Guérin 2021 §2.6). There is no universally
-          correct default.
+          correct default. Picking one silently is wrong in real systems.
         </p>
 
         <p className="font-serif text-paper-ink" style={{ lineHeight: "1.6", marginBottom: "2.5em" }}>
@@ -82,8 +82,7 @@ export function DeremCardSection() {
           <div
             className={`derem-block${revealed ? " is-revealed" : ""}`}
             style={{
-              padding: "1.1rem 0",
-              borderBottom: "1px solid rgba(26,26,26,0.10)",
+              padding: "1.1rem 0 0.4rem",
               transitionDelay: "250ms",
             }}
           >
@@ -99,30 +98,6 @@ export function DeremCardSection() {
                 <span className="knum">50</span>{" "}
                 <span className="ks">XOF</span>{" "}
                 <span className="kc">(10 dërëm × 5 — confidence 1.0)</span>
-              </span>
-            </div>
-          </div>
-
-          {/* Row 3 */}
-          <div
-            className={`derem-block${revealed ? " is-revealed" : ""}`}
-            style={{
-              padding: "1.1rem 0 0.4rem",
-              transitionDelay: "500ms",
-            }}
-          >
-            <div className="font-mono kl mb-2">
-              Explicit unit marker · unambiguous
-            </div>
-            <div className="font-mono text-[0.95rem] text-paper-ink mb-[0.55rem]">
-              &quot;téeméer francs&quot;
-            </div>
-            <div className="font-mono text-[0.85rem]" style={{ lineHeight: "1.75" }}>
-              <span className="derem-line" style={{ transitionDelay: "580ms" }}>
-                <span className="kn">amount</span>:{" "}
-                <span className="knum">100</span>{" "}
-                <span className="ks">XOF</span>{" "}
-                <span className="kc">(direct CFA locked by &quot;francs&quot; — confidence 1.0)</span>
               </span>
             </div>
           </div>

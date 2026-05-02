@@ -20,27 +20,35 @@ export function InsightSection() {
           className="font-serif text-paper-ink"
           style={{ lineHeight: "1.6", marginBottom: "1.1em" }}
         >
-          For a fintech field agent, an agri-extension worker, or a merchant
-          logging thirty transactions a day, the keyboard isn&apos;t friction —
-          it&apos;s a throughput ceiling. Voice removes it. But only if the
-          voice layer actually works in Wolof, which is where most production
-          stacks quietly fail.
+          Wolof is spoken by 12 million people across Senegal, Gambia, and Mauritania, almost always code-switched with French. It is also a language no commercial ASR ships production-ready: every benchmarked system fails on numerals, code-switching, and the silent prompt-echo failure mode we documented.
         </p>
 
         <p
           className="font-serif text-paper-ink"
           style={{ lineHeight: "1.6", marginBottom: "1.1em" }}
         >
-          Kuma is the ops layer you bolt on top of a commercial ASR so its
-          failure modes don&apos;t reach your ledger. Built specifically for
-          labor-constrained operators at scale across Wolof-speaking West Africa.
+          Frontier labs and voice-product teams shipping Wolof and French code-switched voice come to Kuma for three things: a reproducible benchmark to measure their model against, a curated Wolof corpus tuned for production conditions, and the engineering primitives — wolof-numbers, wolof-ner, dërëm parsing — that fix the failure modes raw ASR cannot.
         </p>
 
         <p
           className="font-serif text-paper-ink"
           style={{ lineHeight: "1.6", marginBottom: "1.1em" }}
         >
-          We constrain outputs, validate numerics, and enforce schema before results reach production systems.
+          We constrain outputs, validate numerics, and enforce schema before results reach production systems. WER measures whether you got the words; we measure whether you got the transaction. With structured output and schema validation, the right metric is intent recall — and the gap there is <strong>43% raw vs 73% with our ops layer</strong>.
+        </p>
+
+        <p
+          className="font-serif italic"
+          style={{
+            fontSize: "0.95rem",
+            lineHeight: "1.55",
+            marginTop: "2.5rem",
+            paddingTop: "1.5rem",
+            borderTop: "1px solid rgba(26,26,26,0.12)",
+            color: "rgba(26,26,26,0.62)",
+          }}
+        >
+          Field-tested. We pitched two Senegalese MFIs in March 2026; both said no. Six weeks of conversation taught us the operator-led wedge wasn&apos;t the moat — the lab-grade evaluation work is.
         </p>
       </div>
     </section>

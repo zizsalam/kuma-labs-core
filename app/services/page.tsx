@@ -4,7 +4,7 @@ import React from "react";
 export const metadata: Metadata = {
   title: "Services & Pricing — Kuma Labs",
   description:
-    "Specialist research and integration services for African voice AI. Five engagement tiers with published pricing, founder-led delivery.",
+    "Specialist research and evaluation services for frontier labs and voice-product teams. Four engagement tiers with published pricing, founder-led delivery.",
 };
 
 type Tier = {
@@ -19,38 +19,22 @@ const tiers: Tier[] = [
     name: "Benchmark Subscription",
     description:
       "Quarterly evaluation of your ASR/TTS/LLM on rotating Wolof + French + code-switched test sets, with comparative analysis vs commercial alternatives.",
-    investment: "$3,000 / month",
+    investment: "$8,000 / month",
     timeline: "Ongoing",
   },
   {
     name: "Evaluation Engagement",
     description:
       "One-off, deeper evaluation: failure-mode analysis, dërëm/code-switching/NER stress tests, production-readiness verdict, written report.",
-    investment: "$15,000 – $50,000",
+    investment: "$50,000 – $200,000",
     timeline: "4–6 weeks",
   },
   {
     name: "Custom Dataset",
     description:
       "Domain-specific Wolof or Bambara voice corpus: collection, transcription, validation, consent framework. Sample sizes 1k–50k utterances.",
-    investment: "$30,000 – $150,000",
+    investment: "$100,000 – $500,000",
     timeline: "6–12 weeks",
-  },
-  {
-    name: "Integration Retainer",
-    description: (
-      <>
-        Integration of{" "}
-        <code style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: "0.88em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-numbers</code>
-        ,{" "}
-        <code style={{ fontFamily: "var(--font-jetbrains-mono, monospace)", fontSize: "0.88em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-ner</code>
-        , code-switching handlers, and our domain entity dictionaries into your
-        existing voice stack. Provider-agnostic; we work alongside Whisper,
-        Gemini, Chirp, Cartesia, or your own model.
-      </>
-    ),
-    investment: "$10,000 / month",
-    timeline: "3-month minimum",
   },
   {
     name: "Productized Licenses",
@@ -84,8 +68,8 @@ export default function ServicesPage() {
             maxWidth: "52ch",
           }}
         >
-          Specialist research and integration services for African voice AI.
-          Five engagement tiers, prices published, founder-led delivery.
+          Specialist research and evaluation services for frontier labs and voice-product teams.
+          Four engagement tiers, prices published, founder-led delivery.
         </p>
       </div>
 
@@ -307,12 +291,31 @@ export default function ServicesPage() {
         </div>
       </div>
 
+      {/* Custom engagements section */}
+      <div className="mx-auto px-6" style={{ maxWidth: "960px" }}>
+        <section style={{ marginTop: "4rem", paddingTop: "2.5rem", borderTop: "1px solid rgba(26,26,26,0.12)" }}>
+          <h2 style={{ fontFamily: "var(--font-instrument-serif, serif)", fontSize: "1.4rem", color: "#1A1A1A", margin: "0 0 0.75rem" }}>Custom engagements</h2>
+          <p style={{ fontFamily: "var(--font-instrument-serif, serif)", lineHeight: "1.6", color: "#1A1A1A", margin: "0 0 0.75rem", maxWidth: "640px" }}>
+            Production integration of{" "}
+            <code style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.88em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-numbers</code>
+            ,{" "}
+            <code style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.88em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-ner</code>
+            , code-switching handlers, and domain entity dictionaries into operator voice stacks is engaged case-by-case, typically following an evaluation.
+            Provider-agnostic; we work alongside Whisper, Gemini, Chirp, AssemblyAI, Deepgram, or your own ASR.
+          </p>
+          <p style={{ fontFamily: "var(--font-instrument-serif, serif)", lineHeight: "1.6", color: "rgba(26,26,26,0.62)", margin: "0", maxWidth: "640px" }}>
+            For engagements above $200,000 or with custom scope, contact directly.
+          </p>
+        </section>
+      </div>
+
       {/* CTA section */}
       <div
         className="mx-auto px-6 py-16"
         style={{
           maxWidth: "960px",
           borderTop: "1px solid rgba(26,26,26,0.12)",
+          marginTop: "4rem",
         }}
       >
         <p

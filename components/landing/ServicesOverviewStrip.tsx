@@ -14,32 +14,17 @@ const services: Service[] = [
     title: "Evaluations",
     description:
       "We benchmark your ASR, TTS, or LLM against our Wolof + French test set. Comparative report, failure-mode analysis, production-readiness verdict.",
-    price: "From $15,000 · 4–6 weeks",
+    price: "From $50,000 · 4–6 weeks",
   },
   {
     title: "Datasets",
     description:
       "Hand-curated Wolof and Bambara voice corpora. Consent-cleared, domain-tuned, delivered with the harness to evaluate them.",
-    price: "From $30,000 · 6–12 weeks",
-  },
-  {
-    title: "Integration",
-    description: (
-      <>
-        Integration of{" "}
-        <code className="font-mono" style={{ fontSize: "0.85em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-numbers</code>
-        ,{" "}
-        <code className="font-mono" style={{ fontSize: "0.85em", background: "rgba(26,26,26,0.06)", padding: "0 3px", borderRadius: "3px" }}>wolof-ner</code>
-        , code-switching handlers, and our domain entity dictionaries into your
-        existing voice stack. Provider-agnostic; we work alongside Whisper,
-        Gemini, Chirp, Cartesia, or your own model.
-      </>
-    ),
-    price: "$10,000 / month · 3-month minimum",
+    price: "From $100,000 · 6–12 weeks",
   },
 ];
 
-const STAGGER_DELAYS = [0, 200, 400];
+const STAGGER_DELAYS = [0, 200];
 
 export function ServicesOverviewStrip() {
   const { ref: gridRef, revealed } = useReveal<HTMLDivElement>(0.10);
@@ -72,11 +57,11 @@ export function ServicesOverviewStrip() {
             maxWidth: "52ch",
           }}
         >
-          Three ways to work with us. Prices published; the price is the price.
+          Two primary ways to work with us. Prices published; the price is the price.
         </p>
 
-        {/* 3-column block grid */}
-        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        {/* 2-column block grid */}
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {services.map((service, i) => (
             <div
               key={i}
@@ -134,6 +119,26 @@ export function ServicesOverviewStrip() {
             </div>
           ))}
         </div>
+
+        {/* Demoted integration line */}
+        <p
+          className="font-serif italic text-paper-ink-mid"
+          style={{
+            fontSize: "0.95rem",
+            lineHeight: "1.5",
+            marginTop: "2rem",
+            maxWidth: "640px",
+            color: "rgba(26,26,26,0.62)",
+          }}
+        >
+          Production integration of{" "}
+          <code className="font-mono" style={{ fontSize: "0.9em", fontStyle: "normal" }}>wolof-numbers</code>
+          ,{" "}
+          <code className="font-mono" style={{ fontSize: "0.9em", fontStyle: "normal" }}>wolof-ner</code>
+          , and our domain dictionaries into operator voice stacks is engaged case-by-case, typically following an evaluation.{" "}
+          Provider-agnostic; we work alongside Whisper, Gemini, Chirp, AssemblyAI, Deepgram, or your own ASR.{" "}
+          <a href="/services" style={{ color: "var(--paper-ink, #1A1A1A)", textDecoration: "underline", textDecorationColor: "#1D9E75" }}>See custom engagements &rarr;</a>
+        </p>
       </div>
     </section>
   );

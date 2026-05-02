@@ -1,5 +1,5 @@
-// LiveExample — "model → transcript + verdict" two-card layout.
-// Reframes legacy demo section to show a real corpus failure: the dërëm gap.
+// LiveExample — 3-card layout: input → Whisper failure → Kuma fix.
+// "Sample" not "Live" — we don't call a real API from the homepage.
 // Mounted between DeremCardSection and HeadlineChartSection.
 
 "use client";
@@ -31,9 +31,15 @@ const ANNOTATION_STYLE: React.CSSProperties = {
   marginBottom: "0.5rem",
 };
 
-const VERDICT_STYLE: React.CSSProperties = {
+const VERDICT_FAIL_STYLE: React.CSSProperties = {
   fontSize: "0.85rem",
   color: "#A04040",
+  lineHeight: 1.5,
+};
+
+const VERDICT_PASS_STYLE: React.CSSProperties = {
+  fontSize: "0.85rem",
+  color: "#1D9E75",
   lineHeight: 1.5,
 };
 
@@ -57,7 +63,7 @@ export function LiveExample() {
             lineHeight: "1.2",
           }}
         >
-          Live: a single sample, six systems, the same gap.
+          Sample: a single utterance, the failure, the fix.
         </h2>
         <p
           className="font-serif mb-8"
@@ -69,34 +75,26 @@ export function LiveExample() {
             maxWidth: "60ch",
           }}
         >
-          Pulled from the 104-sample corpus. Every system hears the number; none
-          applies the dërëm &times; 5 conversion.
+          Pulled from the 104-sample corpus. Whisper hears the number; the
+          dërëm &times; 5 conversion never fires. Kuma&apos;s parser surfaces
+          both interpretations and asks for confirmation.
         </p>
 
-        {/* Two-card layout with connector */}
+        {/* Row 1 — Input card, full width */}
         <div
           ref={rowRef}
-          style={{
-            display: "flex",
-            gap: "0",
-            flexWrap: "wrap" as const,
-            alignItems: "center",
-          }}
+          style={{ display: "flex", flexDirection: "column", gap: "0" }}
         >
-          {/* Card A — input */}
           <div
             className={`paper-card reveal-target${revealed ? " is-revealed" : ""}`}
             style={{
               padding: "24px",
-              flex: 1,
-              minWidth: "260px",
+              marginBottom: "0",
               transitionDelay: "0ms",
             }}
           >
             <div className="font-mono" style={LABEL_STYLE}>
-              Live &nbsp;·&nbsp; Whisper gpt-4o-transcribe
-              <br />
-              Wolof sample &middot; payment-UTT-005
+              Sample &nbsp;·&nbsp; payment-UTT-005 &nbsp;·&nbsp; Wolof voice
             </div>
             <div className="font-serif" style={PHRASE_STYLE}>
               &ldquo;Awa jënd na ñaar junni&rdquo;
@@ -106,48 +104,140 @@ export function LiveExample() {
             </div>
           </div>
 
-          {/* Connector — arrow on desktop, chevron on mobile */}
+          {/* Connector row 1 → 2 */}
           <div
-            className="connector"
             style={{
-              padding: "0 16px",
-              fontSize: "1.25rem",
-              lineHeight: 1,
-              flexShrink: 0,
-              textAlign: "center" as const,
-              width: "56px",
+              display: "flex",
+              alignItems: "center",
+              padding: "8px 0",
+              gap: "0",
             }}
           >
-            {/* Desktop: → / Mobile (via media query workaround): handled below */}
-            <span className="hidden sm:inline">&rarr;</span>
-            <span className="sm:hidden" style={{ display: "block" }}>&#8595;</span>
+            {/* Desktop: side-by-side arrows; Mobile: down arrow */}
+            <div
+              className="hidden sm:flex"
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                fontSize: "1.25rem",
+                color: "rgba(26,26,26,0.35)",
+              }}
+            >
+              <span
+                style={{
+                  animation: "kuma-pulse 2s ease-in-out infinite",
+                }}
+              >
+                &darr;
+              </span>
+            </div>
+            <div
+              className="sm:hidden"
+              style={{
+                fontSize: "1.25rem",
+                color: "rgba(26,26,26,0.35)",
+                padding: "4px 0",
+              }}
+            >
+              &#8595;
+            </div>
           </div>
 
-          {/* Card B — output + verdict */}
+          {/* Row 2 — Whisper + Kuma side by side (desktop) / stacked (mobile) */}
           <div
-            className={`paper-card reveal-target${revealed ? " is-revealed" : ""}`}
             style={{
-              padding: "24px",
-              flex: 1,
-              minWidth: "260px",
-              transitionDelay: "100ms",
+              display: "flex",
+              gap: "0",
+              flexWrap: "wrap" as const,
+              alignItems: "stretch",
             }}
           >
-            <div className="font-mono" style={LABEL_STYLE}>
-              Transcript out
+            {/* Card 2 — Whisper failure */}
+            <div
+              className={`paper-card reveal-target${revealed ? " is-revealed" : ""}`}
+              style={{
+                padding: "24px",
+                flex: 1,
+                minWidth: "260px",
+                transitionDelay: "100ms",
+              }}
+            >
+              <div className="font-mono" style={LABEL_STYLE}>
+                Whisper gpt-4o-transcribe &nbsp;·&nbsp; raw output
+              </div>
+              <div className="font-serif" style={PHRASE_STYLE}>
+                &ldquo;Awa jënd na ñaar junni.&rdquo;
+              </div>
+              <div className="font-mono" style={ANNOTATION_STYLE}>
+                WER 0.0 &nbsp;·&nbsp; numeral parsed as 1,000 (&times;5 short)
+                &nbsp;·&nbsp; expected 2,000 CFA
+              </div>
+              <div className="font-mono" style={VERDICT_FAIL_STYLE}>
+                &times; Numeral underflow &mdash; the dërëm gap
+              </div>
             </div>
-            <div className="font-serif" style={PHRASE_STYLE}>
-              &ldquo;Awa jënd na ñaar junni.&rdquo;
+
+            {/* Connector card 2 → 3 */}
+            <div
+              style={{
+                padding: "0 16px",
+                fontSize: "1.25rem",
+                lineHeight: 1,
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "56px",
+                color: "rgba(26,26,26,0.35)",
+              }}
+            >
+              <span className="hidden sm:inline" style={{ animation: "kuma-pulse 2s ease-in-out infinite" }}>&rarr;</span>
+              <span className="sm:hidden" style={{ display: "block" }}>&#8595;</span>
             </div>
-            <div className="font-mono" style={ANNOTATION_STYLE}>
-              WER 0.0 &nbsp;·&nbsp; numeral parsed as 1,000 (&times;5 short)
-              &nbsp;·&nbsp; expected 2,000 CFA
-            </div>
-            <div className="font-mono" style={VERDICT_STYLE}>
-              &times; Numeral underflow &mdash; the dërëm gap
+
+            {/* Card 3 — Kuma fix */}
+            <div
+              className={`paper-card reveal-target${revealed ? " is-revealed" : ""}`}
+              style={{
+                padding: "24px",
+                flex: 1,
+                minWidth: "260px",
+                transitionDelay: "200ms",
+                borderLeft: "3px solid #1D9E75",
+              }}
+            >
+              <div className="font-mono" style={LABEL_STYLE}>
+                Kuma stack &nbsp;·&nbsp; processed
+              </div>
+              <div
+                className="font-mono"
+                style={{
+                  fontSize: "0.85rem",
+                  lineHeight: 1.65,
+                  color: "#1A1A1A",
+                  marginBottom: "0.5rem",
+                  background: "rgba(26,26,26,0.04)",
+                  borderRadius: "4px",
+                  padding: "10px 12px",
+                }}
+              >
+                amount: 10,000 XOF (implicit dërëm — confidence 0.6)<br />
+                alt: 2,000 XOF (direct CFA — confidence 0.4)<br />
+                needs_confirmation: true
+              </div>
+              <div className="font-mono" style={VERDICT_PASS_STYLE}>
+                &#10003; Both interpretations surfaced &mdash; flagged for confirmation
+              </div>
             </div>
           </div>
         </div>
+
+        <style>{`
+          @keyframes kuma-pulse {
+            0%, 100% { opacity: 0.35; }
+            50% { opacity: 0.75; }
+          }
+        `}</style>
 
         {/* CTA */}
         <div style={{ marginTop: "1.75rem" }}>

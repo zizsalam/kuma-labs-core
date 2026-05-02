@@ -67,8 +67,8 @@ export function Hero() {
           >
             Read the benchmark →
           </Link>
-          <a
-            href="mailto:hello@kumalabs.ai?subject=Kuma%20engagement%20inquiry"
+          <Link
+            href="/engage"
             className="font-serif inline-block px-6 py-3 rounded-sm transition-colors hover:bg-[rgba(29,158,117,0.08)]"
             style={{
               border: "1px solid #1D9E75",
@@ -80,7 +80,7 @@ export function Hero() {
             }}
           >
             Engage Kuma →
-          </a>
+          </Link>
         </div>
       </div>
     </header>

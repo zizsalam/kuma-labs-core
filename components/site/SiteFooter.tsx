@@ -34,12 +34,12 @@ export function SiteFooter() {
             </a>
           </li>
           <li>
-            <a href="mailto:hello@kumalabs.ai?subject=Kuma%20pricing%20inquiry" className="site-footer-link">
+            <a href="/services" className="site-footer-link">
               services
             </a>
           </li>
           <li>
-            <a href="mailto:hello@kumalabs.ai?subject=Kuma%20engagement%20inquiry" className="site-footer-link">
+            <a href="/engage" className="site-footer-link">
               engage
             </a>
           </li>

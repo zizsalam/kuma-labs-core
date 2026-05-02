@@ -33,11 +33,11 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "Kuma Labs — Voice ops for labor-constrained West Africa",
   description:
-    "The first public benchmark of Wolof voice AI across Whisper, Gemini, and Google STT — 104 Senegalese voice samples, 622 successful calls, 20 documented production failure modes. Open corpus. Reproducible harness.",
+    "A reproducible benchmark of Wolof voice AI across Whisper, Gemini, and Google STT — 104 Senegalese voice samples, 22 documented failure modes. Evaluations and curated corpora for frontier labs and voice-product teams.",
   openGraph: {
     title: "Kuma Labs — Voice ops for labor-constrained West Africa",
     description:
-      "The first public benchmark of Wolof voice AI across Whisper, Gemini, and Google STT, plus the ops layer operators need on top of it.",
+      "A reproducible benchmark of Wolof voice AI across Whisper, Gemini, and Google STT — 104 Senegalese voice samples, 22 documented failure modes. Evaluations and curated corpora for frontier labs and voice-product teams.",
     type: "website",
     url: "https://www.kuma-labs.com/",
     images: [
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Kuma Labs — Voice ops for labor-constrained West Africa",
     description:
-      "The first public benchmark of Wolof voice AI, plus the ops layer operators need on top of it.",
+      "A reproducible benchmark of Wolof voice AI. Evaluations, curated corpora, and integration primitives for frontier labs and voice-product teams.",
     images: ["https://www.kuma-labs.com/og/home-1200x630.png"],
   },
 };

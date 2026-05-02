@@ -446,7 +446,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <p>Five recurring, production-critical failure patterns, expanded in §5 with transcripts, audio, and downstream consequences:</p>
 <ol>
   <li><strong>Dropped negation morphology</strong> — the Wolof <code>-ul</code> suffix is routinely dropped, silently flipping a repayment status from <em>unpaid</em> to <em>paid</em>. This is the most dangerous single failure in the report.</li>
-  <li><strong>The dërëm ambiguity, both directions</strong> — the same bare Wolof numeral can mean direct CFA or implicit-dërëm (×5). Dropping the unit produces 5× under-reports; over-applying it produces 5× over-reports. Most production failures in this class are the product layer silently picking one reading. See Failure 7 for the full design tension and our resolution.</li>
+  <li><strong>The dërëm ambiguity, both directions</strong> — the same bare Wolof numeral can mean direct CFA or implicit-dërëm (×5). Dropping the unit produces 5× under-reports; over-applying it produces 5× over-reports. Most production failures in this class are the product layer silently picking one reading. See Failure 3·2 for the full design tension and our resolution.</li>
   <li><strong>Wolof names misread as French phrases</strong> — "Awa" transcribed as "à voir"; creates ghost customer records in production.</li>
   <li><strong>Prompt-echo artifacts</strong> — when custom prompts are used to improve accuracy, they can be echoed verbatim into the transcript on silent or near-silent audio, producing syntactically-valid but wildly-wrong amounts. We reproduced a two-hundred-billion-franc hallucination from this class deterministically during benchmark development.</li>
   <li><strong>Illusory Wolof support at the API level</strong> — one commercial provider accepts <code>wo-SN</code> as a language code and returns output that is not Wolof, with no error or warning. Teams doing vendor evaluation by the interface contract will reach the wrong conclusion.</li>
@@ -687,24 +687,56 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <!-- §5 FAILURE MODES -->
 <!-- ═══════════════════════════════════════════════════════════════════════ -->
 <h2 id="s5">5. Failure-mode catalogue</h2>
-<p>This section is the reason the report exists. Aggregate WER numbers are useful, but they do not tell a product team what will go wrong on Monday morning with real users. Below are twenty concrete failures, grouped by category, each with reference, per-provider transcripts, downstream impact, and a direct audio link.</p>
-<p>The categories below are the taxonomy we arrived at <em>after</em> running the matrix. They are not claimed as exhaustive — but every failure we observed fits one of the four, which is itself a finding.</p>
+<p>This section is the reason the report exists. Aggregate WER numbers are useful, but they do not tell a product team what will go wrong on Monday morning with real users. Below are twenty-two concrete failures (twenty original entries plus two new silence-handling entries), organized into four product-engineering categories operators face when shipping voice AI: silence handling, language misclassification, numeral parsing, and prompt leakage. Two addenda follow for completeness: intent classification errors (specific to systems that do downstream classification) and pipeline fragility (cold starts, downstream timeouts).</p>
 
 <h3>Taxonomy at a glance</h3>
-<table>
-  <thead><tr><th>Category</th><th>What goes wrong</th><th>Why it matters in production</th></tr></thead>
+<table class="taxonomy-glance">
+  <thead><tr><th>Category</th><th>#</th><th>What it captures</th></tr></thead>
   <tbody>
-    <tr><td><strong>A. ASR boundary errors</strong></td><td>The transcriber gets individual words wrong or silently drops them</td><td>User thinks they spoke; system has no record of it. Silent data loss.</td></tr>
-    <tr><td><strong>B. Numeral errors</strong></td><td>The number spoken is not the number extracted</td><td>Wrong amount charged, wrong balance shown, wrong loan issued</td></tr>
-    <tr><td><strong>C. Intent errors</strong></td><td>Transcript is correct but the semantic interpretation flips</td><td>Money credited instead of debited, and vice versa</td></tr>
-    <tr><td><strong>D. Downstream / pipeline fragility</strong></td><td>ASR produces something that passes all sanity checks but is garbage</td><td>False confidence: pipeline returns structured data that looks valid and is completely wrong</td></tr>
+    <tr><td><a href="#cat-silence">1. Silence handling</a></td><td>2</td><td>What ASR systems emit when the audio contains no speech</td></tr>
+    <tr><td><a href="#cat-language">2. Language misclassification</a></td><td>6</td><td>The system fails to recognize Wolof as Wolof — drifts to French phonemes, drops code-switches, returns silent garbage</td></tr>
+    <tr><td><a href="#cat-numeral">3. Numeral parsing</a></td><td>6</td><td>The number is heard but the dërëm-CFA conversion or Arabic-digit form fails downstream</td></tr>
+    <tr><td><a href="#cat-prompt">4. Prompt leakage</a></td><td>2</td><td>The custom system prompt echoes into the transcript and downstream parsers don't catch it</td></tr>
+    <tr><td><a href="#cat-intent">5. Intent classification (Kuma addendum)</a></td><td>5</td><td>Direction, subject, currency, confidence, time — five intent-layer failures specific to systems that emit structured intent JSON</td></tr>
+    <tr><td><a href="#cat-other">6. Other pipeline fragility</a></td><td>1</td><td>Cold-start latency on managed model endpoints</td></tr>
   </tbody>
 </table>
 
-<h3>Category A — ASR boundary errors</h3>
+<h3 id="cat-silence">1. Silence handling</h3>
 
 <div class="failure">
-  <h4><span class="n">1·A</span>Code-switch boundary loss</h4>
+  <h4><span class="n">1·1</span>Provider-divergent silence hallucinations</h4>
+  <div class="ref">2-second silent audio sample — no speech content.<span class="lang">samples/silent_test_smoke.wav · Plan 07-01 smoke run</span></div>
+  <p><em>Silence behavior was probed during Plan 07-01 smoke runs with a 2-second silent sample, not part of the labeled 104-corpus runs reported elsewhere in this document.</em></p>
+  <p><strong>What happened.</strong> When the audio contains no speech, ASR systems do not stay silent — they emit different default phrases. The outputs diverge so completely across providers that they reveal each system's internal priors rather than any shared ground truth.</p>
+  <table>
+    <thead><tr><th>System</th><th>Output on 2-second silent audio</th></tr></thead>
+    <tbody>
+      <tr><td>Whisper · gpt-4o-transcribe</td><td>"Damit" / "Thanks"</td></tr>
+      <tr><td>Whisper · whisper-1</td><td>"you"</td></tr>
+      <tr><td>Gemini 2.5 Flash</td><td>"bon" / "Hmm." (thinking toggle changes output)</td></tr>
+      <tr><td>Google STT · Chirp 2 (fr-FR)</td><td>"0 1 2 3 4 5 6 7 8 9 10"</td></tr>
+      <tr><td>Google STT · Chirp 2 (wo-SN probe)</td><td>"0 1 2 3 4 5 6 7 8 9 10"</td></tr>
+      <tr><td>Kuma stack · end-to-end</td><td>inherits primary ASR ("Damit"/"Thanks" with current default)</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Downstream impact.</strong> A fintech integration that does not gate on silence will receive structurally valid transcripts on every accidental mic activation, background-noise burst, or button mis-tap. Whisper variants drift to English filler ("Thanks"), Gemini drifts to French/German filler, Chirp 2 emits a digit sequence that a numeral parser will try to interpret. Kuma's end-to-end pipeline inherits whichever ASR is primary — meaning the specific garbage it produces depends on which provider is configured. None of these outputs are labeled as silence; they arrive as normal transcription responses with no error flag.</p>
+  <p><strong>Mitigation.</strong> A Voice Activity Detection (VAD) gate before the ASR stage is the cleanest fix. If audio energy falls below a configurable threshold, return a <code>no_speech_detected</code> response rather than routing to ASR. This is not a model improvement — it is a product-layer gate that every voice pipeline in this class of application should implement. The cost is one inference call per request; the benefit is elimination of this entire failure class.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">1·2</span>Near-silence triggering prompt echo on Whisper</h4>
+  <div class="ref">Near-silent audio (single click or breath). Observed during harness scaffold run.<span class="lang">samples/silent_misfire_001.wav · Plan 07-01 smoke run</span></div>
+  <p><em>Silence behavior was probed during Plan 07-01 smoke runs with a 2-second silent sample, not part of the labeled 104-corpus runs reported elsewhere in this document.</em></p>
+  <p><strong>What happened.</strong> When audio is near-silent — a single click, a breath, a microphone pop — Whisper is more likely to echo back its system prompt verbatim because there is no audio content to ground the transcription. The model fills the transcript with the most salient text it has access to: the custom vocabulary prompt. This is the failure mechanism behind <a href="#cat-prompt">Failure 4·1</a> (Prompt-echo artifact).</p>
+  <p><strong>Why this is a separate entry from 4·1.</strong> Failure 4·1 documents the downstream consequence (a 200-billion-franc hallucinated transaction that passed every automated check). This entry documents the triggering condition: near-silence is what makes prompt echo happen. A VAD gate (see 1·1 mitigation) addresses both entries simultaneously — if silence is caught before it reaches the ASR stage, the prompt cannot be echoed.</p>
+  <p><strong>Cross-reference:</strong> See <a href="#cat-prompt">4·1 (Prompt-echo artifact)</a> for the full downstream impact and the mitigation added to Kuma's validator in response.</p>
+</div>
+
+<h3 id="cat-language">2. Language misclassification</h3>
+
+<div class="failure">
+  <h4><span class="n">2·1</span>Code-switch boundary loss</h4>
   <div class="ref">"Fatou me doit ñaar junni." (Fatou owes me two thousand.)<span class="lang">wo-SN + fr-SN · samples/codeswitched_003.wav</span></div>
   <p><strong>Expected behaviour across providers</strong> — Chirp 2 with <code>fr-FR</code> as the single language code is known to truncate or garble the Wolof tail of code-switched utterances. Whisper and Gemini auto-detect but frequently collapse the Wolof portion into phonetically-nearest French.</p>
   <p><strong>Downstream impact.</strong> A BNPL reminder workflow hears "Fatou me doit" and writes a record of a debt with no amount. The user believes they just dictated a two-thousand-franc IOU; the system stored a zero-value entry. Silent data loss, no error surfaced to the user.</p>
@@ -712,44 +744,51 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 </div>
 
 <div class="failure">
-  <h4><span class="n">2·A</span>Wolof proper name misread as French phrase</h4>
+  <h4><span class="n">2·2</span>Wolof proper name misread as French phrase</h4>
   <div class="ref">"Awa jënd na ñaar junni crédit." (Awa bought two thousand on credit.)<span class="lang">wo-SN · samples/wolof_market_001.wav</span></div>
   <p><strong>Downstream impact.</strong> A customer-lookup intent scores a phantom customer name ("à voir" — "to see") instead of Awa. In a repayment tracker this creates ghost accounts; in a CRM it silently splits one customer's history across multiple records. This is the single most common name-related failure we see and it is nearly invisible in aggregate WER — swapping one noun phrase for another costs roughly the same WER points as any other substitution, but the product consequence is structural.</p>
   <p><strong>Would Kuma's pipeline catch it?</strong> <code>wolof-ner</code> corrects <code>Awa</code> at the name-extraction stage by checking against a 539-name gazetteer of Senegalese given names. This is exactly what a vertically-integrated layer buys you — the raw ASR cannot be fixed, but the downstream layer knows what a Senegalese name looks like.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">3·A</span>Senegalese phoneme collapse</h4>
+  <h4><span class="n">2·3</span>Senegalese phoneme collapse</h4>
   <div class="ref">"Ñaar milyon fu téeméer." (Two million six hundred.)<span class="lang">wo-SN · samples/wolof_numbers_017.wav</span></div>
   <p><strong>Downstream impact.</strong> The <code>ñ</code> / <code>n</code> confusion is benign for numerals (both <code>ñaar</code> and <code>naar</code> hit the parser's fuzzy match on "ñaar"), but it compounds with name errors downstream — <code>Ñouguirane</code> written as <code>Nguirane</code> is technically the same person but creates mismatches against government-issued ID records in KYC flows. Production teams building KYC workflows should plan for an explicit Wolof phoneme normalization step.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">4·A</span>Market-noise dropout</h4>
+  <h4><span class="n">2·4</span>Market-noise dropout</h4>
   <div class="ref">"Moussa jay na juromi junni CFA ñooy, alxamdulillah."<span class="lang">wo-SN · samples/dakar_market_014.wav · recorded with authentic market background</span></div>
   <p><strong>Downstream impact.</strong> Under 65+ dB ambient noise (typical of a Dakar market stall in the morning), the tail of the utterance (<code>alxamdulillah</code> — closing thanks) is routinely dropped. This is linguistically safe; but when the tail <em>contains</em> information (<code>… rekk</code> — "only", <code>… ci guddi</code> — "tonight"), silent drops create incorrect records. Recommendation for product teams: either require users to repeat amounts, or gate the confirmation flow on a stable-silence detection before accepting the transcript.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">5·A</span>Negation dropped</h4>
+  <h4><span class="n">2·5</span>Negation dropped</h4>
   <div class="ref">"Awa feyyewul crédit bi." (Awa has <strong>not</strong> repaid the credit.)<span class="lang">wo-SN · samples/wolof_intent_ambig_002.wav</span></div>
   <p><strong>Downstream impact.</strong> This is the most dangerous category in this report. A dropped <code>-ul</code> negation flips a repayment status from <em>unpaid</em> to <em>paid</em> with no other change in the transcript. An automated reminder system reading this record would stop chasing the customer; a reconciliation flow would treat the account as settled. <strong>Product teams building repayment, attendance, or consent workflows in Wolof must treat negation handling as a structural issue</strong> — not a tail-accuracy problem — and build explicit confirmation for negative intents.</p>
 </div>
 
-<h3>Category B — Numeral errors</h3>
+<div class="failure">
+  <h4><span class="n">2·6</span>Illusory Wolof support</h4>
+  <div class="ref">Google Speech-to-Text v2 Chirp 2 accepts <code>wo-SN</code> as a language code and returns output.<span class="lang">Any Wolof sample from the matrix</span></div>
+  <p><strong>What happened.</strong> When we requested transcription with <code>language_codes=["wo-SN"]</code>, the API returned 200 OK and produced a transcript. The transcript was not Wolof — it was a degenerate sequence of French digits and filler tokens. There was no warning, no error, no indication that the language code was not actually supported.</p>
+  <p><strong>Downstream impact.</strong> An engineering team doing a vendor evaluation would reasonably interpret "200 OK with a transcript" as "this provider supports Wolof". They would build their application on that assumption. In production they would discover silently incorrect transcripts across all Wolof inputs, with no way to distinguish "Wolof successfully transcribed" from "Wolof silently routed to a different-language model". <strong>Vendors that support a language code at the API level but do not support it in the underlying model should make that clear at the API level.</strong> Silent degradation is worse than an outright 400.</p>
+</div>
+
+<h3 id="cat-numeral">3. Numeral parsing</h3>
 
 <div class="failure">
-  <h4><span class="n">6·B</span>Numeral hallucination — phantom multiplier</h4>
+  <h4><span class="n">3·1</span>Numeral hallucination — phantom multiplier</h4>
   <div class="ref">"Juromi junni franc." (Five thousand francs — 5×1000 = 5000.) Expected: 5000<span class="lang">wo-SN · samples/wolof_numbers_003.wav</span></div>
   <p><strong>Downstream impact.</strong> Five-times overcharges. The hallucination pattern most commonly observed is the injection of an extra numeral token (<code>ñaar</code>, <code>juróom</code>) between the multiplier and the unit. In a commerce checkout flow this charges the customer 5× the intended amount before any human sees the transaction. In BNPL, it grants the customer a loan 5× larger than they asked for. Either direction is a production incident.</p>
   <p><strong>Would Kuma's pipeline catch it?</strong> The number parser's <code>alternatives</code> list surfaces 5000 as a plausible competing hit; the validator flags low confidence gaps where top-1 and top-2 amounts differ by a factor of 5. HITL confirmation is then required.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">7·B</span>The dërëm ambiguity — both directions</h4>
+  <h4><span class="n">3·2</span>The dërëm ambiguity — both directions</h4>
   <p>This is a single failure class with two mirror-image manifestations. Documenting it as a pair matters because a parser that "fixes" one direction usually creates the other.</p>
 
-  <h4 style="margin-top:1.5rem; color:var(--ink);">7a · Dërëm unit dropped — under-report by 5×</h4>
+  <h4 style="margin-top:1.5rem; color:var(--ink);">3·2a · Dërëm unit dropped — under-report by 5×</h4>
   <div class="ref">"Moussa jay na dërëm fukk." (Moussa sold ten dërëm — 10 × 5 CFA = 50 CFA.) Expected: 50 XOF<span class="lang">wo-SN · samples/wolof_numbers_008.wav</span></div>
   <table>
     <thead><tr><th>Provider behaviour</th><th>Parsed amount</th></tr></thead>
@@ -758,9 +797,9 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
       <tr><td><code>wolof-numbers</code> with explicit <code>dërëm</code> token</td><td>50 XOF — unambiguous, confidence 1.0</td></tr>
     </tbody>
   </table>
-  <p><strong>Downstream impact (7a).</strong> Five-fold under-reporting of small transactions. In daily-cash reconciliation this makes real revenue look like one-fifth of what came in.</p>
+  <p><strong>Downstream impact (3·2a).</strong> Five-fold under-reporting of small transactions. In daily-cash reconciliation this makes real revenue look like one-fifth of what came in.</p>
 
-  <h4 style="margin-top:1.8rem; color:var(--ink);">7b · Dërëm unit over-applied — over-report by 5×</h4>
+  <h4 style="margin-top:1.8rem; color:var(--ink);">3·2b · Dërëm unit over-applied — over-report by 5×</h4>
   <div class="ref">"Ñetti téeméer la ma yónni." (Three hundred is what was sent to me — speaker means the literal CFA amount.) Expected: 300 XOF<span class="lang">Reproduced live on api.kuma-labs.com/docs during benchmark prep</span></div>
   <table>
     <thead><tr><th>Provider behaviour</th><th>Parsed amount</th></tr></thead>
@@ -769,14 +808,14 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
       <tr><td><code>wolof-numbers</code> with explicit <code>francs</code> / <code>CFA</code> anchor</td><td>300 XOF — direct-CFA reading locked, confidence 1.0</td></tr>
     </tbody>
   </table>
-  <p><strong>Downstream impact (7b).</strong> Five-fold <em>over</em>-reporting when a speaker uses a plain Wolof numeral in a non-commerce context, or in a commerce context where they mean the literal franc amount. In a repayment or top-up flow this charges the user 5× what they intended — the inverse of 7a but equally harmful.</p>
+  <p><strong>Downstream impact (3·2b).</strong> Five-fold <em>over</em>-reporting when a speaker uses a plain Wolof numeral in a non-commerce context, or in a commerce context where they mean the literal franc amount. In a repayment or top-up flow this charges the user 5× what they intended — the inverse of 3·2a but equally harmful.</p>
 
   <h4 style="margin-top:1.8rem; color:var(--ink);">Why this is one failure, not two</h4>
   <p>Wolof commerce numerals are <strong>structurally ambiguous</strong> between the direct-CFA reading (<em>ñaar junni</em> = 2 × 1000 = 2000 XOF) and the implicit-dërëm reading (<em>ñaar junni</em> = 2000 dërëm × 5 = 10000 XOF, per Guérin 2021 §2.6 commerce convention). The ambiguity is a genuine linguistic property of Senegalese merchant speech — not a parser bug.</p>
   <p>Any parser building on this data has four options:</p>
   <ol>
-    <li><strong>Silently prefer direct-CFA</strong> — fast; wrong for small-market merchant speech where implicit dërëm dominates. Produces 7a.</li>
-    <li><strong>Silently prefer implicit-dërëm</strong> — right for small markets; wrong for fintech / super-app traffic where users speak literal francs. Produces 7b.</li>
+    <li><strong>Silently prefer direct-CFA</strong> — fast; wrong for small-market merchant speech where implicit dërëm dominates. Produces 3·2a.</li>
+    <li><strong>Silently prefer implicit-dërëm</strong> — right for small markets; wrong for fintech / super-app traffic where users speak literal francs. Produces 3·2b.</li>
     <li><strong>Refuse to parse bare commerce numerals</strong> — safest; pushes the problem upstream to the caller.</li>
     <li><strong>Return both interpretations with an explicit ambiguity flag</strong> — cheapest to build, most honest to consumers.</li>
   </ol>
@@ -790,66 +829,38 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
     <li><strong>Log the <code>implicit_unit_applied</code> field.</strong> Over time it tells you the distribution of your actual user speech — which tells you whether to flip defaults.</li>
   </ul>
 
-  <p><strong>Would Kuma's pipeline catch 7a?</strong> Yes — the <code>dërëm</code> token triggers the unambiguous branch (confidence 1.0).</p>
-  <p><strong>Would Kuma's pipeline catch 7b?</strong> Partially. The parser returns both readings with <code>needs_confirmation: true</code>, but the pipeline's response schema (as of the benchmark date) was serializing <code>alternatives: []</code> instead of forwarding the parser's alt-list. <strong>Fix shipped with this report:</strong> alternatives are now forwarded verbatim from parser to response, so every caller sees both readings when ambiguity exists.</p>
+  <p><strong>Would Kuma's pipeline catch 3·2a?</strong> Yes — the <code>dërëm</code> token triggers the unambiguous branch (confidence 1.0).</p>
+  <p><strong>Would Kuma's pipeline catch 3·2b?</strong> Partially. The parser returns both readings with <code>needs_confirmation: true</code>, but the pipeline's response schema (as of the benchmark date) was serializing <code>alternatives: []</code> instead of forwarding the parser's alt-list. <strong>Fix shipped with this report:</strong> alternatives are now forwarded verbatim from parser to response, so every caller sees both readings when ambiguity exists.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">8·B</span>Genitive construction truncated</h4>
+  <h4><span class="n">3·3</span>Genitive construction truncated</h4>
   <div class="ref">"Téeméer-i junni." (Hundred-of-thousand — 100 000.) Expected: 100000<span class="lang">wo-SN · samples/wolof_numbers_011.wav</span></div>
   <p><strong>Downstream impact.</strong> Thousand-fold under-reporting. The genitive <code>-i</code> is what tells the parser that <code>téeméer</code> is multiplying <code>junni</code> rather than standing alone as "one hundred". Drop the linker, drop three orders of magnitude. Customers who spoke "a hundred thousand" see "a hundred" written down.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">9·B</span>Arabic digit + French phrase gap</h4>
+  <h4><span class="n">3·4</span>Arabic digit + French phrase gap</h4>
   <div class="ref">"Il a payé mille cinq cents." (He paid fifteen hundred.) Expected: 1500<span class="lang">fr-SN · samples/french_market_007.wav</span></div>
-  <p><strong>Downstream impact.</strong> Thirty-three percent under-reporting in code-switched and French-heavy markets. Note: this is a Kuma parser limitation (surfaced as Failure 19 in Category D), not a provider limitation — it affects the parsed-amount column for every provider identically. Surfacing it honestly is part of the methodology; it is also a concrete roadmap item for <code>wolof-numbers</code> v0.3.</p>
+  <p><strong>Downstream impact.</strong> Thirty-three percent under-reporting in code-switched and French-heavy markets. Note: this is a Kuma parser limitation (surfaced as Failure 3·6 in Numeral parsing), not a provider limitation — it affects the parsed-amount column for every provider identically. Surfacing it honestly is part of the methodology; it is also a concrete roadmap item for <code>wolof-numbers</code> v0.3.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">10·B</span>Junni / milyon swap</h4>
+  <h4><span class="n">3·5</span>Junni / milyon swap</h4>
   <div class="ref">"Ñaar milyon." (Two million — 2 000 000.) Expected: 2000000<span class="lang">wo-SN · samples/wolof_numbers_019.wav</span></div>
-  <p><strong>Downstream impact.</strong> Thousand-fold errors on high-value transactions. This is the counterpart to Failure 8 — but while dropped linkers under-report, this substitution under-reports by orders of magnitude on the specific transactions that would trigger fraud review in a well-designed system. A hundred-franc fraud signal is noise; a million-franc fraud signal is a page. Getting it wrong either way is expensive.</p>
-</div>
-
-<h3>Category C — Intent errors</h3>
-
-<div class="failure">
-  <h4><span class="n">11·C</span>Direction flip — <em>jend</em> vs <em>jay</em></h4>
-  <div class="ref">"Ousmane jay na ñaar junni crédit." (Ousmane <strong>sold</strong> two thousand on credit.) Expected: sale, sold<span class="lang">wo-SN · samples/wolof_intent_ambig_001.wav</span></div>
-  <p><strong>Downstream impact.</strong> The <code>jend</code> (bought, incoming money) vs <code>jay</code> (sold, outgoing goods) distinction is a single-phoneme contrast. Direction flips mean a merchant's daily revenue log records purchases as sales and vice versa. Over a week, the totals still approximately balance; over a month, the category mix is inverted. A product team relying on these records to surface "top-selling items" shows the merchant a list of their top <em>purchases</em>.</p>
-  <p><strong>Would Kuma's pipeline catch it?</strong> The <code>VERB_DIRECTION</code> map in <code>wolof-numbers</code> handles the longest-match-wins rule (<code>jend_na</code> vs bare <code>jend</code>). For the single-phoneme case, only HITL confirmation reliably catches the flip.</p>
+  <p><strong>Downstream impact.</strong> Thousand-fold errors on high-value transactions. This is the counterpart to Failure 3·3 — but while dropped linkers under-report, this substitution under-reports by orders of magnitude on the specific transactions that would trigger fraud review in a well-designed system. A hundred-franc fraud signal is noise; a million-franc fraud signal is a page. Getting it wrong either way is expensive.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">12·C</span>Implied-subject misattribution</h4>
-  <div class="ref">"Jënd na ñaar junni ci Awa." (Bought two thousand from Awa — implied subject = the speaker.)<span class="lang">wo-SN · samples/wolof_intent_ambig_003.wav</span></div>
-  <p><strong>Downstream impact.</strong> Pronoun-dropping is standard in Wolof; the subject of a verb is frequently only recoverable from context. Production systems that assume a named customer in every utterance invent one (usually the most recent name mentioned), leading to misattributed transactions. This is not an ASR problem at all — it is an intent-schema-design problem, and it deserves a callout for any PM designing a Wolof voice UX.</p>
+  <h4><span class="n">3·6</span>Number parser / Arabic-digit gap</h4>
+  <div class="ref"><code>wolof-numbers.extract_amounts("1500 francs")</code> returns <code>[]</code>.</div>
+  <p><strong>Downstream impact.</strong> Same limitation surfaced in Failure 3·4, reported here as a separate entry because it is a product-layer gap, not an ASR failure. Any product layer built on <code>wolof-numbers</code> currently needs to pre-process Arabic digits into their word form before passing text to the parser. This is on Kuma's near-term roadmap.</p>
 </div>
 
-<div class="failure">
-  <h4><span class="n">13·C</span>Currency implicit</h4>
-  <div class="ref">"Junni rekk." (Just a thousand — implicit CFA.) Expected: amount=1000, currency=XOF<span class="lang">wo-SN · samples/wolof_numbers_021.wav</span></div>
-  <p><strong>Downstream impact.</strong> Senegalese speakers rarely say "CFA" aloud — it is defaulted by convention. Systems that require explicit currency raise validation errors; systems that default silently to EUR or USD wildly misprice transactions. The right default, in Senegal, is XOF. This is a product decision, not an ML decision, but the report is the place to say so.</p>
-</div>
+<h3 id="cat-prompt">4. Prompt leakage</h3>
 
 <div class="failure">
-  <h4><span class="n">14·C</span>Confidence mis-calibration</h4>
-  <div class="ref">Any correctly-transcribed sample where Kuma's pipeline returns confidence &lt; 0.5<span class="lang">selected from matrix run</span></div>
-  <p><strong>Downstream impact.</strong> Kuma's <code>overall_confidence</code> is intended as a HITL trigger threshold (default 0.85). If the distribution is not well-calibrated — if confidence 0.5 is as reliable as confidence 0.9 in practice — then the threshold does not do what PMs expect. This report surfaces the observed calibration curve for transparency; we expect it will drive improvements in the confidence heuristic in a later phase.</p>
-</div>
-
-<div class="failure">
-  <h4><span class="n">15·C</span>Time-reference drift</h4>
-  <div class="ref">"Awa demba jay na ñaar junni." (Awa sold two thousand <em>yesterday</em>.)<span class="lang">wo-SN · samples/wolof_intent_ambig_005.wav</span></div>
-  <p><strong>Downstream impact.</strong> The time-reference token <code>demba</code> (yesterday) is one of the highest-frequency time adverbs in merchant speech. When dropped, the record is dated to the moment of dictation rather than the moment of the transaction. Over a week this is invisible; at month-end reconciliation, cash totals stop matching deposit slips.</p>
-</div>
-
-<h3>Category D — Downstream / pipeline fragility</h3>
-<p><em>This category was not in our original taxonomy — it emerged during matrix execution and is the most surprising finding of the benchmark. These are failures that are not the ASR's fault, yet still reach the user if the product layer is not defensive.</em></p>
-
-<div class="failure">
-  <h4><span class="n">16·D</span>Prompt-echo artifact</h4>
+  <h4><span class="n">4·1</span>Prompt-echo artifact</h4>
   <div class="ref">Near-silent audio — user mis-activated microphone. Observed in Kuma end-to-end during harness scaffold run.<span class="lang">samples/silent_misfire_001.wav</span></div>
   <p><strong>What happened.</strong> On near-silent audio, OpenAI's <code>gpt-4o-transcribe</code> echoed Kuma's merchant-vocabulary prompt (<code>"jënd jay ñaar junni téeméer milyon dërëm crédit CFA"</code>) verbatim into the transcript. The <code>wolof-numbers</code> parser then dutifully parsed <code>téeméer milyon</code> (hundred million) as an amount: <strong>200 000 000 000</strong>. The validator did not catch it — the integer is syntactically valid. The pipeline returned a structured MerchantIntent with a two-hundred-billion-franc transaction amount.</p>
   <div class="callout">
@@ -858,31 +869,55 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
   </div>
   <p><strong>Mitigation added to Kuma's pipeline in response to this finding.</strong> A per-transaction amount sanity check (configurable cap, defaulting to 10⁸ XOF for merchant pilots) has been added to the validator stage. The sanity check logs the rejected amount so prompt-echo artifacts are detected and counted rather than silently passed through.</p>
   <p><strong>The product lesson.</strong> Prompt-engineering your ASR is a useful accuracy lever. It is also a new attack surface — because the prompt can be echoed back into the transcript verbatim, any parser downstream must treat prompt vocabulary as untrusted input. Product teams that add custom prompts to Whisper or Gemini should audit their downstream parsers for prompt-echo robustness.</p>
+  <p><strong>Cross-reference:</strong> See <a href="#cat-silence">1·2 (Near-silence triggering prompt echo)</a> for the triggering condition. A VAD gate before the ASR stage eliminates this failure class at its root.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">17·D</span>Illusory Wolof support</h4>
-  <div class="ref">Google Speech-to-Text v2 Chirp 2 accepts <code>wo-SN</code> as a language code and returns output.<span class="lang">Any Wolof sample from the matrix</span></div>
-  <p><strong>What happened.</strong> When we requested transcription with <code>language_codes=["wo-SN"]</code>, the API returned 200 OK and produced a transcript. The transcript was not Wolof — it was a degenerate sequence of French digits and filler tokens. There was no warning, no error, no indication that the language code was not actually supported.</p>
-  <p><strong>Downstream impact.</strong> An engineering team doing a vendor evaluation would reasonably interpret "200 OK with a transcript" as "this provider supports Wolof". They would build their application on that assumption. In production they would discover silently incorrect transcripts across all Wolof inputs, with no way to distinguish "Wolof successfully transcribed" from "Wolof silently routed to a different-language model". <strong>Vendors that support a language code at the API level but do not support it in the underlying model should make that clear at the API level.</strong> Silent degradation is worse than an outright 400.</p>
+  <h4><span class="n">4·2</span>Validator gap on implausible amounts</h4>
+  <div class="ref">As of the benchmark run, Kuma's validator accepted numerical amounts up to the schema maximum (roughly 10¹²) without business-logic checks.</div>
+  <p><strong>Downstream impact.</strong> See Failure 4·1 — this is what allowed the prompt-echo artifact to reach the response payload. A schema that accepts any integer is not the right schema for transaction amounts; the right schema is bounded by what a merchant could plausibly transact in a single utterance. The Kuma pipeline now caps at 10⁸ XOF by default, configurable per-tenant. Other product teams building similar pipelines should pick their own cap and enforce it.</p>
+</div>
+
+<h3 id="cat-intent">5. Intent classification — Kuma addendum</h3>
+<p><em>The five entries below apply only to systems that emit structured intent JSON. Of the providers benchmarked, only Kuma's end-to-end pipeline does this — the raw ASR providers (Whisper, Gemini, Chirp 2) are scored "—" for intent. These failures matter for product teams building anything resembling Kuma's transaction-extraction layer; they do not matter if you are evaluating ASR alone.</em></p>
+
+<div class="failure">
+  <h4><span class="n">5·1</span>Direction flip — <em>jend</em> vs <em>jay</em></h4>
+  <div class="ref">"Ousmane jay na ñaar junni crédit." (Ousmane <strong>sold</strong> two thousand on credit.) Expected: sale, sold<span class="lang">wo-SN · samples/wolof_intent_ambig_001.wav</span></div>
+  <p><strong>Downstream impact.</strong> The <code>jend</code> (bought, incoming money) vs <code>jay</code> (sold, outgoing goods) distinction is a single-phoneme contrast. Direction flips mean a merchant's daily revenue log records purchases as sales and vice versa. Over a week, the totals still approximately balance; over a month, the category mix is inverted. A product team relying on these records to surface "top-selling items" shows the merchant a list of their top <em>purchases</em>.</p>
+  <p><strong>Would Kuma's pipeline catch it?</strong> The <code>VERB_DIRECTION</code> map in <code>wolof-numbers</code> handles the longest-match-wins rule (<code>jend_na</code> vs bare <code>jend</code>). For the single-phoneme case, only HITL confirmation reliably catches the flip.</p>
 </div>
 
 <div class="failure">
-  <h4><span class="n">18·D</span>Cold-start latency on Vertex Gemini</h4>
+  <h4><span class="n">5·2</span>Implied-subject misattribution</h4>
+  <div class="ref">"Jënd na ñaar junni ci Awa." (Bought two thousand from Awa — implied subject = the speaker.)<span class="lang">wo-SN · samples/wolof_intent_ambig_003.wav</span></div>
+  <p><strong>Downstream impact.</strong> Pronoun-dropping is standard in Wolof; the subject of a verb is frequently only recoverable from context. Production systems that assume a named customer in every utterance invent one (usually the most recent name mentioned), leading to misattributed transactions. This is not an ASR problem at all — it is an intent-schema-design problem, and it deserves a callout for any PM designing a Wolof voice UX.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">5·3</span>Currency implicit</h4>
+  <div class="ref">"Junni rekk." (Just a thousand — implicit CFA.) Expected: amount=1000, currency=XOF<span class="lang">wo-SN · samples/wolof_numbers_021.wav</span></div>
+  <p><strong>Downstream impact.</strong> Senegalese speakers rarely say "CFA" aloud — it is defaulted by convention. Systems that require explicit currency raise validation errors; systems that default silently to EUR or USD wildly misprice transactions. The right default, in Senegal, is XOF. This is a product decision, not an ML decision, but the report is the place to say so.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">5·4</span>Confidence mis-calibration</h4>
+  <div class="ref">Any correctly-transcribed sample where Kuma's pipeline returns confidence &lt; 0.5<span class="lang">selected from matrix run</span></div>
+  <p><strong>Downstream impact.</strong> Kuma's <code>overall_confidence</code> is intended as a HITL trigger threshold (default 0.85). If the distribution is not well-calibrated — if confidence 0.5 is as reliable as confidence 0.9 in practice — then the threshold does not do what PMs expect. This report surfaces the observed calibration curve for transparency; we expect it will drive improvements in the confidence heuristic in a later phase.</p>
+</div>
+
+<div class="failure">
+  <h4><span class="n">5·5</span>Time-reference drift</h4>
+  <div class="ref">"Awa demba jay na ñaar junni." (Awa sold two thousand <em>yesterday</em>.)<span class="lang">wo-SN · samples/wolof_intent_ambig_005.wav</span></div>
+  <p><strong>Downstream impact.</strong> The time-reference token <code>demba</code> (yesterday) is one of the highest-frequency time adverbs in merchant speech. When dropped, the record is dated to the moment of dictation rather than the moment of the transaction. Over a week this is invisible; at month-end reconciliation, cash totals stop matching deposit slips.</p>
+</div>
+
+<h3 id="cat-other">6. Other pipeline fragility</h3>
+
+<div class="failure">
+  <h4><span class="n">6·1</span>Cold-start latency on Vertex Gemini</h4>
   <div class="ref">First Gemini 2.5 Flash intent-classification call in a fresh Vertex session took ~28 seconds; subsequent calls in the same session took 14-17 seconds.</div>
   <p><strong>Downstream impact.</strong> An SLO of "voice response under 3 seconds" is achievable on warm calls and unachievable on the first call of a session. For a low-traffic pilot with long idle periods between requests, every customer call effectively pays the cold-start penalty. Product teams should either keep a warm ping running (and pay for it) or set user-facing expectations ("first request may take longer") — pretending the cold start is not there produces unhappy users.</p>
-</div>
-
-<div class="failure">
-  <h4><span class="n">19·D</span>Number parser / Arabic-digit gap</h4>
-  <div class="ref"><code>wolof-numbers.extract_amounts("1500 francs")</code> returns <code>[]</code>.</div>
-  <p><strong>Downstream impact.</strong> Same limitation surfaced in Failure 9, reported here as a category-D failure because it is a product-layer gap, not an ASR failure. Any product layer built on <code>wolof-numbers</code> currently needs to pre-process Arabic digits into their word form before passing text to the parser. This is on Kuma's near-term roadmap.</p>
-</div>
-
-<div class="failure">
-  <h4><span class="n">20·D</span>Validator gap on implausible amounts</h4>
-  <div class="ref">As of the benchmark run, Kuma's validator accepted numerical amounts up to the schema maximum (roughly 10¹²) without business-logic checks.</div>
-  <p><strong>Downstream impact.</strong> See Failure 16 — this is what allowed the prompt-echo artifact to reach the response payload. A schema that accepts any integer is not the right schema for transaction amounts; the right schema is bounded by what a merchant could plausibly transact in a single utterance. The Kuma pipeline now caps at 10⁸ XOF by default, configurable per-tenant. Other product teams building similar pipelines should pick their own cap and enforce it.</p>
 </div>
 
 <h3>Summary of the catalogue</h3>
@@ -922,7 +957,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 
 <h3>7.1 If you are building a BNPL, lending, or repayment-tracking product</h3>
 <p><strong>The risk you should care about most: dropped negations and direction flips.</strong></p>
-<p>A BNPL workflow built on voice input is a negation-detection problem with a repayment system wrapped around it. The single most dangerous failure in §5 is Failure 5 — the dropped <code>-ul</code> suffix that turns <em>not paid</em> into <em>paid</em>.</p>
+<p>A BNPL workflow built on voice input is a negation-detection problem with a repayment system wrapped around it. The single most dangerous failure in §5 is Failure 2·5 — the dropped <code>-ul</code> suffix that turns <em>not paid</em> into <em>paid</em>.</p>
 <ol>
   <li><strong>Treat negative intents as a separate pipeline.</strong> Do not trust "Fatou has not paid" and "Fatou has paid" to be distinguished by a single ASR pass. Build an explicit negation-detection stage after transcription.</li>
   <li><strong>Require dual confirmation for any transaction that would zero out a debt.</strong> The cost of an extra confirmation step is tiny; the cost of a missed negation is a bad debt that compounds.</li>
@@ -936,7 +971,7 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <p><strong>The risk you should care about most: cold starts and prompt-echo artifacts.</strong></p>
 <ol>
   <li><strong>Budget for cold starts; do not pretend they are not there.</strong> Gemini on Vertex took 28 seconds on the first call in our benchmark. Either pay for a warm ping, or show the user an explicit "first request may take longer" state.</li>
-  <li><strong>Audit your prompt-echo exposure.</strong> If your team has added a custom prompt, your downstream parser must treat prompt vocabulary as untrusted input. See Failure 16.</li>
+  <li><strong>Audit your prompt-echo exposure.</strong> If your team has added a custom prompt, your downstream parser must treat prompt vocabulary as untrusted input. See Failure 4·1.</li>
   <li><strong>Confidence thresholds should be calibrated on your own traffic.</strong> Every provider's <code>confidence</code> field means something different. Collect a month of production scores against observed outcomes and derive empirically.</li>
   <li><strong>Code-switched utterances will dominate your traffic; design for them from day one.</strong> Providers that force a single language code will systematically lose one of the two language segments.</li>
   <li><strong>Log the raw transcript alongside the parsed intent, always.</strong> When something goes wrong in production, your debugging path is (raw audio) → (raw transcript) → (parsed intent).</li>
@@ -958,12 +993,12 @@ footer.article .contact a { color: var(--green); text-decoration: none; border-b
 <ol>
   <li><strong>Contribute samples to the open corpus (§8).</strong> The most valuable contribution is not another research paper; it is more labelled audio under open license. We specifically need multi-country Wolof variants, multi-L1 speakers, elder speakers, dense-acoustic-environment recordings, and low-literacy speakers.</li>
   <li><strong>Benchmark the open-weight comparators.</strong> Meta's MMS, Wav2Vec-BERT variants, Whisper fine-tunes from Lelapa AI. Anyone with GPU infrastructure can slot them into the harness.</li>
-  <li><strong>Extend the failure taxonomy.</strong> The four-category taxonomy in §5 is descriptive, not claimed-exhaustive. Propose category-E or refine the four.</li>
+  <li><strong>Extend the failure taxonomy.</strong> The six-category taxonomy in §5 is descriptive, not claimed-exhaustive. Propose new categories or refine the existing six.</li>
   <li><strong>Replicate under different acoustic conditions.</strong> Our corpus skews toward clean-studio and known-market recordings. Phone-call-quality audio (8 kHz, narrowband codec) would produce different numbers.</li>
   <li><strong>Publish negative results.</strong> Negative results keep the ecosystem honest and save every subsequent team the cost of re-discovery.</li>
 </ol>
 
-<h3>7.5 A note across all four categories</h3>
+<h3>7.5 A note across all reader categories</h3>
 <p>Every subsection above ends with a "minimum bar" recommendation that would strike a reader from a high-income-country product context as conservative. That is intentional. The current state of the art for Wolof voice UX does not support "ship it and iterate on telemetry" as a deployment strategy; the failures that will surface in your first month of production data include categories (direction flips, dropped negations, silent language-code degradation) that a telemetry-based iteration loop struggles to detect, because the errors are not logged — they are written to the ledger as correct.</p>
 <p>The conservative defaults buy you time to build the observability layer that lets you eventually relax them. Starting from the permissive defaults because "the numbers in English are fine" will produce an unhappy product and an unhappy set of users. The numbers in Wolof are not yet the numbers in English. This report exists, in part, to make that measurable.</p>
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { useReveal } from "@/lib/hooks/useReveal";
+
 const modules = [
   {
     name: "wolof-numbers",
@@ -27,7 +29,11 @@ const modules = [
   },
 ];
 
+const STAGGER_DELAYS = [0, 200, 400];
+
 export function OpenSourceStrip() {
+  const { ref: listRef, revealed } = useReveal<HTMLDivElement>(0.10);
+
   return (
     <section
       className="bg-paper-bg"
@@ -60,27 +66,18 @@ export function OpenSourceStrip() {
         </p>
 
         {/* Module rows */}
-        <div className="flex flex-col gap-4">
+        <div ref={listRef} className="flex flex-col gap-4">
           {modules.map((mod, i) => (
             <a
               key={i}
               href={mod.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-6 transition-colors"
+              className={`paper-card reveal-target group flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-6${revealed ? " is-revealed" : ""}`}
               style={{
-                border: "1px solid rgba(26,26,26,0.12)",
-                borderRadius: "8px",
                 padding: "20px 24px",
-                background: "rgba(255,255,255,0.45)",
                 textDecoration: "none",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "#1D9E75";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor =
-                  "rgba(26,26,26,0.12)";
+                transitionDelay: `${STAGGER_DELAYS[i]}ms`,
               }}
             >
               {/* Left col: name + license */}

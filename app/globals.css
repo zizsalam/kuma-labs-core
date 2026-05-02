@@ -1,3 +1,148 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   PAPER DESIGN TOKENS
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --rule:   rgba(26, 26, 26, 0.12);
+  --accent: #1D9E75;
+
+  /* Mono syntax coloring — muted editorial palette */
+  --mono-key:     #1A1A1A;                    /* keys: full ink */
+  --mono-string:  #2C5F4A;                    /* strings: muted dark green */
+  --mono-number:  #8B4513;                    /* numbers: muted ochre/saddle */
+  --mono-bool:    #4A4A8B;                    /* booleans/special: muted purple */
+  --mono-label:   rgba(26, 26, 26, 0.55);     /* labels: ink-mid */
+  --mono-comment: rgba(26, 26, 26, 0.45);     /* comments/parentheticals */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PAPER CARD SURFACE TOKENS
+   ───────────────────────────────────────────────────────────── */
+
+/* General-purpose white card — prose/finding/service cards */
+.paper-card {
+  background: #FFFFFF;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow:
+    0 1px 0 rgba(26, 26, 26, 0.04),
+    0 8px 24px -12px rgba(26, 26, 26, 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.paper-card:hover {
+  border-color: var(--accent);
+  box-shadow:
+    0 1px 0 rgba(26, 26, 26, 0.04),
+    0 12px 32px -12px rgba(29, 158, 117, 0.08);
+}
+
+/* Technical content card — near-white with cream undertone for mono/code */
+.paper-card-tech {
+  background: #FBFBF8;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow:
+    0 1px 0 rgba(26, 26, 26, 0.04),
+    0 8px 24px -12px rgba(26, 26, 26, 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.paper-card-tech:hover {
+  border-color: var(--accent);
+  box-shadow:
+    0 1px 0 rgba(26, 26, 26, 0.04),
+    0 12px 32px -12px rgba(29, 158, 117, 0.08);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MONO SYNTAX CLASSES — opt-in spans inside code/pre
+   ───────────────────────────────────────────────────────────── */
+.kn  { color: var(--mono-key);     font-weight: 500; }
+.ks  { color: var(--mono-string); }
+.knum{ color: var(--mono-number); }
+.kb  { color: var(--mono-bool); }
+.kl  { color: var(--mono-label);  letter-spacing: 0.05em; text-transform: uppercase; font-size: 0.78rem; }
+.kc  { color: var(--mono-comment); font-style: italic; }
+
+/* ─────────────────────────────────────────────────────────────
+   SCROLL REVEAL
+   ───────────────────────────────────────────────────────────── */
+.reveal-target {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-target.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-target {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LIVE EXAMPLE CONNECTOR PULSE
+   ───────────────────────────────────────────────────────────── */
+@keyframes connector-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1.0; }
+}
+.connector {
+  animation: connector-pulse 2.5s ease-in-out infinite;
+  color: var(--accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .connector {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DËREM CARD SECTION — SEQUENTIAL BLOCK STAGGER
+   Each parser block fades in with a translateY lift on reveal.
+   Stagger is applied via inline transition-delay on the element.
+   ───────────────────────────────────────────────────────────── */
+.derem-block {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.derem-block.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .derem-block {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Per-line fade reveal inside derem blocks */
+.derem-line {
+  display: block;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.is-revealed .derem-line {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .derem-line {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

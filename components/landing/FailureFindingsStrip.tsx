@@ -1,5 +1,7 @@
 "use client";
 
+import { useReveal } from "@/lib/hooks/useReveal";
+
 const findings = [
   {
     title: "Whisper-1 echoes the prompt on near-silent Wolof audio",
@@ -27,7 +29,11 @@ const findings = [
   },
 ];
 
+const STAGGER_DELAYS = [0, 200, 400, 600];
+
 export function FailureFindingsStrip() {
+  const { ref: gridRef, revealed } = useReveal<HTMLDivElement>(0.10);
+
   return (
     <section
       className="bg-paper-bg"
@@ -62,26 +68,18 @@ export function FailureFindingsStrip() {
 
         {/* 2-column card grid */}
         <div
+          ref={gridRef}
           className="grid grid-cols-1 sm:grid-cols-2 gap-5"
         >
           {findings.map((finding, i) => (
             <a
               key={i}
               href={finding.href}
-              className="group block transition-colors"
+              className={`paper-card reveal-target block${revealed ? " is-revealed" : ""}`}
               style={{
-                border: "1px solid rgba(26,26,26,0.12)",
-                borderRadius: "8px",
                 padding: "24px",
-                background: "rgba(255,255,255,0.45)",
                 textDecoration: "none",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "#1D9E75";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor =
-                  "rgba(26,26,26,0.12)";
+                transitionDelay: `${STAGGER_DELAYS[i]}ms`,
               }}
             >
               <div

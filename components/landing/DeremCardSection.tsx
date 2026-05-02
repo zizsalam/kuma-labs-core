@@ -1,4 +1,10 @@
+"use client";
+
+import { useReveal } from "@/lib/hooks/useReveal";
+
 export function DeremCardSection() {
+  const { ref: sectionRef, revealed } = useReveal<HTMLDivElement>(0.12);
+
   return (
     <section className="bg-paper-bg" style={{ padding: "5.5rem 0" }}>
       <div className="max-w-[720px] mx-auto px-6">
@@ -28,94 +34,96 @@ export function DeremCardSection() {
           confirmation. This is a core design decision, not a bug.
         </p>
 
-        {/* Disambiguation card */}
+        {/* Disambiguation card — paper-card-tech for mono content contrast */}
         <div
+          ref={sectionRef}
+          className="paper-card-tech"
           style={{
             margin: "2.5rem 0",
             padding: "1.7rem 1.9rem",
-            background: "rgba(255,255,255,0.55)",
-            border: "1px solid rgba(26,26,26,0.12)",
-            borderRadius: "3px",
           }}
         >
           {/* Row 1 */}
           <div
+            className={`derem-block${revealed ? " is-revealed" : ""}`}
             style={{
               padding: "0.4rem 0 1.1rem",
-              borderBottom: "1px solid rgba(26,26,26,0.12)",
+              borderBottom: "1px solid rgba(26,26,26,0.10)",
+              transitionDelay: "0ms",
             }}
           >
-            <div
-              className="font-mono text-[0.7rem] tracking-[0.06em] uppercase mb-2"
-              style={{ color: "rgba(26,26,26,0.40)" }}
-            >
+            <div className="font-mono kl mb-2">
               Ambiguous · bare commerce numeral
             </div>
-            <div
-              className="font-mono text-[0.95rem] text-paper-ink mb-[0.55rem]"
-            >
+            <div className="font-mono text-[0.95rem] text-paper-ink mb-[0.55rem]">
               &quot;ñaar junni&quot;
             </div>
-            <div
-              className="font-mono text-[0.85rem]"
-              style={{ color: "rgba(26,26,26,0.62)", lineHeight: "1.75" }}
-            >
-              amount: <strong className="text-paper-ink font-medium">10,000</strong> XOF{" "}
-              <span style={{ color: "rgba(26,26,26,0.40)" }}>(implicit dërëm — confidence 0.6)</span>
-              <br />
-              alt: <strong className="text-paper-ink font-medium">2,000</strong> XOF{" "}
-              <span style={{ color: "rgba(26,26,26,0.40)" }}>(direct CFA — confidence 0.4)</span>
-              <br />
-              <span style={{ color: "#1D9E75" }}>needs_confirmation: true</span>
+            <div className="font-mono text-[0.85rem]" style={{ lineHeight: "1.75" }}>
+              <span className="derem-line" style={{ transitionDelay: "80ms" }}>
+                <span className="kn">amount</span>:{" "}
+                <span className="knum">10,000</span>{" "}
+                <span className="ks">XOF</span>{" "}
+                <span className="kc">(implicit dërëm — confidence 0.6)</span>
+              </span>
+              <span className="derem-line" style={{ transitionDelay: "140ms" }}>
+                <span className="kn">alt</span>:{" "}
+                <span className="knum">2,000</span>{" "}
+                <span className="ks">XOF</span>{" "}
+                <span className="kc">(direct CFA — confidence 0.4)</span>
+              </span>
+              <span className="derem-line" style={{ transitionDelay: "200ms" }}>
+                <span className="kn">needs_confirmation</span>:{" "}
+                <span className="kb">true</span>
+              </span>
             </div>
           </div>
 
           {/* Row 2 */}
           <div
+            className={`derem-block${revealed ? " is-revealed" : ""}`}
             style={{
               padding: "1.1rem 0",
-              borderBottom: "1px solid rgba(26,26,26,0.12)",
+              borderBottom: "1px solid rgba(26,26,26,0.10)",
+              transitionDelay: "250ms",
             }}
           >
-            <div
-              className="font-mono text-[0.7rem] tracking-[0.06em] uppercase mb-2"
-              style={{ color: "rgba(26,26,26,0.40)" }}
-            >
+            <div className="font-mono kl mb-2">
               Explicit dërëm · unambiguous
             </div>
-            <div
-              className="font-mono text-[0.95rem] text-paper-ink mb-[0.55rem]"
-            >
+            <div className="font-mono text-[0.95rem] text-paper-ink mb-[0.55rem]">
               &quot;dërëm fukk&quot;
             </div>
-            <div
-              className="font-mono text-[0.85rem]"
-              style={{ color: "rgba(26,26,26,0.62)", lineHeight: "1.75" }}
-            >
-              amount: <strong className="text-paper-ink font-medium">50</strong> XOF{" "}
-              <span style={{ color: "rgba(26,26,26,0.40)" }}>(10 dërëm × 5 — confidence 1.0)</span>
+            <div className="font-mono text-[0.85rem]" style={{ lineHeight: "1.75" }}>
+              <span className="derem-line" style={{ transitionDelay: "330ms" }}>
+                <span className="kn">amount</span>:{" "}
+                <span className="knum">50</span>{" "}
+                <span className="ks">XOF</span>{" "}
+                <span className="kc">(10 dërëm × 5 — confidence 1.0)</span>
+              </span>
             </div>
           </div>
 
           {/* Row 3 */}
-          <div style={{ padding: "1.1rem 0 0.4rem" }}>
-            <div
-              className="font-mono text-[0.7rem] tracking-[0.06em] uppercase mb-2"
-              style={{ color: "rgba(26,26,26,0.40)" }}
-            >
+          <div
+            className={`derem-block${revealed ? " is-revealed" : ""}`}
+            style={{
+              padding: "1.1rem 0 0.4rem",
+              transitionDelay: "500ms",
+            }}
+          >
+            <div className="font-mono kl mb-2">
               Explicit unit marker · unambiguous
             </div>
-            <div
-              className="font-mono text-[0.95rem] text-paper-ink mb-[0.55rem]"
-            >
+            <div className="font-mono text-[0.95rem] text-paper-ink mb-[0.55rem]">
               &quot;téeméer francs&quot;
             </div>
-            <div
-              className="font-mono text-[0.85rem]"
-              style={{ color: "rgba(26,26,26,0.62)", lineHeight: "1.75" }}
-            >
-              amount: <strong className="text-paper-ink font-medium">100</strong> XOF{" "}
-              <span style={{ color: "rgba(26,26,26,0.40)" }}>(direct CFA locked by &quot;francs&quot; — confidence 1.0)</span>
+            <div className="font-mono text-[0.85rem]" style={{ lineHeight: "1.75" }}>
+              <span className="derem-line" style={{ transitionDelay: "580ms" }}>
+                <span className="kn">amount</span>:{" "}
+                <span className="knum">100</span>{" "}
+                <span className="ks">XOF</span>{" "}
+                <span className="kc">(direct CFA locked by &quot;francs&quot; — confidence 1.0)</span>
+              </span>
             </div>
           </div>
         </div>

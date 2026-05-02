@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { useReveal } from "@/lib/hooks/useReveal";
 
 type Service = {
   title: string;
@@ -36,7 +39,11 @@ const services: Service[] = [
   },
 ];
 
+const STAGGER_DELAYS = [0, 200, 400];
+
 export function ServicesOverviewStrip() {
+  const { ref: gridRef, revealed } = useReveal<HTMLDivElement>(0.10);
+
   return (
     <section
       className="bg-paper-bg"
@@ -69,17 +76,16 @@ export function ServicesOverviewStrip() {
         </p>
 
         {/* 3-column block grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {services.map((service, i) => (
             <div
               key={i}
+              className={`paper-card reveal-target${revealed ? " is-revealed" : ""}`}
               style={{
-                border: "1px solid rgba(26,26,26,0.12)",
-                borderRadius: "8px",
                 padding: "24px",
-                background: "rgba(255,255,255,0.45)",
                 display: "flex",
                 flexDirection: "column",
+                transitionDelay: `${STAGGER_DELAYS[i]}ms`,
               }}
             >
               <div

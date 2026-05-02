@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useReveal } from "@/lib/hooks/useReveal";
 
 export function HeadlineChartSection() {
+  const { ref: chartRef, revealed } = useReveal<HTMLDivElement>(0.12);
+
   return (
     <section
       className="bg-paper-bg"
@@ -36,6 +41,8 @@ export function HeadlineChartSection() {
 
         {/* Chart embed */}
         <div
+          ref={chartRef}
+          className={`reveal-target${revealed ? " is-revealed" : ""}`}
           style={{
             border: "1px solid rgba(26,26,26,0.12)",
             borderRadius: "8px",

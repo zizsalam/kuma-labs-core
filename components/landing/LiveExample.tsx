@@ -2,7 +2,10 @@
 // Reframes legacy demo section to show a real corpus failure: the dërëm gap.
 // Mounted between DeremCardSection and HeadlineChartSection.
 
+"use client";
+
 import Link from "next/link";
+import { useReveal } from "@/lib/hooks/useReveal";
 
 const LABEL_STYLE: React.CSSProperties = {
   fontFamily: "inherit", // JetBrains Mono via font-mono class applied on wrapper
@@ -34,16 +37,9 @@ const VERDICT_STYLE: React.CSSProperties = {
   lineHeight: 1.5,
 };
 
-const CARD_STYLE: React.CSSProperties = {
-  background: "rgba(255,255,255,0.6)",
-  border: "1px solid rgba(26,26,26,0.12)",
-  borderRadius: "8px",
-  padding: "24px",
-  flex: 1,
-  minWidth: 0,
-};
-
 export function LiveExample() {
+  const { ref: rowRef, revealed } = useReveal<HTMLDivElement>(0.12);
+
   return (
     <section
       style={{
@@ -52,10 +48,7 @@ export function LiveExample() {
         background: "#F2EBDF",
       }}
     >
-      <div
-        className="mx-auto px-6"
-        style={{ maxWidth: "960px" }}
-      >
+      <div className="mx-auto px-6" style={{ maxWidth: "960px" }}>
         {/* Section heading */}
         <h2
           className="font-serif text-paper-ink tracking-[-0.015em] mb-3"
@@ -80,16 +73,26 @@ export function LiveExample() {
           applies the dërëm &times; 5 conversion.
         </p>
 
-        {/* Two-card layout */}
+        {/* Two-card layout with connector */}
         <div
+          ref={rowRef}
           style={{
             display: "flex",
-            gap: "1.25rem",
+            gap: "0",
             flexWrap: "wrap" as const,
+            alignItems: "center",
           }}
         >
           {/* Card A — input */}
-          <div style={CARD_STYLE}>
+          <div
+            className={`paper-card reveal-target${revealed ? " is-revealed" : ""}`}
+            style={{
+              padding: "24px",
+              flex: 1,
+              minWidth: "260px",
+              transitionDelay: "0ms",
+            }}
+          >
             <div className="font-mono" style={LABEL_STYLE}>
               Live &nbsp;·&nbsp; Whisper gpt-4o-transcribe
               <br />
@@ -103,8 +106,33 @@ export function LiveExample() {
             </div>
           </div>
 
+          {/* Connector — arrow on desktop, chevron on mobile */}
+          <div
+            className="connector"
+            style={{
+              padding: "0 16px",
+              fontSize: "1.25rem",
+              lineHeight: 1,
+              flexShrink: 0,
+              textAlign: "center" as const,
+              width: "56px",
+            }}
+          >
+            {/* Desktop: → / Mobile (via media query workaround): handled below */}
+            <span className="hidden sm:inline">&rarr;</span>
+            <span className="sm:hidden" style={{ display: "block" }}>&#8595;</span>
+          </div>
+
           {/* Card B — output + verdict */}
-          <div style={CARD_STYLE}>
+          <div
+            className={`paper-card reveal-target${revealed ? " is-revealed" : ""}`}
+            style={{
+              padding: "24px",
+              flex: 1,
+              minWidth: "260px",
+              transitionDelay: "100ms",
+            }}
+          >
             <div className="font-mono" style={LABEL_STYLE}>
               Transcript out
             </div>

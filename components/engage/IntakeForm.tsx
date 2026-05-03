@@ -20,7 +20,7 @@ export function IntakeForm({ type, title, description, fields }: IntakeFormProps
     const body = fields
       .map((f) => `${f.label}:\n${values[f.name] || "(none provided)"}`)
       .join("\n\n");
-    const mailto = `mailto:hello@kumalabs.ai?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailto = `mailto:kaneaziz@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
     setSubmitted(true);
   }
@@ -136,7 +136,7 @@ export function IntakeForm({ type, title, description, fields }: IntakeFormProps
           }}
         >
           Your default email client should have opened. If not, the form contents are ready to be pasted into any email to{" "}
-          <strong>hello@kumalabs.ai</strong>.
+          <strong>kaneaziz@gmail.com</strong>.
         </p>
       )}
     </form>

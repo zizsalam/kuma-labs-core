@@ -26,14 +26,14 @@ const tiers: Tier[] = [
     name: "Evaluation Engagement",
     description:
       "One-off, deeper evaluation: failure-mode analysis, dërëm/code-switching/NER stress tests, production-readiness verdict, written report.",
-    investment: "$50,000 – $200,000",
+    investment: "$15,000 – $50,000",
     timeline: "4–6 weeks",
   },
   {
     name: "Custom Dataset",
     description:
       "Domain-specific Wolof or Bambara voice corpus: collection, transcription, validation, consent framework. Sample sizes 1k–50k utterances.",
-    investment: "$100,000 – $500,000",
+    investment: "$30,000 – $150,000",
     timeline: "6–12 weeks",
   },
   {
@@ -304,7 +304,7 @@ export default function ServicesPage() {
             Provider-agnostic; we work alongside Whisper, Gemini, Chirp, AssemblyAI, Deepgram, or your own ASR.
           </p>
           <p style={{ fontFamily: "var(--font-instrument-serif, serif)", lineHeight: "1.6", color: "rgba(26,26,26,0.62)", margin: "0", maxWidth: "640px" }}>
-            For engagements above $200,000 or with custom scope, contact directly.
+            For engagements above $150,000 or with custom scope, contact directly.
           </p>
         </section>
       </div>
@@ -326,12 +326,12 @@ export default function ServicesPage() {
             maxWidth: "54ch",
           }}
         >
-          Not sure which tier fits? Email Abdul directly with a one-paragraph
+          Not sure which tier fits? Email Abdoul directly with a one-paragraph
           description of your problem. We reply within 48 hours with a
           recommendation.
         </p>
         <a
-          href="mailto:hello@kumalabs.ai?subject=Kuma%20engagement%20fit"
+          href="mailto:kaneaziz@gmail.com?subject=Kuma%20engagement%20fit"
           className="font-serif inline-block transition-colors"
           style={{
             color: "#1D9E75",
@@ -341,7 +341,7 @@ export default function ServicesPage() {
             paddingBottom: "1px",
           }}
         >
-          Email Abdul &rarr;
+          Email Abdoul &rarr;
         </a>
       </div>
 

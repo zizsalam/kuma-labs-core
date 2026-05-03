@@ -4,32 +4,32 @@ import { IntakeForm } from "@/components/engage/IntakeForm";
 export const metadata: Metadata = {
   title: "Engage Kuma — Book a call, email, or send intake",
   description:
-    "Three ways to start a conversation with Kuma Labs. Founder-led delivery; Abdul Aziz Kane replies within 48 hours.",
+    "Three ways to start a conversation with Kuma Labs. Founder-led delivery; Abdoul Aziz Kane replies within 48 hours.",
 };
 
 const mailtoCards = [
   {
     id: "evaluation",
     topic: "Evaluation engagement",
-    href: "mailto:hello@kumalabs.ai?subject=Evaluation%20Engagement%20inquiry",
+    href: "mailto:kaneaziz@gmail.com?subject=Evaluation%20Engagement%20inquiry",
     preview: "I'm evaluating [model] for Wolof/French production deployment...",
   },
   {
     id: "dataset",
     topic: "Custom dataset",
-    href: "mailto:hello@kumalabs.ai?subject=Custom%20Dataset%20inquiry",
+    href: "mailto:kaneaziz@gmail.com?subject=Custom%20Dataset%20inquiry",
     preview: "We need a [size]-utterance Wolof/Bambara corpus for...",
   },
   {
     id: "benchmark",
     topic: "Benchmark subscription",
-    href: "mailto:hello@kumalabs.ai?subject=Benchmark%20Subscription%20inquiry",
+    href: "mailto:kaneaziz@gmail.com?subject=Benchmark%20Subscription%20inquiry",
     preview: "We'd like quarterly evaluations against the Wolof test set...",
   },
   {
     id: "discuss",
     topic: "Discuss findings from the report",
-    href: "mailto:hello@kumalabs.ai?subject=State%20of%20Wolof%20Voice%20AI%20%E2%80%94%20discussion",
+    href: "mailto:kaneaziz@gmail.com?subject=State%20of%20Wolof%20Voice%20AI%20%E2%80%94%20discussion",
     preview: "I'm working on [model/system] — found [specific failure mode]...",
   },
 ];
@@ -59,7 +59,18 @@ export default function EngagePage() {
         >
           Three ways to start a conversation: book a 30-minute scope call,
           email directly, or send a structured intake. Founder-led delivery —
-          Abdul Aziz Kane replies within 48 hours.
+          Abdoul Aziz Kane replies within 48 hours.
+        </p>
+        <p
+          className="font-mono"
+          style={{
+            fontSize: "0.78rem",
+            letterSpacing: "0.04em",
+            color: "rgba(26,26,26,0.55)",
+            marginTop: "1.5rem",
+          }}
+        >
+          Based on the 2026 Wolof voice AI benchmark — 104 samples, 6 systems.
         </p>
       </div>
 
@@ -91,7 +102,7 @@ export default function EngagePage() {
                   fontSize: "0.95rem",
                 }}
               >
-                Recommended for first contact
+                Start here
               </span>
             </div>
 
@@ -116,9 +127,9 @@ export default function EngagePage() {
                 color: "#1A1A1A",
               }}
             >
-              Direct calendar with Abdul. We&apos;ll cover what you&apos;re building,
+              Direct calendar with Abdoul. We&apos;ll cover what you&apos;re building,
               where Wolof or French code-switching shows up in the stack, and which
-              engagement tier fits. No pre-meeting questionnaire.
+              engagement tier fits. No pre-meeting forms.
             </p>
 
             <a
@@ -151,15 +162,15 @@ export default function EngagePage() {
             >
               If the Cal.com link is unavailable, email{" "}
               <a
-                href="mailto:hello@kumalabs.ai?subject=30-minute%20scope%20call"
+                href="mailto:kaneaziz@gmail.com?subject=30-minute%20scope%20call"
                 style={{
                   color: "#1A1A1A",
                   textDecorationColor: "#1D9E75",
                 }}
               >
-                hello@kumalabs.ai
+                kaneaziz@gmail.com
               </a>{" "}
-              — Abdul replies within 24 hours to schedule.
+              — Abdoul replies within 48 hours to schedule.
             </p>
           </div>
         </section>
@@ -209,8 +220,8 @@ export default function EngagePage() {
                 maxWidth: "560px",
               }}
             >
-              Pre-populated subject lines so Abdul knows the context before opening
-              the message. Click the card that matches your situation.
+              Pre-populated subject lines so the context is clear before the
+              conversation starts. Click the card that matches your situation.
             </p>
           </div>
 
@@ -331,9 +342,21 @@ export default function EngagePage() {
                 maxWidth: "560px",
               }}
             >
-              Five fields. No sales funnel, no drip campaigns. Submitting opens your
-              default email client with the form pre-filled. Direct contact with the
-              founder.
+              Four fields. Submitting opens your default email client with the form
+              pre-filled.
+            </p>
+            <p
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontStyle: "italic",
+                color: "rgba(26,26,26,0.55)",
+                fontSize: "0.92rem",
+                lineHeight: "1.55",
+                marginTop: "0.6rem",
+                maxWidth: "560px",
+              }}
+            >
+              No CRM, no intermediaries — your message goes directly to the founder.
             </p>
           </div>
 
@@ -341,7 +364,7 @@ export default function EngagePage() {
             <IntakeForm
               type="evaluation"
               title="Evaluation Engagement"
-              description="$50,000–$200,000 · 4–6 weeks · failure-mode analysis + production-readiness verdict"
+              description="$15,000–$50,000 · 4–6 weeks · failure-mode analysis + production-readiness verdict"
               fields={[
                 {
                   name: "company",
@@ -366,18 +389,13 @@ export default function EngagePage() {
                   label: "Language scope",
                   placeholder: "Wolof only, Wolof + French code-switch, Bambara, etc.",
                 },
-                {
-                  name: "timeline",
-                  label: "Timeline",
-                  placeholder: "Q3 2026, ASAP, exploratory, etc.",
-                },
               ]}
             />
 
             <IntakeForm
               type="dataset"
               title="Custom Dataset"
-              description="$100,000–$500,000 · 6–12 weeks · collection, transcription, validation, consent"
+              description="$30,000–$150,000 · 6–12 weeks · collection, transcription, validation, consent"
               fields={[
                 {
                   name: "company",
@@ -401,11 +419,6 @@ export default function EngagePage() {
                   name: "language_scope",
                   label: "Languages",
                   placeholder: "Wolof, Bambara, etc.",
-                },
-                {
-                  name: "timeline",
-                  label: "Timeline",
-                  placeholder: "Required by Q4 2026, etc.",
                 },
               ]}
             />
@@ -437,11 +450,6 @@ export default function EngagePage() {
                   name: "language_scope",
                   label: "Language scope",
                   placeholder: "Wolof, French, Bambara, etc.",
-                },
-                {
-                  name: "timeline",
-                  label: "Timeline",
-                  placeholder: "...",
                 },
               ]}
             />

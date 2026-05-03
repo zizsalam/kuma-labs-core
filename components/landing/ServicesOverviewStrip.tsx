@@ -14,13 +14,13 @@ const services: Service[] = [
     title: "Evaluations",
     description:
       "We benchmark your ASR, TTS, or LLM against our Wolof + French test set. Comparative report, failure-mode analysis, production-readiness verdict.",
-    price: "From $50,000 · 4–6 weeks",
+    price: "From $15,000 · 4–6 weeks",
   },
   {
     title: "Datasets",
     description:
       "Hand-curated Wolof and Bambara voice corpora. Consent-cleared, domain-tuned, delivered with the harness to evaluate them.",
-    price: "From $100,000 · 6–12 weeks",
+    price: "From $30,000 · 6–12 weeks",
   },
 ];
 
@@ -57,7 +57,7 @@ export function ServicesOverviewStrip() {
             maxWidth: "52ch",
           }}
         >
-          Two primary ways to work with us. Prices published; the price is the price.
+          Two ways to work with us. Prices are published.
         </p>
 
         {/* 2-column block grid */}

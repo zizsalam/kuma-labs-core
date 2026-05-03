@@ -133,7 +133,7 @@ export default function EngagePage() {
             </p>
 
             <a
-              href="https://cal.com/kuma-labs/founder-demo"
+              href="https://calendly.com/kaneaziz/30min"
               target="_blank"
               rel="noopener"
               style={{
@@ -147,7 +147,7 @@ export default function EngagePage() {
                 borderRadius: "6px",
               }}
             >
-              Open Cal.com &rarr;
+              Open Calendly &rarr;
             </a>
 
             <p
@@ -160,7 +160,7 @@ export default function EngagePage() {
                 maxWidth: "640px",
               }}
             >
-              If the Cal.com link is unavailable, email{" "}
+              If the Calendly link is unavailable, email{" "}
               <a
                 href="mailto:kaneaziz@gmail.com?subject=30-minute%20scope%20call"
                 style={{

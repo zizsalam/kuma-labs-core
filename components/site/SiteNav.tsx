@@ -50,6 +50,12 @@ export function SiteNav() {
             research
           </Link>
           <Link
+            href="/blog"
+            className="site-nav-link"
+          >
+            blog
+          </Link>
+          <Link
             href="/services"
             className="site-nav-link"
           >

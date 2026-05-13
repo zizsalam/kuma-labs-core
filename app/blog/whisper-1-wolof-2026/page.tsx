@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "What we found testing Whisper-1 on Wolof in 2026",
     description:
-      "1.05 mean WER. 4,111 hallucinated tokens against 1,352 reference tokens. One silent clip that produced a $300M phantom transaction.",
+      "1.05 mean WER. 4,111 hallucinated tokens against 1,352 reference tokens. detected_language=french on Wolof input. The dangerous failures are the quiet ones.",
   },
 };
 
@@ -260,7 +260,7 @@ export default function WhisperOneWolofPost() {
           hallucinations.
         </p>
 
-        {/* Section 4 — prompt echo callout */}
+        {/* Section 4 — detected_language trap (silent failure mode) */}
         <h2
           className="font-serif text-paper-ink tracking-[-0.015em]"
           style={{
@@ -269,42 +269,46 @@ export default function WhisperOneWolofPost() {
             margin: "3rem 0 1rem",
           }}
         >
-          4. The prompt-echo trap
+          4. The detected_language trap
         </h2>
 
         <p style={{ fontSize: "1rem", lineHeight: "1.75", marginBottom: "1.2rem" }}>
-          A standard accuracy lever for Whisper deployments is to pass a custom
-          vocabulary prompt at request time — Wolof and French merchant terms
-          in our case. Adding a prompt is documented, supported, and recommended.
-          It also creates a new failure surface that does not exist without it.
+          The over-generation pattern in Section 2 is the loud version of
+          Whisper-1&apos;s failure mode. Loud failures route around themselves —
+          a downstream developer notices garbage output and adds a check. The
+          dangerous failures are the ones that arrive as confident, fluent,
+          grammatical French on Wolof input — clean enough that a French NLU
+          pipeline downstream will process them rather than reject them.
         </p>
 
         <div className="paper-card" style={{ padding: "1.5rem 1.75rem", marginBottom: "1.6rem", borderLeft: "3px solid #1D9E75" }}>
           <p style={{ ...labelStyle, marginBottom: "0.6rem" }}>What happened</p>
           <p style={{ fontSize: "1rem", lineHeight: "1.7", margin: 0, color: "#1A1A1A" }}>
-            Fed near-silent audio with the merchant-vocabulary prompt active,
-            Whisper echoed the prompt back into the transcript verbatim:{" "}
+            Given the Wolof-French code-switched reference{" "}
             <code style={codeStyle}>
-              &quot;jënd jay ñaar junni téeméer milyon dërëm crédit CFA&quot;
+              &quot;Meun na léeb ba fukki junni ak Orange TikTak.&quot;
             </code>
-            . Our number parser then dutifully extracted{" "}
-            <code style={codeStyle}>téeméer milyon</code> as an amount:{" "}
-            <strong>200,000,000,000 XOF</strong> — roughly $300M USD. It passed
-            every automated check. The pipeline returned a structured
-            MerchantIntent for a two-hundred-billion-franc transaction.
+            , <code style={codeStyle}>whisper-1</code> returned{" "}
+            <code style={codeStyle}>
+              &quot;J&apos;ai pu le faire avec Fouki Juni et Orange Tic Tac.&quot;
+            </code>{" "}
+            The Wolof numeral <em>fukki junni</em> became the proper noun{" "}
+            <em>Fouki Juni</em>. <code style={codeStyle}>detected_language</code>{" "}
+            came back as <code style={codeStyle}>french</code>. The downstream
+            intent classifier returned nothing — it could not categorize the
+            transcript as a credit request because, as French, it is not one.
           </p>
         </div>
 
         <p style={{ fontSize: "1rem", lineHeight: "1.75", marginBottom: "1.4rem" }}>
-          We reproduced this deterministically. A fintech integration that
-          writes these records to a ledger without a per-transaction cap check
-          would have posted it. The lesson is not &quot;don&apos;t use prompts&quot;
-          — prompts are how you get usable Wolof out of Whisper. The lesson is
-          that any parser downstream of a prompted ASR must treat the prompt
-          vocabulary as untrusted input. We added a configurable per-transaction
-          amount cap to our validator the same week. Full mechanism in{" "}
-          <Link href={`${REPORT}#f-4-1`} style={linkStyle}>
-            Failure 4·1
+          This is the shape that matters for product teams. Loud failures
+          (WER 1+, obvious garbage) are easy to handle defensively. Silent
+          failures — syntactically valid French with a confident{" "}
+          <code style={codeStyle}>detected_language</code> tag on Wolof input —
+          pass through every reasonable check and arrive at the user as
+          confident wrong answers. The full per-sample matrix is in the{" "}
+          <Link href={REPORT} style={linkStyle}>
+            full report
           </Link>
           .
         </p>
@@ -382,11 +386,14 @@ export default function WhisperOneWolofPost() {
             and runs in the browser.
           </li>
           <li style={{ marginBottom: "0.9rem" }}>
-            <strong>Treat your ASR prompt as untrusted input downstream.</strong>{" "}
-            Custom vocabulary is useful and dangerous. Any parser that consumes
-            Whisper output should be tested against the prompt being echoed back
-            verbatim. If a 200-billion-franc transaction would pass your validators,
-            your validators are the bug.
+            <strong>Don&apos;t trust <code style={codeStyle}>detected_language</code> on low-resource input.</strong>{" "}
+            Whisper-1 returns <code style={codeStyle}>french</code> on Wolof
+            code-switched audio with no warning. Downstream language routing
+            that takes that field at face value will pipe Wolof traffic into
+            a French NLU and produce confidently wrong answers. Either ignore{" "}
+            <code style={codeStyle}>detected_language</code> entirely for content
+            from regions with underrepresented languages, or treat it as a
+            signal to be re-verified before routing.
           </li>
           <li style={{ marginBottom: "0.9rem" }}>
             <strong>Cap business-meaningful values at a plausible business maximum.</strong>{" "}

@@ -14,12 +14,23 @@ export const metadata: Metadata = {
     url: "https://www.kuma-labs.com/blog/whisper-1-wolof-2026",
     publishedTime: "2026-05-02",
     authors: ["Abdoul Aziz Kane"],
+    images: [
+      {
+        url: "https://www.kuma-labs.com/blog/whisper-1-wolof-2026/tweet-1-side-by-side.png",
+        width: 1600,
+        height: 900,
+        alt: "Wolof reference 'Meun na léeb ba fukki junni ak Orange TikTak.' became Whisper-1's French output 'J'ai pu le faire avec Fouki Juni et Orange Tic Tac.' detected_language: french.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "What we found testing Whisper-1 on Wolof in 2026",
     description:
       "1.05 mean WER. 4,111 hallucinated tokens against 1,352 reference tokens. detected_language=french on Wolof input. The dangerous failures are the quiet ones.",
+    images: [
+      "https://www.kuma-labs.com/blog/whisper-1-wolof-2026/tweet-1-side-by-side.png",
+    ],
   },
 };
 
@@ -200,6 +211,17 @@ export default function WhisperOneWolofPost() {
           failing by over-generating.
         </p>
 
+        <figure style={{ margin: "1.6rem 0" }}>
+          <img
+            src="/blog/whisper-1-wolof-2026/tweet-2-tokens-bar.png"
+            alt="Bar chart comparing 1,352 reference tokens against 4,111 Whisper-1 hypothesis tokens on the same 104 Wolof voice samples"
+            style={{ width: "100%", height: "auto", display: "block", borderRadius: "2px" }}
+          />
+          <figcaption style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.75rem", color: "rgba(26,26,26,0.55)", marginTop: "0.6rem", textAlign: "center" }}>
+            matrix_rescored.csv · 2026-04-28 run · headline table §4.1
+          </figcaption>
+        </figure>
+
         <p style={{ fontSize: "1rem", lineHeight: "1.75", marginBottom: "1.4rem" }}>
           The pattern is consistent: when the model encounters a Wolof phoneme
           sequence it has no training distribution for, it produces the
@@ -280,6 +302,17 @@ export default function WhisperOneWolofPost() {
           grammatical French on Wolof input — clean enough that a French NLU
           pipeline downstream will process them rather than reject them.
         </p>
+
+        <figure style={{ margin: "1.6rem 0" }}>
+          <img
+            src="/blog/whisper-1-wolof-2026/tweet-1-side-by-side.png"
+            alt="Side-by-side comparison: Wolof-French code-switched reference 'Meun na léeb ba fukki junni ak Orange TikTak.' on the left; Whisper-1's returned French sentence 'J'ai pu le faire avec Fouki Juni et Orange Tic Tac.' on the right; detected_language: french."
+            style={{ width: "100%", height: "auto", display: "block", borderRadius: "2px" }}
+          />
+          <figcaption style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.75rem", color: "rgba(26,26,26,0.55)", marginTop: "0.6rem", textAlign: "center" }}>
+            matrix_rescored.csv · credit-UTT-020 · 2026-04-28 run
+          </figcaption>
+        </figure>
 
         <div className="paper-card" style={{ padding: "1.5rem 1.75rem", marginBottom: "1.6rem", borderLeft: "3px solid #1D9E75" }}>
           <p style={{ ...labelStyle, marginBottom: "0.6rem" }}>What happened</p>
